@@ -16,13 +16,13 @@ fun ScorePlayButton(
     Button(
         onClick = onClick,
         modifier = modifier,
-        // change the colors of the button
         colors = ButtonDefaults.buttonColors(
             // set the color to our defined primary color
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            containerColor = MaterialTheme.colorScheme.primary
+            contentColor = MaterialTheme.colorScheme.onPrimary, // is for the text/icon color
+            containerColor = MaterialTheme.colorScheme.primary // is for the button background color
         )
     ) {
+        // Button contents, here just a text label
         Text(text = label)
     }
 }

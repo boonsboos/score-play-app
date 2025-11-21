@@ -23,6 +23,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ScorePlayTheme {
+                // A Scaffold is a layout structure that provides slots
+                // for the most common top-level material components
+                // such as TopAppBar, BottomAppBar, FloatingActionButton, and Drawer.
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(
                         modifier = Modifier
@@ -33,6 +36,8 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
 
                     ) {
+                        // Using the custom ScorePlayButton component
+                        // we show a toast message when the button is clicked
                         ScorePlayButton(label = "Hello World", onClick = {
                             Toast.makeText(this@MainActivity, "Button clicked!", Toast.LENGTH_SHORT)
                                 .show()

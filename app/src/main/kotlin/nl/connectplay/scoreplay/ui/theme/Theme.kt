@@ -84,9 +84,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-        /**
-         * Define an extra color that adapts to the current theme (light/dark).
-         */
+/**
+ * Define an extra color that is not in the default MaterialTheme.colorScheme object,
+ * based on the current theme (light or dark).
+ */
 fun defineExtraColor(light: Color, dark: Color): Color = if (isSystemInDarkTheme()) dark else light
 
 /**
@@ -100,7 +101,8 @@ val ColorScheme.exampleColor: Color
 
 @Composable
 /**
- * This is so you can use MaterialTheme.colorScheme throughout your app.
+ * With this function, we set the theme for the app, choosing between light and dark color schemes.
+ * To use our custom colors you don't have to do anything special, just do for example: `MaterialTheme.colorScheme.primary`
  */
 fun ScorePlayTheme(
     content: @Composable () -> Unit

@@ -3,8 +3,9 @@ package nl.connectplay.scoreplay.ui.theme
 import androidx.compose.ui.graphics.Color
 
 
-// Here are all colors defined for light and dark themes
-
+/**
+ * The light color scheme for the app.
+ */
 object LightColors {
     val Primary = Color.hsv(281f, 1f, 0.43f)
     val OnPrimary = Color.White
@@ -45,6 +46,9 @@ object LightColors {
     val OnErrorContainer = Color(0xFF410002)
 }
 
+/**
+ * The dark color scheme for the app.
+ */
 object DarkColors {
     val Primary = Color.hsv(281f, 1f, 0.43f)
     val OnPrimary = Color.White
