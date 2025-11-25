@@ -14,10 +14,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,19 +23,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.viewModels.RegisterEvent
+import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 
 @Composable
 fun RegisterScreen(
+    modifier: Modifier = Modifier,
+    viewModel: RegisterViewModel,
     onNavigateToLogin: () -> Unit,
-    onRegisterClick: (email: String, username: String, password: String) -> Unit,
-    modifier: Modifier = Modifier
+
 ) {
-    var email by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var repeatPassword by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-    var showRepeatPassword by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+
+
+    // Event-afhandeling (navigatie na succes)
+    val events = viewModel.events.collectAsState(initial = null)
+    events.value?.let { event ->
+        when (event) {
+            RegisterEvent.Success -> onNavigateToLogin()
+        }
+    }
 
     Column (modifier = modifier.fillMaxSize()) {
 
@@ -51,9 +56,10 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Email
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.email,
+            onValueChange = viewModel::onEmailChange,
             label = { Text("Email") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -67,9 +73,10 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Username
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = uiState.username,
+            onValueChange = viewModel::onUsernameChange,
             label = { Text("Username") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -83,12 +90,13 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Password
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = uiState.password,
+            onValueChange = viewModel::onPasswordChange,
             label = { Text("Password") },
             singleLine = true,
-            visualTransformation = if (showPassword) {
+            visualTransformation = if (uiState.showPassword) {
                 VisualTransformation.None
             } else {
                 PasswordVisualTransformation()
@@ -98,12 +106,12 @@ fun RegisterScreen(
                 imeAction = ImeAction.Next
             ),
             trailingIcon = {
-                IconButton (onClick = { showPassword = !showPassword }) {
+                IconButton (onClick = viewModel::onTogglePasswordVisibility) {
                     Icon(
                         imageVector =
-                            if (showPassword) Icons.Default.Visibility
+                            if (uiState.showPassword) Icons.Default.Visibility
                             else Icons.Default.VisibilityOff,
-                        contentDescription = "Visibility"
+                        contentDescription = "Toggle password visibility"
                     )
                 }
             },
@@ -115,11 +123,11 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = repeatPassword,
-            onValueChange = { repeatPassword = it },
+            value = uiState.repeatPassword,
+            onValueChange = viewModel::onRepeatPasswordChange,
             label = { Text("Repeat password") },
             singleLine = true,
-            visualTransformation = if (showRepeatPassword) {
+            visualTransformation = if (uiState.showRepeatPassword) {
                 VisualTransformation.None
             } else {
                 PasswordVisualTransformation()
@@ -130,7 +138,7 @@ fun RegisterScreen(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    onRegisterClick(email, username, password)
+                    viewModel.onRegisterClick()
                 }
             ),
             modifier = Modifier
@@ -139,20 +147,20 @@ fun RegisterScreen(
         )
 
         Button(
-            onClick = { onRegisterClick(email, username, password) },
+            onClick = { viewModel.onRegisterClick() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
                 .height(48.dp),
-            enabled = email.isNotBlank() &&
-                    username.isNotBlank() &&
-                    password.isNotBlank() &&
-                    repeatPassword.isNotBlank()
+            enabled = uiState.isFormValid && !uiState.isLoading
         ) {
-            Text("Create account")
+            Text(if (uiState.isLoading) "Creating..." else "Create account")
         }
 
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton(
+            onClick = onNavigateToLogin,
+            modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally)
+        ) {
             Text("Already have an account? Log in")
         }
     }

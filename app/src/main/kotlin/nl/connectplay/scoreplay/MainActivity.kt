@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import nl.connectplay.scoreplay.screens.RegisterScreen
-import nl.connectplay.scoreplay.ui.components.Navigator
 import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
+import nl.connectplay.scoreplay.viewModels.RegisterViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,13 +29,13 @@ class MainActivity : ComponentActivity() {
                  * think about sign-in that does not need an bottombar
                  */
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val registerViewModel: RegisterViewModel = viewModel()
+
                     RegisterScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        onRegisterClick = { email, username, password ->
-                            // TODO: add register logic here
-                        },
+                        viewModel = registerViewModel,
                         onNavigateToLogin = {
                             // TODO: add navigation to login
                         }
