@@ -8,5 +8,17 @@ object Screens {
     data object Example : NavKey
 
     @Serializable
+    data object Home : NavKey
+
+    @Serializable
+    data object Friends : NavKey
+
+    @Serializable
+    data object Games : NavKey
+
+    @Serializable
+    data object Notifications : NavKey
+
+    @Serializable
     data class ExampleDetail(val id: Int) : NavKey
 }

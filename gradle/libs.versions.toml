@@ -8,7 +8,7 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
-navigationCompose = "2.9.6"
+materialIcons = "1.7.8"
 
 nav3Core = "1.0.0-alpha02"
 nav3Lifecycle = "1.0.0-alpha01"
@@ -32,9 +32,6 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
-androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 nav3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
 nav3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
@@ -48,6 +45,7 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 androidx-compose-material3-windowsizeclass = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "windowsizeclass" }
 androidx-material3-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "material3Adaptive" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

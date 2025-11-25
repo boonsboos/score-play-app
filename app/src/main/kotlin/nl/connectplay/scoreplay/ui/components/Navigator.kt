@@ -10,6 +10,10 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
+import nl.connectplay.scoreplay.screens.FriendsScreen
+import nl.connectplay.scoreplay.screens.GamesScreen
+import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.Screens
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -17,7 +21,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(Screens.Example)
+    val backStack = rememberNavBackStack(Screens.Home)
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -48,9 +52,25 @@ fun Navigator(modifier: Modifier = Modifier) {
                             parametersOf(key.id)
                         },
                         onBackClick = {
-                            backStack.removeLast()
+//                            backStack.removeLast()
                         }
                     )
+                }
+
+                is Screens.Home -> NavEntry(key = key) {
+                    HomeScreen(backStack)
+                }
+
+                is Screens.Friends -> NavEntry(key = key) {
+                    FriendsScreen(backStack)
+                }
+
+                is Screens.Games -> NavEntry(key = key) {
+                    GamesScreen(backStack)
+                }
+
+                is Screens.Notifications -> NavEntry(key = key) {
+                    NotificationsScreen(backStack)
                 }
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
