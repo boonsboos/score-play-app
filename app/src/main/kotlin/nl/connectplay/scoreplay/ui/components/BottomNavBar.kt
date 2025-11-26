@@ -15,6 +15,7 @@ import nl.connectplay.scoreplay.screens.Screens
 
 @Composable
 fun BottomNavBar(backStack: NavBackStack) {
+    // with the lastOrnull we get the lates screen that were on
     val currentScreen = backStack.lastOrNull()
 
     NavigationBar {

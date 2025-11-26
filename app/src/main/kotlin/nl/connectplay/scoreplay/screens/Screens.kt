@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.screens
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
+// this object list all screens the app can go to
 object Screens {
     @Serializable
     data object Example : NavKey

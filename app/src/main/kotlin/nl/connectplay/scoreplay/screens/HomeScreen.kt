@@ -13,7 +13,11 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 
 @Composable
 fun HomeScreen(backStack: NavBackStack) {
-    Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
+    // the scaffold makes the basic bottomnav layout
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        // bottombar uses the backStack on witch screen we are
+        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
