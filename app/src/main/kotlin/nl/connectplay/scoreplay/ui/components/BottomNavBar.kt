@@ -11,10 +11,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.screens.Screens
 
 @Composable
-fun BottomNavBar(backStack: NavBackStack) {
+fun BottomNavBar(backStack: NavBackStack<NavKey>) {
     // with the lastOrnull we get the lates screen that were on
     val currentScreen = backStack.lastOrNull()
 

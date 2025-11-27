@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "nl.connectplay.scoreplay"
-        minSdk = 33
+        minSdk = 36
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
