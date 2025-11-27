@@ -8,6 +8,7 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
+materialIcons = "1.7.8"
 
 nav3Core = "1.0.0-alpha02"
 nav3Lifecycle = "1.0.0-alpha01"
