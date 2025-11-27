@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.api
+package nl.connectplay.scoreplay.api.http
 
 class HttpError(
     val status: Int,

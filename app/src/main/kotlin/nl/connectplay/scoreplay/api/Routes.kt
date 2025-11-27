@@ -1,6 +1,10 @@
 package nl.connectplay.scoreplay.api
 
 object Routes {
+    object Example {
+        const val root = "/example"
+        fun byId(exampleId: String) = "/example/$exampleId"
+    }
     object Auth {
         const val signup = "/auth/signup"
         const val signin = "auth/signin"

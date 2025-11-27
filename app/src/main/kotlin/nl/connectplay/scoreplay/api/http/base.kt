@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.api
+package nl.connectplay.scoreplay.api.http
 
 import io.ktor.client.*
 import io.ktor.client.call.*
