@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -24,17 +25,19 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit, // used to navigate to the register screen
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle() // Bridge from ViewModel to Compose
-    val events =
-        viewModel.events.collectAsStateWithLifecycle(initial = null) // One-time events like success or fail
 
-    events.value?.let { event ->
-        when (event) {
-            is LoginEvent.Success -> onNavigateToRegister()
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginEvent.Success -> onNavigateToRegister()
+            }
         }
     }
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
@@ -78,6 +81,9 @@ fun LoginScreen(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
+            keyboardActions = KeyboardActions(
+                onDone = { viewModel.onLoginClick() }
+            ),
             // show the hide unhide icon
             trailingIcon = {
                 IconButton(onClick = viewModel::onTogglePasswordVisibility) {
@@ -108,6 +114,16 @@ fun LoginScreen(
             Text(if (uiState.isLoading) "Logging in..." else "Login")
         }
 
+        if (uiState.errorMessage != null) {
+            Text(
+                text = uiState.errorMessage!!,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+            )
+        }
         // Navigate to Register
         TextButton(
             onClick = onNavigateToRegister,

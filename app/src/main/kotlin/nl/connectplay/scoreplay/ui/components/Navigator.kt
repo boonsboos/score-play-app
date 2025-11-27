@@ -12,6 +12,7 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.Screens
 import org.koin.androidx.compose.koinViewModel
@@ -20,7 +21,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(Screens.Home)
+    val backStack = rememberNavBackStack(Screens.Login)
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -69,6 +70,13 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Notifications -> NavEntry(key = key) {
                     NotificationsScreen(backStack)
+                }
+
+                is Screens.Login -> NavEntry(key = key) {
+                    LoginScreen(
+                        viewModel = koinViewModel(),
+                        onNavigateToRegister = { backStack.add(Screens.Home) }
+                    )
                 }
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
