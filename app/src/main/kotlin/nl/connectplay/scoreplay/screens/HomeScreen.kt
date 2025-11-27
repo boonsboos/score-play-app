@@ -9,13 +9,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 
 @Composable
-fun HomeScreen(backStack: NavBackStack) {
+fun HomeScreen(backStack: NavBackStack<NavKey>) {
     // the scaffold makes the basic bottomnav layout
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = { ScorePlayTopBar(title = "Home") },
         // bottombar uses the backStack on witch screen we are
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(

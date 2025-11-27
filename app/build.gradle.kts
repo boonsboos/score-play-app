@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "nl.connectplay.scoreplay"
-        minSdk = 33
+        minSdk = 36
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,7 @@ dependencies {
 
     implementation(libs.androidx.compose.material3.windowsizeclass)
     implementation(libs.androidx.material3.adaptive)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)
