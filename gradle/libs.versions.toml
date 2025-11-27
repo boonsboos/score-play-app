@@ -13,9 +13,11 @@ materialIcons = "1.7.8"
 nav3Core = "1.0.0-alpha02"
 nav3Lifecycle = "1.0.0-alpha01"
 kotlinxSerializationCore = "1.8.1"
-koin = "4.0.4"
+koin = "4.1.1"
 windowsizeclass = "1.3.2"
-material3Adaptive = "1.2.0-alpha06"
+material3 = "1.4.0"
+material3Adaptive = "1.2.0"
+materialIcons = "1.7.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,8 +33,7 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 nav3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
 nav3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 androidx-lifecycle-viewmodel-nav3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "nav3Lifecycle" }
