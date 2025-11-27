@@ -21,5 +21,8 @@ object Screens {
     data object Notifications : NavKey
 
     @Serializable
+    data object Login : NavKey
+
+    @Serializable
     data class ExampleDetail(val id: Int) : NavKey
 }
