@@ -41,8 +41,8 @@ import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 @Composable
 fun ScorePlayTopBar(
     title: String,
-    onSearched: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSearched: (String) -> Unit = {}
 ) {
     var searching: Boolean by remember { mutableStateOf(false) }
 
@@ -50,51 +50,52 @@ fun ScorePlayTopBar(
     val textFieldState = rememberTextFieldState()
     val scope = rememberCoroutineScope()
 
-    ScorePlayTheme {
-        CenterAlignedTopAppBar(
-            title = {
-                Text(title, textAlign = TextAlign.Center)
-            },
-            navigationIcon = {
-                // todo: open search bar
-                if (!searching) {
-                    IconButton(
-                        onClick = {
-                            searching = !searching
-                            scope.launch {
-                                searchBarState.animateToExpanded()
-                            }
+    CenterAlignedTopAppBar(
+        title = {
+            Text(title, textAlign = TextAlign.Center)
+        },
+        navigationIcon = {
+            // todo: open search bar
+            if (!searching) {
+                IconButton(
+                    onClick = {
+                        searching = !searching
+                        scope.launch {
+                            searchBarState.animateToExpanded()
                         }
-                    ) {
-                        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
                     }
-                } else {
-                    SearchBar(
-                        state = searchBarState,
-                        inputField = {
-                            TopBarSearchBar(
-                                searchBarState = searchBarState,
-                                textFieldState = textFieldState,
-                                scope = scope,
-                                onBack = { searching = !searching },
-                                onSearched = { query -> onSearched(query) }, // bubble the search query up
-                                modifier = modifier
-                            )
-                        },
-                    )
+                ) {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
                 }
-            },
-            actions = {
-                // todo: navigate to user / display their picture
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = "TODO account page")
-                }
-            },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface),
-            scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-        )
-    }
+            } else {
+                SearchBar(
+                    state = searchBarState,
+                    inputField = {
+                        TopBarSearchBar(
+                            searchBarState = searchBarState,
+                            textFieldState = textFieldState,
+                            scope = scope,
+                            onBack = { searching = !searching },
+                            onSearched = { query -> onSearched(query) }, // bubble the search query up
+                            modifier = modifier
+                        )
+                    },
+                )
+            }
+        },
+        actions = {
+            // todo: navigate to user / display their picture
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Outlined.AccountCircle,
+                    contentDescription = "TODO account page"
+                )
+            }
+        },
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface),
+        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,9 +104,10 @@ private fun TopBarSearchBar(
     searchBarState: SearchBarState,
     textFieldState: TextFieldState,
     scope: CoroutineScope,
+    modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
-    onSearched: (String) -> Unit = {},
-    modifier: Modifier = Modifier) {
+    onSearched: (String) -> Unit = {}
+) {
     SearchBarDefaults.InputField(
         modifier = modifier,
         searchBarState = searchBarState,
@@ -116,7 +118,7 @@ private fun TopBarSearchBar(
             scope.launch {
                 searchBarState.animateToCollapsed()
             }
-       },
+        },
         placeholder = {
             Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search...")
         },
