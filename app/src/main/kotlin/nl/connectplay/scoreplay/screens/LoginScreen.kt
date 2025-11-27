@@ -12,6 +12,7 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.LoginEvent
@@ -22,9 +23,9 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit, // used to navigate to the register screen
 ) {
-    val uiState by viewModel.uiState.collectAsState() // Bridge from ViewModel to Compose
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle() // Bridge from ViewModel to Compose
     val events =
-        viewModel.events.collectAsState(initial = null) // One-time events like success or fail
+        viewModel.events.collectAsStateWithLifecycle(initial = null) // One-time events like success or fail
 
     events.value?.let { event ->
         when (event) {
