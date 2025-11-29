@@ -32,7 +32,7 @@ object Http {
          * Ktor will automatically prepend this base URL → https://pma.connectplay.local/example
          */
         defaultRequest {
-            url("https://pma.connectplay.local")  // BASE URL
+            url("https://api.connectplay.local")  // BASE URL
         }
     }
 }

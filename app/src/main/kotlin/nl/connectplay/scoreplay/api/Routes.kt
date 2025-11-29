@@ -28,7 +28,7 @@ object Routes {
          *
          * Usage: Routes.Example.byId("123") → "/example/123"
          */
-        fun byId(exampleId: String) = "/example/$exampleId"
+        fun byId(exampleId: String) = "$root/$exampleId"
     }
 
 //    object Auth {
