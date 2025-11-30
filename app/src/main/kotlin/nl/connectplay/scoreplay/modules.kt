@@ -7,6 +7,7 @@ import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import nl.connectplay.scoreplay.api.auth.AuthApi
 
 
 // Koin module to provide ViewModels
@@ -21,7 +22,7 @@ val apiModule = module {
     single<HttpClient> { Http.client }
 
     // ExampleApi that depends on HttpClient
-    single {
-        ExampleApi(get()) // get<HttpClient>()
-    }
+    single { ExampleApi(get()) }// get<HttpClient>()
+    
+    single { AuthApi(get()) }
 }

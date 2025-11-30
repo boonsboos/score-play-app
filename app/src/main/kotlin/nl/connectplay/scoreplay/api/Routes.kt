@@ -31,10 +31,10 @@ object Routes {
         fun byId(exampleId: String) = "$root/$exampleId"
     }
 
-//    object Auth {
-//        const val signup = "/auth/signup"
-//        const val signin = "auth/signin"
-//    }
+    object Auth {
+        //        const val signup = "/auth/signup"
+        const val login = "/login"
+    }
 //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
