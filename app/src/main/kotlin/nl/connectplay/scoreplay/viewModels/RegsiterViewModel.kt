@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -8,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.models.SignUpRequest
+import nl.connectplay.scoreplay.api.AuthApi
 
 data class RegisterUiState(
     val email: String = "",
@@ -31,7 +34,7 @@ sealed class RegisterEvent {
 }
 
 class RegisterViewModel(
-    // private val authRepository: AuthRepository // TODO: authentication
+    private val authApi: AuthApi
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState = _uiState.asStateFlow()
@@ -60,10 +63,26 @@ class RegisterViewModel(
         _uiState.update { it.copy(showPassword = !it.showPassword) }
     }
 
+    private fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
     fun onRegisterClick() {
         val state = _uiState.value
 
-        // Base validation in ViewModel
+        // Check if email is valid
+        if (!isValidEmail(state.email)) {
+            _uiState.update { it.copy(errorMessage = "Please enter a valid email address") }
+            return
+        }
+
+        // Check if password is at least 8 characters
+        if (state.password.length < 8) {
+            _uiState.update { it.copy(errorMessage = "Password must be at least 8 characters") }
+            return
+        }
+
+        // Check if both passwords match
         if (state.password != state.repeatPassword) {
             _uiState.update { it.copy(errorMessage = "Passwords do not match") }
             return
@@ -73,7 +92,14 @@ class RegisterViewModel(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                // authRepository.register(state.email, state.username, state.password)
+                val request = SignUpRequest(
+                    email = state.email,
+                    username = state.username,
+                    password = state.password
+                )
+
+                // Call to API
+                authApi.registerUser(request)
 
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.Success)

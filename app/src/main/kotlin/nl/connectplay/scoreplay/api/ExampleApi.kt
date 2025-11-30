@@ -6,6 +6,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import nl.connectplay.scoreplay.models.Example
 
 /**
@@ -44,8 +46,8 @@ class ExampleApi(
      */
     suspend fun getExampleById(id: String): Example {
         return client
-            .get(Routes.Example.byId(id))
-            .body()
+            .get(Routes.Example.byId(id)) {
+            }.body()
     }
 
     /**
@@ -66,6 +68,7 @@ class ExampleApi(
     suspend fun createExample(example: Example): Example {
         return client
             .post(Routes.Example.root) {
+                contentType(ContentType.Application.Json)
                 setBody(example)
             }
             .body()
@@ -90,6 +93,7 @@ class ExampleApi(
     suspend fun updateExample(id: String, example: Example): Example {
         return client
             .patch(Routes.Example.byId(id)) {
+                contentType(ContentType.Application.Json)
                 setBody(example)
             }
             .body()

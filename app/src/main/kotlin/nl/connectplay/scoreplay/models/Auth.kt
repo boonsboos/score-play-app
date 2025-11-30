@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 @Serializable
 data class SignUpRequest(
     val email: String,
+    val username: String,
     val password: String
 )
 
@@ -12,11 +13,4 @@ data class SignUpRequest(
 data class AuthResponse(
     @SerialName("accessToken") val accessToken: String,
     @SerialName("userId") val userId: String? = null
-)
-
-@Serializable
-data class SignInRequest(
-    val email: String,
-    val username: String,
-    val password: String
 )
