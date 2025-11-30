@@ -22,9 +22,9 @@ class ExampleApi(
      * Full URL = <baseUrl> + Routes.Example.root
      *
      * With your Http client config:
-     * - baseUrl: https://pma.connectplay.local
+     * - baseUrl: https://api.connectplay.local
      * - Routes.Example.root: "/example"
-     *   → https://pma.connectplay.local/example
+     *   → https://api.connectplay.local/example
      *
      * .body<List<Example>>() uses the ContentNegotiation + json configuration:
      * - It reads the JSON response from the server

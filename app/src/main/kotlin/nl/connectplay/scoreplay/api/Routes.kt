@@ -18,17 +18,23 @@ object Routes {
         /**
          * Base path for all Example-related endpoints.
          * Combined with your Http base URL, this becomes:
-         * - https://pma.connectplay.local/example
+         * - https://api.connectplay.local/example
          */
         const val root = "/example"
 
         /**
          * Helper for "get one Example by id":
-         * - https://pma.connectplay.local/example/{exampleId}
+         * - https://api.connectplay.local/example/{exampleId}
          *
          * Usage: Routes.Example.byId("123") → "/example/123"
          */
         fun byId(exampleId: String) = "$root/$exampleId"
+    }
+
+    object Games {
+        private const val root = "/games"
+
+        fun getAll() = root
     }
 
 //    object Auth {
