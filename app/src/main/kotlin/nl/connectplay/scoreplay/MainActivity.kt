@@ -1,14 +1,14 @@
 package nl.connectplay.scoreplay
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import nl.connectplay.scoreplay.screens.RegisterScreen
+import nl.connectplay.scoreplay.ui.components.Navigator
 import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,22 +29,11 @@ class MainActivity : ComponentActivity() {
                  * think about sign-in that does not need an bottombar
                  */
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val registerViewModel: RegisterViewModel = viewModel()
-
-                    RegisterScreen(
+                    Navigator(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding),
-                        viewModel = registerViewModel,
-                        onNavigateToLogin = {
-                            // TODO: add navigation to login
-                        }
+                            .padding(innerPadding)
                     )
-//                    Navigator(
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .padding(innerPadding)
-//                    )
                 }
             }
         }
