@@ -13,3 +13,10 @@ data class AuthResponse(
     @SerialName("accessToken") val accessToken: String,
     @SerialName("userId") val userId: String? = null
 )
+
+@Serializable
+data class SignInRequest(
+    val email: String,
+    val username: String,
+    val password: String
+)
