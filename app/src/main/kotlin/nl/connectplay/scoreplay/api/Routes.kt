@@ -18,13 +18,13 @@ object Routes {
         /**
          * Base path for all Example-related endpoints.
          * Combined with your Http base URL, this becomes:
-         * - https://api.connectplay.local/example
+         * - https://pma.connectplay.local/example
          */
         const val root = "/example"
 
         /**
          * Helper for "get one Example by id":
-         * - https://api.connectplay.local/example/{exampleId}
+         * - https://pma.connectplay.local/example/{exampleId}
          *
          * Usage: Routes.Example.byId("123") → "/example/123"
          */
