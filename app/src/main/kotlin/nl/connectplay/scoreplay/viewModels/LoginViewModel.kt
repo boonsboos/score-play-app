@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
-import nl.connectplay.scoreplay.models.auth.request.LoginRequest
+import nl.connectplay.scoreplay.models.auth.LoginRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
 /**

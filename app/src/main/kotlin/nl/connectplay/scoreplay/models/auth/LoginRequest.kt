@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.models.auth.request
+package nl.connectplay.scoreplay.models.auth
 
 import kotlinx.serialization.Serializable
 
