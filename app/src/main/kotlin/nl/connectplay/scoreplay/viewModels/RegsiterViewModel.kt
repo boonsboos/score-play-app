@@ -3,14 +3,16 @@ package nl.connectplay.scoreplay.viewModels
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import nl.connectplay.scoreplay.models.SignUpRequest
 import nl.connectplay.scoreplay.api.AuthApi
+import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
 
 data class RegisterUiState(
     val email: String = "",
@@ -44,7 +46,7 @@ class RegisterViewModel(
     val events = _events.receiveAsFlow()
 
     fun onEmailChange(value: String) {
-        _uiState.update { it.copy(email = value, errorMessage =  null) }
+        _uiState.update { it.copy(email = value, errorMessage = null) }
     }
 
     fun onUsernameChange(value: String) {
@@ -103,11 +105,27 @@ class RegisterViewModel(
 
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(RegisterEvent.Success)
-            } catch (t: Throwable) {
+
+            } catch (e: ClientRequestException) {
+                val status = e.response.status
+
+                val message = when (status) {
+                    HttpStatusCode.Conflict -> "User already exists."
+                    else -> "Registration failed (${status.value})"
+                }
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = t.message ?: "Registration failed"
+                        errorMessage = message
+                    )
+                }
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = e.message ?: "Registration failed"
                     )
                 }
             }

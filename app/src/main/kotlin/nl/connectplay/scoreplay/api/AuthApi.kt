@@ -6,7 +6,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import nl.connectplay.scoreplay.models.SignUpRequest
+import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
 
 class AuthApi(
     private val client: HttpClient
