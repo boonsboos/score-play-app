@@ -26,6 +26,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     fun loadNotifications() {
         viewModelScope.launch {
             _isLoading.update { true }
+            _error.update { null }
             try {
                 val response = notificationApi.getAllNotifications()
                 _state.update { response }

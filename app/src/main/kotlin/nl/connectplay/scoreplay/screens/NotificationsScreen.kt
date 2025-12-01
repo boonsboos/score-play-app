@@ -34,7 +34,7 @@ fun NotificationsScreen(
     val notifications by notificationViewModel.state.collectAsState()
     val isLoading by notificationViewModel.isLoading.collectAsState()
     val error by notificationViewModel.error.collectAsState()
-    
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Notifications") },
