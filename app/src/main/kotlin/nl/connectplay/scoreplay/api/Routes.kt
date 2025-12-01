@@ -31,7 +31,7 @@ object Routes {
         fun byId(exampleId: String) = "$root/$exampleId"
     }
 
-//    object Auth {
+    //    object Auth {
 //        const val signup = "/auth/signup"
 //        const val signin = "auth/signin"
 //    }
@@ -83,8 +83,8 @@ object Routes {
 //        }
 //    }
 //
-//    object Notifications {
-//        const val root = "/notifications"
-//        fun byId(notificationId: String) = "/notifications/$notificationId"
-//    }
+    object Notifications {
+        const val root = "/notifications"
+        fun byId(notificationId: String) = "$root/$notificationId"
+    }
 }
