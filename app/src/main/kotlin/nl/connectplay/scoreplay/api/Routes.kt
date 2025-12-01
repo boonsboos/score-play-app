@@ -31,6 +31,12 @@ object Routes {
         fun byId(exampleId: String) = "$root/$exampleId"
     }
 
+    object Games {
+        private const val root = "/games"
+
+        fun getAll() = root
+    }
+
     object Auth {
         const val register = "/register"
         const val login = "/login"

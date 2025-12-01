@@ -11,10 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 
 @Composable
-fun HomeScreen(backStack: NavBackStack<NavKey>) {
+fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
     // the scaffold makes the basic bottomnav layout
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -26,6 +27,12 @@ fun HomeScreen(backStack: NavBackStack<NavKey>) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.primary)
-        )
+        ) {
+            // to logout the app for test!
+            ScorePlayButton(
+                label = "TEST Logout",
+                onClick = { onLogout() }
+            )
+        }
     }
 }
