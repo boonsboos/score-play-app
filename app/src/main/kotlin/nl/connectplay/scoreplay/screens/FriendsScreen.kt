@@ -1,29 +1,226 @@
 package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.models.Friend
+import nl.connectplay.scoreplay.models.FriendRequest
+import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 
 @Composable
-fun FriendsScreen(backStack: NavBackStack<NavKey>) {
+fun FriendsScreen(
+    backStack: NavBackStack<NavKey>,
+    viewModel: FriendViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val friends = uiState.friends
+    val friendRequests = uiState.friendRequests
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Friends") },
-        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
+        bottomBar = { BottomNavBar(backStack) }
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.onSecondary)
+        ) {
+            FriendList(friendRequests, friends, viewModel)
+        }
+    }
+
+}
+
+@Composable
+fun FriendList(
+    friendRequests: List<FriendRequest>,
+    friends: List<Friend>,
+    viewModel: FriendViewModel
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+        if (friendRequests.isNotEmpty()) {
+            item {
+                Text(
+                    "Friend Requests",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onTertiary
+                )
+            }
+            items(friendRequests) { request ->
+                FriendRequestRow(
+                    request = request,
+                    onAccept = { viewModel.approveRequest(request.id) },
+                    onDecline = { viewModel.declineRequest(request.id) }
+                )
+            }
+        }
+
+        if (friends.isNotEmpty()) {
+            item {
+                Text(
+                    "Friends",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            items(friends) { friend ->
+                FriendRow(friend)
+            }
+        } else {
+            item {
+                Text(
+                    "No friends found",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FriendRow(friend: Friend) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp)
+        ) {
+            CircleAvatar(friend.avatarLetter)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                friend.username,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+
+
+@Composable
+fun FriendRequestRow(
+    request: FriendRequest,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircleAvatar(request.avatarLetter)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    request.username,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Row {
+
+                // Accept button
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color(0xFF4CAF50))
+                ) {
+                    IconButton(onClick = onAccept, modifier = Modifier.fillMaxSize()) {
+                        Icon(Icons.Default.Check, contentDescription = "Accept", tint = Color.White)
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Decline button
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color(0xFFF44336))
+                ) {
+                    IconButton(onClick = onDecline, modifier = Modifier.fillMaxSize()) {
+                        Icon(Icons.Default.Close, contentDescription = "Decline", tint = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CircleAvatar(letter: String) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.secondary),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            letter,
+            color = MaterialTheme.colorScheme.onSecondary,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
