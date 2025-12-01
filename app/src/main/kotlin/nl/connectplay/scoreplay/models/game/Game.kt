@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.models;
+package nl.connectplay.scoreplay.models.game
 
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable

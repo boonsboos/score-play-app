@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import nl.connectplay.scoreplay.api.GameApi
-import nl.connectplay.scoreplay.models.Game
+import nl.connectplay.scoreplay.models.game.Game
 
 class GamesListViewModel(private val gameApi: GameApi) : ViewModel() {
     private var offset = 0
