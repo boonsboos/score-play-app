@@ -176,8 +176,6 @@ fun FriendRequestRow(
             }
 
             Row {
-
-                // Accept button
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -190,8 +188,6 @@ fun FriendRequestRow(
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
-
-                // Decline button
                 Box(
                     modifier = Modifier
                         .size(36.dp)
