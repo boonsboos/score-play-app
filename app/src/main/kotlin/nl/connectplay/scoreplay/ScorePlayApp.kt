@@ -10,7 +10,7 @@ class ScorePlayApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@ScorePlayApp)
-            modules(viewModels, apiModule)
+            modules(viewModelsModule, apiModule, storeModule)
         }
     }
 }

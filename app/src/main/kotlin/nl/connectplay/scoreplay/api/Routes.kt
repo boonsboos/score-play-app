@@ -32,7 +32,7 @@ object Routes {
     }
 
     object Auth {
-        //        const val signup = "/auth/signup"
+        const val register = "/register"
         const val login = "/login"
     }
 //    object Games {

@@ -52,11 +52,11 @@ fun LoginScreen(
         // Spacer addes space between ui elements
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Username
+        // Username or Email
         OutlinedTextField(
-            value = uiState.username,
-            onValueChange = viewModel::onUsernameChange,
-            label = { Text("Username") },
+            value = uiState.credentials,
+            onValueChange = viewModel::onCredentialsChange,
+            label = { Text("Credentials") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
