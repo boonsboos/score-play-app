@@ -1,7 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -10,7 +9,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import io.ktor.http.parameters
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen

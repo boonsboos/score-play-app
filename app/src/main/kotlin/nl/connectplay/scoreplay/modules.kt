@@ -11,7 +11,6 @@ import nl.connectplay.scoreplay.viewModels.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.MainViewModel
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -20,7 +19,7 @@ val viewModelsModule = module {
     viewModelOf(::ExampleDetailViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
-    viewModel { NotificationListViewModel(get()) }
+    viewModelOf(::NotificationListViewModel)
 }
 
 // Koin module to provide networking / API dependencies
@@ -31,7 +30,7 @@ val apiModule = module {
     // ExampleApi that depends on HttpClient
     single { ExampleApi(get()) }// get<HttpClient>()
     single { AuthApi(get()) }
-    single { NotificationApi(get()) }
+    single { NotificationApi(get(),get()) }
 }
 
 val storeModule = module {

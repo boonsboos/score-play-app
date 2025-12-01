@@ -10,10 +10,6 @@ import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.models.Notification
 
 class NotificationListViewModel(private val notificationApi: NotificationApi) : ViewModel() {
-    init {
-        loadNotifications()
-    }
-
     private val _state = MutableStateFlow<List<Notification>>(emptyList())
     val state = _state.asStateFlow()
 
@@ -23,6 +19,10 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    init {
+        loadNotifications()
+    }
+
     fun loadNotifications() {
         viewModelScope.launch {
             _isLoading.update { true }
@@ -30,6 +30,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
                 val response = notificationApi.getAllNotifications()
                 _state.update { response }
             } catch (e: Exception) {
+                e.printStackTrace()
                 _error.update { e.message ?: "An unexpected error occurred" }
             } finally {
                 _isLoading.update { false }
