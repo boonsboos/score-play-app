@@ -2,7 +2,7 @@ package nl.connectplay.scoreplay.models.auth.request
 
 import kotlinx.serialization.Serializable
 
-// models for LoginRequest
+// datamodel for LoginRequest (DTO)
 @Serializable
 data class LoginRequest(
     val username: String? = null,

@@ -29,6 +29,7 @@ val apiModule = module {
     single { AuthApi(get()) }
 }
 
+// Koin module for app storage (DataStore)
 val storeModule = module {
     singleOf(::TokenDataStore)
 }

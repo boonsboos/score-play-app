@@ -24,8 +24,9 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit, // used to navigate to the register screen
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle() // Bridge from ViewModel to Compose
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle() // bridge from ViewModel to Compose
 
+    // LaunchedEffect listen for one time events
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -49,10 +50,10 @@ fun LoginScreen(
             textAlign = TextAlign.Center
         )
 
-        // Spacer addes space between ui elements
+        // spacer addes space between ui elements
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Username or Email
+        // username or email input field
         OutlinedTextField(
             value = uiState.credentials,
             onValueChange = viewModel::onCredentialsChange,
@@ -69,7 +70,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password
+        // password input field
         OutlinedTextField(
             value = uiState.password,
             onValueChange = viewModel::onPasswordChange,
@@ -84,7 +85,7 @@ fun LoginScreen(
             keyboardActions = KeyboardActions(
                 onDone = { viewModel.onLoginClick() }
             ),
-            // show the hide unhide icon
+            // show the hide unhide icon (eye)
             trailingIcon = {
                 IconButton(onClick = viewModel::onTogglePasswordVisibility) {
                     Icon(
@@ -101,7 +102,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Login button
+        // login button
         Button(
             onClick = { viewModel.onLoginClick() },
             modifier = Modifier
@@ -114,6 +115,7 @@ fun LoginScreen(
             Text(if (uiState.isLoading) "Logging in..." else "Login")
         }
 
+        // show the error message if their is any
         if (uiState.errorMessage != null) {
             Text(
                 text = uiState.errorMessage!!,
@@ -124,7 +126,8 @@ fun LoginScreen(
                     .padding(horizontal = 24.dp)
             )
         }
-        // Navigate to Register
+
+        // navigate to register
         TextButton(
             onClick = onNavigateToRegister,
             modifier = Modifier.align(Alignment.CenterHorizontally)
