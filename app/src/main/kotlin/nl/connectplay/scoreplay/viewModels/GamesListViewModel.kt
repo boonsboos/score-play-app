@@ -1,9 +1,5 @@
 package nl.connectplay.scoreplay.viewModels
 
-import android.R
-import androidx.compose.animation.core.animateRectAsState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
