@@ -2,8 +2,10 @@ package nl.connectplay.scoreplay
 
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.ExampleApi
+import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
+import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -15,6 +17,7 @@ import org.koin.core.module.dsl.singleOf
 // Koin module to provide ViewModels
 val viewModelsModule = module {
     viewModelOf(::ExampleDetailViewModel)
+    viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
 }
@@ -25,7 +28,8 @@ val apiModule = module {
     single<HttpClient> { Http.client }
 
     // ExampleApi that depends on HttpClient
-    single { ExampleApi(get()) }// get<HttpClient>()
+    single { ExampleApi(get()) } // get<HttpClient>()
+    single { GameApi(get()) }
     single { AuthApi(get()) }
 }
 
