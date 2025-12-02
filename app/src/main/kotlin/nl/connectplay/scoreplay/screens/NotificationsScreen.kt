@@ -39,7 +39,9 @@ fun NotificationsScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Notifications") },
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
-        Column {
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {
             when {
                 isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -60,9 +62,7 @@ fun NotificationsScreen(
                 }
 
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
+                    LazyColumn {
                         items(notifications) {
                             NotificationItem(
                                 content = it.content + if (it.read) " (Read)" else " (Unread)",
