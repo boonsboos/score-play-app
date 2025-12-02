@@ -68,7 +68,10 @@ fun Navigator(modifier: Modifier = Modifier) {
 
 
                 is Screens.Home -> NavEntry(key = key) {
-                    HomeScreen(backStack)
+                    HomeScreen(
+                        backStack,
+                        onLogout = {} // TODO()
+                    )
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
