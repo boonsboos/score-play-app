@@ -31,11 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import nl.connectplay.scoreplay.viewModels.RegisterEvent
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
-    viewModel: RegisterViewModel,
+    viewModel: RegisterViewModel = koinViewModel(),
     onNavigateToLogin: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()

@@ -13,14 +13,16 @@ import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(Screens.Home)
+    val backStack = rememberNavBackStack(Screens.Register)
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -54,6 +56,16 @@ fun Navigator(modifier: Modifier = Modifier) {
                         }
                     )
                 }
+
+                is Screens.Register -> NavEntry(key = key) {
+                    RegisterScreen(
+                        onNavigateToLogin = {
+                            //backStack.add(Screens.Login)
+                            // TODO: add navigate to Login
+                        }
+                    )
+                }
+
 
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(backStack)
