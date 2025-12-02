@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.windowsizeclass)
     implementation(libs.androidx.material3.adaptive)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)
@@ -76,6 +77,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

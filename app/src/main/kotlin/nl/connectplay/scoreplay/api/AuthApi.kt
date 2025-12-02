@@ -7,10 +7,23 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
+import nl.connectplay.scoreplay.models.auth.LoginRequest
+import nl.connectplay.scoreplay.models.auth.LoginResponse
 
-class AuthApi(
-    private val client: HttpClient
-) {
+/**
+ * AuthApi is for all authentication API-calls
+ *
+ * Sends login requests to the API and gets a response
+ *
+ * @property client The HttpClient used to send requests to the server
+ */
+class AuthApi(private val client: HttpClient) {
+    suspend fun login(request: LoginRequest): LoginResponse {
+        return client.post(Routes.Auth.login) {
+            contentType(ContentType.Application.Json)   // let the server know we will send JSON
+            setBody(request) // put the login data into the request
+        }.body() // get the servers JSON and changed it in a LoginResponse object
+    }
     suspend fun registerUser(registerRequest: SignUpRequest): SignUpRequest {
         return client.post(Routes.Auth.register) {
             contentType(ContentType.Application.Json)
