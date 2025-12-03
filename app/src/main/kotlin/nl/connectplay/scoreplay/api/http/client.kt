@@ -29,7 +29,7 @@ object Http {
         /**
          * defaultRequest sets the base URL for all requests.
          * In your API calls you only use relative paths (e.g. "/example"),
-         * Ktor will automatically prepend this base URL → https://pma.connectplay.local/example
+         * Ktor will automatically prepend this base URL → https://api.connect-en-play.nl/example
          */
         defaultRequest {
             url("https://api.connect-en-play.nl")  // BASE URL

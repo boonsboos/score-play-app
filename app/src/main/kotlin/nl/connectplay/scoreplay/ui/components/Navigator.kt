@@ -1,9 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -15,27 +12,16 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
-import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
-    val mainViewModel = koinViewModel<MainViewModel>()
-    val tokenState by mainViewModel.tokenState.collectAsState()
-
-    if (!tokenState.isLoaded) {
-        return
-    }
-
-    val start = if (tokenState.token != null) Screens.Home else Screens.Login
-
     // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(start)
-
+    val backStack = rememberNavBackStack(Screens.Register)
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -70,16 +56,20 @@ fun Navigator(modifier: Modifier = Modifier) {
                     )
                 }
 
+                is Screens.Register -> NavEntry(key = key) {
+                    RegisterScreen(
+                        onNavigateToLogin = {
+                            //backStack.add(Screens.Login)
+                            // TODO: add navigate to Login
+                        }
+                    )
+                }
+
+
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(
-                        backStack = backStack,
-                        onLogout = {
-                            mainViewModel.logout()
-                            backStack.apply {
-                                while (isNotEmpty()) removeLast()
-                                add(Screens.Login)
-                            }
-                        }
+                        backStack,
+                        onLogout = {} // TODO()
                     )
                 }
 
@@ -94,17 +84,8 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Notifications -> NavEntry(key = key) {
                     NotificationsScreen(backStack)
                 }
-
-                is Screens.Login -> NavEntry(key = key) {
-                    LoginScreen(
-                        viewModel = koinViewModel(),
-                        onNavigateToRegister = { backStack.add(Screens.Home) }
-                    )
-                }
-
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }
-        }
-    )
+        })
 }
