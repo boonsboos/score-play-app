@@ -33,7 +33,6 @@ object Routes {
 
     object Games {
         private const val root = "/games"
-
         fun getAll() = root
     }
 
@@ -41,6 +40,12 @@ object Routes {
         const val register = "/register"
         const val login = "/login"
     }
+
+    object Users {
+        private const val root = "/users"
+        fun getAll() = root
+    }
+
 //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"

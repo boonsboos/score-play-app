@@ -1,14 +1,13 @@
 package nl.connectplay.scoreplay.viewModels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
-import nl.connectplay.scoreplay.api.SearchApi
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 
 class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
     // holds the current search results and updateds after each API call
