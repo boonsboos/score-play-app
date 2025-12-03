@@ -9,6 +9,9 @@ object Screens {
     data object Example : NavKey
 
     @Serializable
+    data object Register : NavKey
+
+    @Serializable
     data object Home : NavKey
 
     @Serializable
