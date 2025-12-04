@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.api;
 
+import androidx.compose.ui.graphics.vector.ImageVector
 import io.ktor.client.HttpClient;
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
@@ -17,5 +18,16 @@ class GameApi(val client: HttpClient) {
         } catch (e: NoTransformationFoundException) {
             listOf()
         }
+    }
+
+    suspend fun single(gameId: Int): Game? =
+        try {
+            client.get(Routes.Games.single(gameId)).body()
+        } catch (e: NoTransformationFoundException) {
+            null
+        }
+
+    suspend fun pictures(gameId: Int): List<ImageVector> {
+        return listOf()
     }
 }
