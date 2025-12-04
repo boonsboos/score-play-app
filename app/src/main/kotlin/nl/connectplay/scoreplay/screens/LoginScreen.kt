@@ -23,6 +23,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit, // used to navigate to the register screen
+    onLoginSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle() // bridge from ViewModel to Compose
 
@@ -30,7 +31,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is LoginEvent.Success -> onNavigateToRegister()
+                is LoginEvent.Success -> onLoginSuccess()
             }
         }
     }

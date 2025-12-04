@@ -6,9 +6,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
-import nl.connectplay.scoreplay.models.auth.LoginRequest
-import nl.connectplay.scoreplay.models.auth.LoginResponse
+import nl.connectplay.scoreplay.models.auth.register.SignUpRequest
+import nl.connectplay.scoreplay.models.auth.login.LoginRequest
+import nl.connectplay.scoreplay.models.auth.login.LoginResponse
 
 /**
  * AuthApi is for all authentication API-calls

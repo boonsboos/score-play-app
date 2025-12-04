@@ -11,7 +11,6 @@ import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.MainViewModel
 import org.koin.core.module.dsl.singleOf
@@ -40,7 +39,6 @@ val apiModule = module {
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
     single { GameApi(get()) }
-    single { AuthApi(get()) }
 }
 
 // Koin module for app storage (DataStore)
