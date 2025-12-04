@@ -8,6 +8,7 @@ import nl.connectplay.scoreplay.api.FriendRequestApi
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.models.Friend
 import nl.connectplay.scoreplay.models.FriendRequest
+import nl.connectplay.scoreplay.stores.UserDataStore
 
 /**
  * Represents the current state of the Friends screen.
@@ -34,7 +35,7 @@ data class FriendsUiState(
 class FriendViewModel(
     private val friendsApi: FriendsApi,
     private val friendRequestApi: FriendRequestApi,
-    private val userId: Int
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FriendsUiState())
@@ -49,6 +50,7 @@ class FriendViewModel(
 
         viewModelScope.launch {
             try {
+                val userId = userDataStore.userId.first() ?: return@launch
                 val friends = friendsApi.getFriendsById(userId)
                 val requests = friendRequestApi.getAllFriendrequests(userId)
 
@@ -67,6 +69,7 @@ class FriendViewModel(
 
     fun approveRequest(friendId: Int) {
         viewModelScope.launch {
+            val userId = userDataStore.userId.first() ?: return@launch
             val acceptedFriend = friendRequestApi.accept(userId, friendId)
             if (acceptedFriend != null) {
                 _uiState.update { state ->
@@ -76,12 +79,12 @@ class FriendViewModel(
                     )
                 }
             }
-
         }
     }
 
     fun declineRequest(friendId: Int) {
         viewModelScope.launch {
+            val userId = userDataStore.userId.first() ?: return@launch
             val success = friendRequestApi.decline(userId, friendId)
             if (success) {
                 _uiState.update { state ->

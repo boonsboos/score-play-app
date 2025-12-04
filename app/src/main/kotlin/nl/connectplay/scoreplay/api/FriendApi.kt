@@ -23,6 +23,7 @@ class FriendsApi(private val client: HttpClient) {
             // Make a GET request to the backend route for the user's friends
             client.get(Routes.Friend.friends(userId)).body<List<Friend>>()
 
+
         } catch (e: NoTransformationFoundException) {
             // If the response body cannot be transformed into List<Friend>, return an empty list
             listOf()

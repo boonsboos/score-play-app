@@ -5,6 +5,7 @@ import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.http.Http
+import nl.connectplay.scoreplay.stores.UserDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -28,11 +29,11 @@ val viewModelsModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
 
-    viewModel { (userId: Int) ->
+    viewModel {
         FriendViewModel(
             friendsApi = get(),
             friendRequestApi = get(),
-            userId = userId
+            userDataStore = get()
         )
     }
 }
@@ -58,4 +59,5 @@ val apiModule = module {
 // Koin module for app storage (DataStore)
 val storeModule = module {
     singleOf(::TokenDataStore)
+    singleOf(::UserDataStore)
 }

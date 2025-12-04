@@ -98,7 +98,7 @@ fun FriendList(
                 Text(
                     "No friends found",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onTertiary
                 )
             }
         }
