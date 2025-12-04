@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -16,10 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.models.Friend
@@ -27,13 +26,14 @@ import nl.connectplay.scoreplay.models.FriendRequest
 import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FriendsScreen(
     backStack: NavBackStack<NavKey>,
-    viewModel: FriendViewModel = viewModel()
+    friendViewModel: FriendViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by friendViewModel.uiState.collectAsState()
     val friends = uiState.friends
     val friendRequests = uiState.friendRequests
 
@@ -47,10 +47,9 @@ fun FriendsScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
-            FriendList(friendRequests, friends, viewModel)
+            FriendList(friendRequests, friends, friendViewModel)
         }
     }
-
 }
 
 @Composable
@@ -137,8 +136,6 @@ fun FriendRow(friend: Friend) {
     }
 }
 
-
-
 @Composable
 fun FriendRequestRow(
     request: FriendRequest,
@@ -176,33 +173,48 @@ fun FriendRequestRow(
             }
 
             Row {
+
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(Color(0xFF4CAF50))
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
                 ) {
-                    IconButton(onClick = onAccept, modifier = Modifier.fillMaxSize()) {
-                        Icon(Icons.Default.Check, contentDescription = "Accept", tint = Color.White)
+                    IconButton(
+                        onClick = onAccept,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = "Accept",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
+
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(Color(0xFFF44336))
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                 ) {
-                    IconButton(onClick = onDecline, modifier = Modifier.fillMaxSize()) {
-                        Icon(Icons.Default.Close, contentDescription = "Decline", tint = Color.White)
+                    IconButton(
+                        onClick = onDecline,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Decline",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun CircleAvatar(letter: String) {

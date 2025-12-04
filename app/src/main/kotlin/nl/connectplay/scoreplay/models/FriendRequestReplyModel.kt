@@ -2,10 +2,7 @@ package nl.connectplay.scoreplay.models
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
-data class Friend(
-    val id: Int,
-    val username: String,
-    val avatarLetter: String
+data class FriendRequestReply(
+    val accept: Boolean
 )

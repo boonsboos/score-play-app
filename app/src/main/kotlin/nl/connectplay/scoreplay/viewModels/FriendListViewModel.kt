@@ -1,68 +1,95 @@
 package nl.connectplay.scoreplay.viewModels
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.api.FriendRequestApi
+import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.models.Friend
 import nl.connectplay.scoreplay.models.FriendRequest
-import nl.connectplay.scoreplay.models.FriendRequestStatus
 
+/**
+ * Represents the current state of the Friends screen.
+ *
+ * @property friendRequests A list of incoming friend requests
+ * @property friends A list of the user's accepted friends
+ * @property isLoading True if data is being fetched from the backend
+ */
 data class FriendsUiState(
     val friendRequests: List<FriendRequest> = emptyList(),
     val friends: List<Friend> = emptyList(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = false
 )
 
-sealed class FriendsEvent {
-    object Refresh : FriendsEvent()
-}
-
-class FriendViewModel : ViewModel() {
+/**
+ * ViewModel that manages friends and friend requests.
+ *
+ * It interacts with the backend through FriendsApi and FriendRequestApi.
+ *
+ * @param friendsApi API used to fetch the user's current friends
+ * @param friendRequestApi API used to fetch, approve, and decline friend requests
+ * @param userId The ID of the currently logged-in user
+ */
+class FriendViewModel(
+    private val friendsApi: FriendsApi,
+    private val friendRequestApi: FriendRequestApi,
+    private val userId: Int
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FriendsUiState())
-    val uiState = _uiState.asStateFlow()
-
-    private val _events = Channel<FriendsEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
+    val uiState: StateFlow<FriendsUiState> = _uiState.asStateFlow()
 
     init {
-        loadMockData()
+        refreshData()
     }
 
-    private fun loadMockData() {
-        _uiState.update {
-            it.copy(
-                friendRequests = listOf(
-                    FriendRequest("1", "USERNAME_T", "A", FriendRequestStatus.INCOMING),
-                    FriendRequest("2", "USERNAME_I", "B", FriendRequestStatus.INCOMING),
-                    FriendRequest("3", "USERNAME_K", "C", FriendRequestStatus.PENDING)
-                ),
-                friends = listOf(
-                    Friend("10", "USERNAME_A", "F"),
-                    Friend("11", "USERNAME_B", "U"),
-                    Friend("12", "USERNAME_C", "C"),
-                    Friend("13", "USERNAME_D", "K"),
-                )
-            )
+    fun refreshData() {
+        _uiState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+            try {
+                val friends = friendsApi.getFriendsById(userId)
+                val requests = friendRequestApi.getAllFriendrequests(userId)
+
+                _uiState.update {
+                    it.copy(
+                        friends = friends,
+                        friendRequests = requests,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
-    fun approveRequest(id: String) {
-        val req = _uiState.value.friendRequests.find { it.id == id } ?: return
-        _uiState.update { state ->
-            state.copy(
-                friendRequests = state.friendRequests.filterNot { it.id == id },
-                friends = state.friends + Friend(req.id, req.username, req.avatarLetter)
-            )
+    fun approveRequest(friendId: Int) {
+        viewModelScope.launch {
+            val acceptedFriend = friendRequestApi.accept(userId, friendId)
+            if (acceptedFriend != null) {
+                _uiState.update { state ->
+                    state.copy(
+                        friendRequests = state.friendRequests.filterNot { it.id == friendId },
+                        friends = state.friends + acceptedFriend
+                    )
+                }
+            }
+
         }
     }
 
-    fun declineRequest(id: String) {
-        _uiState.update { state ->
-            state.copy(friendRequests = state.friendRequests.filterNot { it.id == id })
+    fun declineRequest(friendId: Int) {
+        viewModelScope.launch {
+            val success = friendRequestApi.decline(userId, friendId)
+            if (success) {
+                _uiState.update { state ->
+                    state.copy(
+                        friendRequests = state.friendRequests.filterNot { it.id == friendId }
+                    )
+                }
+            }
         }
     }
 }

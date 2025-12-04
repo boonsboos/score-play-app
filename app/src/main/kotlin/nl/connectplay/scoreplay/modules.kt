@@ -9,9 +9,12 @@ import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
+import nl.connectplay.scoreplay.api.FriendRequestApi
+import nl.connectplay.scoreplay.api.FriendsApi
+import nl.connectplay.scoreplay.viewModels.FriendViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.MainViewModel
 import org.koin.core.module.dsl.singleOf
@@ -19,12 +22,19 @@ import org.koin.core.module.dsl.singleOf
 // Koin module to provide ViewModels
 val viewModelsModule = module {
     viewModelOf(::ExampleDetailViewModel)
-
     // RegisterViewModel with AuthAPI
     viewModelOf(::RegisterViewModel)
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+
+    viewModel { (userId: Int) ->
+        FriendViewModel(
+            friendsApi = get(),
+            friendRequestApi = get(),
+            userId = userId
+        )
+    }
 }
 
 // Koin module to provide networking / API dependencies
@@ -41,6 +51,8 @@ val apiModule = module {
     single { AuthApi(get()) }
     single { GameApi(get()) }
     single { AuthApi(get()) }
+    single { FriendsApi(get()) }
+    single { FriendRequestApi(get()) }
 }
 
 // Koin module for app storage (DataStore)
