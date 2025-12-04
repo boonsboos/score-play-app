@@ -24,7 +24,7 @@ class MainViewModel(private val tokenDataStore: TokenDataStore) : ViewModel() {
     init {
         loadToken() // load the token as soon the viewModel starts
     }
-    
+
     // give the ui a safe read only version of the data so only viewModel can change it
     private val _tokenState = MutableStateFlow(MainUiState())
     val tokenState = _tokenState.asStateFlow()

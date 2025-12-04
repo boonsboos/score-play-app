@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
-import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
+import nl.connectplay.scoreplay.models.auth.register.SignUpRequest
 
 data class RegisterUiState(
     val email: String = "",
