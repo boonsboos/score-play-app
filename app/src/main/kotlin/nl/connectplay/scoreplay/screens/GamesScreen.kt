@@ -53,7 +53,7 @@ fun GamesScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Games") },
+        topBar = { ScorePlayTopBar(title = "Games", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Box(

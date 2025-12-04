@@ -13,20 +13,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
 fun SearchScreen(
-    initialQuery: String? = null,
-//    backStack: NavBackStack,               // nu nog niet gebruikt, maar kan later voor navigatie
+    backStack: NavBackStack<NavKey>, // nu nog niet gebruikt, maar kan later voor navigatie
     modifier: Modifier = Modifier,
+    initialQuery: String? = null,
     viewModel: SearchViewModel,
     onUserClick: (String) -> Unit = {},
     onGameClick: (String) -> Unit = {}
 ) {
-    // initial query vanuit Home meteen doorzetten naar de ViewModel
+    // propagate query from Search event to ViewModel
     LaunchedEffect(initialQuery) {
         if (!initialQuery.isNullOrBlank()) {
             viewModel.setQuery(initialQuery)

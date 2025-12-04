@@ -17,7 +17,7 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 fun NotificationsScreen(backStack: NavBackStack<NavKey>) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Notifications") },
+        topBar = { ScorePlayTopBar(title = "Notifications", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(
             modifier = Modifier

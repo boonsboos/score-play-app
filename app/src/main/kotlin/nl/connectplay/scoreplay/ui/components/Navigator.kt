@@ -28,10 +28,6 @@ fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
     val tokenState by mainViewModel.tokenState.collectAsState()
 
-    if (!tokenState.isLoaded) {
-        return
-    }
-
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
     // Create a navigation back stack starting at the Home screen
@@ -111,7 +107,16 @@ fun Navigator(modifier: Modifier = Modifier) {
                         }
                     )
                 }
-                
+
+                is Screens.Search -> NavEntry(key = key) {
+                    SearchScreen(
+                        backStack = backStack,
+                        // pass query string from nav key to screen
+                        initialQuery = key.query,
+                        viewModel = koinViewModel()
+                    )
+                }
+
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }
