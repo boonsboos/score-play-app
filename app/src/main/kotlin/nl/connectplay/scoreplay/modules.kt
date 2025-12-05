@@ -11,14 +11,12 @@ import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.LoginViewModel
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.MainViewModel
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
-import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -38,9 +36,7 @@ val apiModule = module {
     single<HttpClient> { Http.client }
 
     // ExampleApi that depends on HttpClient
-    single {
-        ExampleApi(get()) // get<HttpClient>()
-    }
+    single { ExampleApi(get()) } // get<HttpClient>()
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
