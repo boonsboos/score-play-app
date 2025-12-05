@@ -1,0 +1,9 @@
+package nl.connectplay.scoreplay.models.auth.register
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class RegisterResponse(
+    val data: SignUpRequest? = null,
+    val message: String? = null // success or errorMessages
+)
