@@ -28,8 +28,9 @@ fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.primary)
         ) {
+            // to logout the app for test!
             ScorePlayButton(
-                label = "Logout",
+                label = "TEST Logout",
                 onClick = { onLogout() }
             )
         }
