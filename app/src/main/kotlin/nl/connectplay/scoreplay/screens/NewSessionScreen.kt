@@ -32,7 +32,6 @@ fun NewSessionScreen(backStack: NavBackStack<NavKey>) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.primary)
         ) {
             @Composable
             fun SetupStep() {

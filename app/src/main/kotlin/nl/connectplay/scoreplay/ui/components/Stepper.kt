@@ -8,11 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,72 +32,68 @@ fun Stepper(
     onStepChange: (Int) -> Unit,
     content: @Composable (Int) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
 
-        // Step indicators
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            steps.forEachIndexed { index, title ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Circle indicator
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                if (index == currentStep)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape
-                            )
-                    )
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+            // Step indicators
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                steps.forEachIndexed { index, title ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // Circle indicator
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(
+                                    if (index == currentStep)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = CircleShape
+                                )
+                        )
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                 }
+            }
+
+            // Divider
+            HorizontalDivider()
+
+            // Step content
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                content(currentStep)
             }
         }
 
-        // Divider
-        HorizontalDivider()
-
-        // Step content
-        Box(
+        // FAB voor "Next"
+        FloatingActionButton(
+            onClick = {
+                if (currentStep < steps.size - 1) {
+                    onStepChange(currentStep + 1)
+                }
+            },
             modifier = Modifier
-                .fillMaxSize()
+                .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            content(currentStep)
-        }
-
-        // Navigation buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (currentStep > 0) {
-                Button(onClick = { onStepChange(currentStep - 1) }) {
-                    Text("Back")
-                }
-            } else {
-                Spacer(modifier = Modifier.width(64.dp))
-            }
-
-            Button(
-                onClick = {
-                    if (currentStep < steps.size - 1) onStepChange(currentStep + 1)
-                }
-            ) {
-                Text(if (currentStep == steps.size - 1) "Finish" else "Next")
-            }
+            androidx.compose.material3.Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = "Next step"
+            )
         }
     }
+
 }
