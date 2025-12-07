@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
@@ -39,7 +40,7 @@ val apiModule = module {
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
     single { GameApi(get()) }
-    single { AuthApi(get()) }
+    single { SessionApi(get()) }
 }
 
 // Koin module for app storage (DataStore)
