@@ -18,12 +18,12 @@ class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    private val _filter = MutableStateFlow(SearchFilter.ALL) // tracks witch filter is active
+    private val _filter = MutableStateFlow(SearchFilter.ALL) // tracks which filter is active
     val filter = _filter.asStateFlow()
 
 
     fun setFilter(newFilter: SearchFilter) {
-        _filter.value = newFilter // update the filter so the ViewModel knows witch filter is active
+        _filter.value = newFilter // update the filter so the ViewModel knows which filter is active
     }
 
     fun setQuery(newQuery: String) {
