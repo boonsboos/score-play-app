@@ -33,16 +33,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScorePlayTopBar(
     title: String,
-    modifier: Modifier = Modifier,
-    onSearched: (String) -> Unit = {}
+    backStack: NavBackStack<NavKey>,
+    modifier: Modifier = Modifier
 ) {
     var searching: Boolean by remember { mutableStateOf(false) }
 
@@ -76,7 +79,8 @@ fun ScorePlayTopBar(
                             textFieldState = textFieldState,
                             scope = scope,
                             onBack = { searching = !searching },
-                            onSearched = { query -> onSearched(query) }, // bubble the search query up
+                            // navigate to search result screen
+                            onSearched = { query -> backStack.add(Screens.Search(query)) }, // bubble the search query up
                             modifier = modifier
                         )
                     },
@@ -117,6 +121,8 @@ private fun TopBarSearchBar(
             onBack()
             scope.launch {
                 searchBarState.animateToCollapsed()
+                // empty text field since we don't want to keep searching the same thing
+                textFieldState.edit { replace(0, query.length, "") }
             }
         },
         placeholder = {

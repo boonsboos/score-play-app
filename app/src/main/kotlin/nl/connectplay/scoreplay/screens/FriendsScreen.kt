@@ -38,7 +38,7 @@ fun FriendsScreen(
     val friendRequests = uiState.friendRequests
 
     Scaffold(
-        topBar = { ScorePlayTopBar(title = "Friends") },
+        topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Box(
