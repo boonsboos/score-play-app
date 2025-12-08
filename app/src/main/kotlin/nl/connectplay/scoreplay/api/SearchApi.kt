@@ -20,7 +20,7 @@ import org.koin.core.component.inject
  */
 class SearchApi(private val client: HttpClient) : KoinComponent {
 
-    // koin wil search for the right instance of TokenDataStore and gives this to the class
+    // koin will search for the right instance of TokenDataStore and gives this to the class
     private val tokenStore: TokenDataStore by inject()
 
     // returns the stored token or null if the token doesn't exists
