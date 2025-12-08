@@ -14,7 +14,7 @@ import org.koin.core.component.inject
 
 /**
  * The searchAPI is responsible to get the informatie of users and games
- * The Http request wil be sending request to the API and the API we respond
+ * The Http request will send requests to the API and the API will respond
  *
  * @property client this is the Ktor instants of the HttpClient
  */
