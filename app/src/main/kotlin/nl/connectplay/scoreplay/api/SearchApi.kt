@@ -14,16 +14,16 @@ import org.koin.core.component.inject
 
 /**
  * The searchAPI is responsible to get the informatie of users and games
- * The Http request wil be sending request to the API and the API we respond
+ * The Http request will send requests to the API and the API will respond
  *
- * @property client this is the Ktor instants of the HttpClient
+ * @property client this is the Ktor instance of the HttpClient
  */
 class SearchApi(private val client: HttpClient) : KoinComponent {
 
     // koin wil search for the right instance of TokenDataStore and gives this to the class
     private val tokenStore: TokenDataStore by inject()
 
-    // returns the stored token or null if the token doesnt exists
+    // returns the stored token or null if the token doesn't exists
     private suspend fun getToken(): String? = tokenStore.token.firstOrNull()
 
     suspend fun searchUsers(query: String): List<SearchUserDto> {
@@ -35,11 +35,11 @@ class SearchApi(private val client: HttpClient) : KoinComponent {
                 header(
                     "Authorization",
                     "Bearer $token"
-                ) // add the JWT token to the request for the autentication
+                ) // add the JWT token to the request for the authentication
             }
         }
 
-        // get he HTTP status code so we can handle the response
+        // get the HTTP status code so we can handle the response
         return when (response.status.value) {
             200 -> response.body()
             401 -> emptyList()

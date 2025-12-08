@@ -3,7 +3,7 @@ package nl.connectplay.scoreplay.models.search
 /**
  * These are the result types of the search
  *
- * A search can be users or games and wil be added in one list
+ * A search can be users or games and will be added in one list
  * Because of the sealed  class Kotlin knows what variants the are
  */
 sealed class SearchResult {

@@ -19,7 +19,7 @@ fun SearchListItem(
     ListItem(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick), // this wil go the the detail page of user or game
+            .clickable(onClick = onClick), // this will go to the detail page of user or game
         leadingContent = icon,
         headlineContent = { Text(title) },
         supportingContent = {
