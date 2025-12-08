@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.models.auth.LoginRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
+import nl.connectplay.scoreplay.stores.UserDataStore
 
 /**
  * Represents all ui data for the login screen
@@ -55,7 +56,8 @@ sealed class LoginEvent {
  */
 class LoginViewModel(
     private val authApi: AuthApi,
-    private val tokenDataStore: TokenDataStore
+    private val tokenDataStore: TokenDataStore,
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -121,6 +123,8 @@ class LoginViewModel(
 
                 // this saves the token so when de user close the app the token wil be used when de app is back online
                 tokenDataStore.saveToken(response.token)
+
+                userDataStore.saveUserId(response.userId)
 
                 _uiState.update { it.copy(isLoading = false) }
 
