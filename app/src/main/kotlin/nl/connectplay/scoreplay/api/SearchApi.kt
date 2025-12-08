@@ -39,7 +39,7 @@ class SearchApi(private val client: HttpClient) : KoinComponent {
             }
         }
 
-        // get he HTTP status code so we can handle the response
+        // get the HTTP status code so we can handle the response
         return when (response.status.value) {
             200 -> response.body()
             401 -> emptyList()
