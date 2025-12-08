@@ -1,179 +1,131 @@
 package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
+import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.ui.components.search.SearchListItem
+import nl.connectplay.scoreplay.ui.components.search.FilterButton
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
 fun SearchScreen(
-    backStack: NavBackStack<NavKey>, // nu nog niet gebruikt, maar kan later voor navigatie
+    backStack: NavBackStack<NavKey>, // used for navigation history
     modifier: Modifier = Modifier,
-    initialQuery: String? = null,
-    viewModel: SearchViewModel,
+    initialQuery: String? = null, // first search string that the screen gets
+    searchViewModel: SearchViewModel,
+    // callback when a result (user or game) is clicked
     onUserClick: (String) -> Unit = {},
     onGameClick: (String) -> Unit = {}
 ) {
-    // propagate query from Search event to ViewModel
+    // propagate query from Search event to searchViewModel
+    // this block will run when the screen opens or when the initialQuery changes
     LaunchedEffect(initialQuery) {
         if (!initialQuery.isNullOrBlank()) {
-            viewModel.setQuery(initialQuery)
-            viewModel.search()
+            searchViewModel.setQuery(initialQuery)
+            searchViewModel.search()
         }
     }
 
-    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val filter by viewModel.filter.collectAsStateWithLifecycle()
-    val results by viewModel.results.collectAsStateWithLifecycle()
+    // with collectAsStateWithLifecycle() the UI will change with the ViewModel (only when visible)
+    val filter by searchViewModel.filter.collectAsStateWithLifecycle()
+    val results by searchViewModel.results.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-
-        // ------------------ SEARCH FIELD ------------------
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = {
-                viewModel.setQuery(it)
-                viewModel.search()
-            },
-            placeholder = { Text("Search users or games…") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // ------------------ FILTER BUTTONS ------------------
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = { ScorePlayTopBar(title = "Search", backStack = backStack) },
+        bottomBar = { BottomNavBar(backStack) }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding) // space reserved for topbar and bottom bar
+                .background(MaterialTheme.colorScheme.primary)
         ) {
-            FilterButton(
-                title = "All",
-                selected = filter == SearchFilter.ALL,
-                onClick = {
-                    viewModel.setFilter(SearchFilter.ALL)
-                    viewModel.search()
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+            ) {
+                // this styling is for the filter options
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    // ALL FILTER
+                    FilterButton(
+                        title = "All",
+                        selected = filter == SearchFilter.ALL,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.ALL) // update the filter
+                            searchViewModel.search() // update the search results
+                        }
+                    )
+                    // USERS FILTER
+                    FilterButton(
+                        title = "Users",
+                        selected = filter == SearchFilter.USERS,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.USERS)
+                            searchViewModel.search()
+                        }
+                    )
+                    // GAMES FILTER
+                    FilterButton(
+                        title = "Games",
+                        selected = filter == SearchFilter.GAMES,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.GAMES)
+                            searchViewModel.search()
+                        }
+                    )
                 }
-            )
-            FilterButton(
-                title = "Users",
-                selected = filter == SearchFilter.USERS,
-                onClick = {
-                    viewModel.setFilter(SearchFilter.USERS)
-                    viewModel.search()
-                }
-            )
-            FilterButton(
-                title = "Games",
-                selected = filter == SearchFilter.GAMES,
-                onClick = {
-                    viewModel.setFilter(SearchFilter.GAMES)
-                    viewModel.search()
-                }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                // scrollable list for the found users and games
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(results) { item ->
 
-        // ------------------ RESULTS LIST ------------------
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(results) { item ->
-                when (item) {
-                    is SearchResult.UserResult -> {
-                        UserResultRow(
-                            username = item.username,
-                            pictureUrl = item.pictureUrl,
-                            onClick = { onUserClick(item.userId) }
-                        )
-                    }
+                        // checks in the list if its a user or game item
+                        when (item) {
+                            is SearchResult.UserResult -> {
+                                SearchListItem(
+                                    title = item.username,
+                                    subtitle = null, // not needed for user
+                                    icon = { Icon(Icons.Filled.Person, "User icon") },
+                                    onClick = { onUserClick(item.userId) }
+                                )
+                            }
 
-                    is SearchResult.GameResult -> {
-                        GameResultRow(
-                            title = item.title,
-                            description = item.description,
-                            onClick = { onGameClick(item.gameId) }
-                        )
+                            is SearchResult.GameResult -> {
+                                SearchListItem(
+                                    title = item.title,
+                                    subtitle = item.description,
+                                    icon = { Icon(Icons.Filled.Image, "Game icon") },
+                                    onClick = { onGameClick(item.gameId) }
+                                )
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-// ------------------------------------------------------------ //
-// ---------------------- SUB COMPONENTS ----------------------- //
-// ------------------------------------------------------------ //
-
-@Composable
-fun FilterButton(title: String, selected: Boolean, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = if (selected)
-            ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
-        else
-            ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary),
-        modifier = Modifier.height(38.dp)
-    ) {
-        Text(title)
-    }
-}
-
-@Composable
-fun UserResultRow(username: String, pictureUrl: String?, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(Color.LightGray) // Placeholder avatar
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(text = username, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Composable
-fun GameResultRow(title: String, description: String?, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp)
-    ) {
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
-
-        if (description != null) {
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
         }
     }
 }

@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchGameDto(
+    // we added @SerialName so we can use our own property names
     @SerialName("id")
     val gameId: String,
     @SerialName("name")

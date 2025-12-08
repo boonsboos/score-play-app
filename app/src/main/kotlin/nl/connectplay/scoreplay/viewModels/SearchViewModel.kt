@@ -10,7 +10,7 @@ import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
 
 class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
-    // holds the current search results and updateds after each API call
+    // holds the current search results and updates after each API call
     private val _results = MutableStateFlow<List<SearchResult>>(emptyList())
     val results = _results.asStateFlow()
 
@@ -27,72 +27,93 @@ class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
     }
 
     fun setQuery(newQuery: String) {
-        _searchQuery.value = newQuery
+        _searchQuery.value = newQuery // update the text the user has typed
     }
 
     fun search() {
         viewModelScope.launch {
-            val queryValue = _searchQuery.value
+            val searchQuery = _searchQuery.value.trim() // clears spaces
 
-            // if the user enters no value or only space, dont search
-            // clear the results list if the query is empty
-            if (queryValue.isBlank()) {
+            if (searchQuery.isBlank()) {
                 _results.value = emptyList()
-                return@launch // stop the coroutine early
+                return@launch
             }
+
             val activeFilter = _filter.value
 
-            when (activeFilter) {
-                SearchFilter.ALL -> {
-                    val users = searchApi.searchUsers(queryValue)
-                    val games = searchApi.searchGames(queryValue)
-
-                    // put both game and user results in one list
-                    val combinedSearchList = buildList {
-                        users.forEach { user ->
-                            add(
-                                SearchResult.UserResult(
-                                    user.userId,
-                                    user.username,
-                                    user.pictureUrl
-                                )
-                            )
-                        }
-                        games.forEach { game ->
-                            add(SearchResult.GameResult(game.gameId, game.title, game.description))
-                        }
-                    }
-                    _results.value = combinedSearchList
-                }
-
-                SearchFilter.USERS -> {
-                    val users = searchApi.searchUsers(queryValue)
-
-                    val usersList = buildList {
-                        users.forEach { user ->
-                            add(
-                                SearchResult.UserResult(
-                                    user.userId,
-                                    user.username,
-                                    user.pictureUrl
-                                )
-                            )
-                        }
-                    }
-                    _results.value = usersList
-                }
-
-                SearchFilter.GAMES -> {
-                    val games = searchApi.searchGames(queryValue)
-
-                    val gamesList = buildList {
-                        games.forEach { game ->
-                            add(SearchResult.GameResult(game.gameId, game.title, game.description))
-                        }
-                    }
-                    _results.value = gamesList
-                }
+            // choose the search function based on the filter
+            val searchResults = when (activeFilter) {
+                SearchFilter.ALL -> searchAll(searchQuery)
+                SearchFilter.USERS -> searchUsers(searchQuery)
+                SearchFilter.GAMES -> searchGames(searchQuery)
             }
+
+            // the result wil be sorted so the better matches wil be on top
+            _results.value = sortResults(searchResults, searchQuery)
         }
+    }
+
+    private suspend fun searchAll(searchQuery: String): List<SearchResult> {
+        val users = searchUsers(searchQuery)
+        val games = searchGames(searchQuery)
+        return users + games
+    }
+
+    private suspend fun searchUsers(searchQuery: String): List<SearchResult.UserResult> {
+        return searchApi.searchUsers(searchQuery).map { user ->
+            SearchResult.UserResult(
+                userId = user.userId,
+                username = user.username,
+                pictureUrl = user.pictureUrl
+            )
+        }
+    }
+
+    private suspend fun searchGames(searchQuery: String): List<SearchResult.GameResult> {
+        return searchApi.searchGames(searchQuery).map { game ->
+            SearchResult.GameResult(
+                gameId = game.gameId,
+                title = game.title,
+                description = game.description
+            )
+        }
+    }
+
+    private fun sortResults(
+        searchResults: List<SearchResult>,
+        searchQuery: String
+    ): List<SearchResult> {
+        // change everything to lowercase to avoid mismatches with capital letters
+        val lowerSearchQuery = searchQuery.lowercase()
+
+        // sort the list using multiple sorting rules
+        return searchResults.sortedWith(
+            compareBy<SearchResult>(
+
+                // the first sorting rule
+                { item ->
+                    // get the name or titel of the item
+                    val name = when (item) {
+                        is SearchResult.UserResult -> item.username.lowercase()
+                        is SearchResult.GameResult -> item.title.lowercase()
+                    }
+
+                    // match the searchResult 0 wil come on top, contains after
+                    when {
+                        name.startsWith(lowerSearchQuery) -> 0
+                        name.contains(lowerSearchQuery) -> 1
+                        else -> 2
+                    }
+                },
+
+                // if the first fails the second sorting rule is alphabetical sorting as a fallback
+                { item ->
+                    when (item) {
+                        is SearchResult.UserResult -> item.username.lowercase()
+                        is SearchResult.GameResult -> item.title.lowercase()
+                    }
+                }
+            )
+        )
     }
 }

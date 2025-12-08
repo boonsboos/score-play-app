@@ -1,7 +1,6 @@
-package nl.connectplay.scoreplay.models.auth.response
+package nl.connectplay.scoreplay.models.auth
 
 import kotlinx.serialization.Serializable
-import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
 
 @Serializable
 data class RegisterResponse(
