@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
-import nl.connectplay.scoreplay.models.auth.SignUpRequest
+import nl.connectplay.scoreplay.models.auth.register.RegisterRequest
 
 data class RegisterUiState(
     val email: String = "",
@@ -94,7 +94,7 @@ class RegisterViewModel(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                val request = SignUpRequest(
+                val request = RegisterRequest(
                     email = state.email,
                     username = state.username,
                     password = state.password

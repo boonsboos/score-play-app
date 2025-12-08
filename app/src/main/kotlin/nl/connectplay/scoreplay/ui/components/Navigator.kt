@@ -32,7 +32,6 @@ fun Navigator(modifier: Modifier = Modifier) {
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
-    // Create a navigation back stack starting at the Home screen
     val backStack = rememberNavBackStack(start)
 
     NavDisplay(
@@ -71,7 +70,7 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(
-                        backStack = backStack,
+                        backStack,
                         onLogout = {
                             mainViewModel.logout()
                             backStack.apply {
@@ -91,22 +90,20 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack = backStack)
+                    NotificationsScreen(backStack)
                 }
 
                 is Screens.Login -> NavEntry(key = key) {
                     LoginScreen(
                         viewModel = koinViewModel(),
-                        onNavigateToRegister = { backStack.add(Screens.Home) }
+                        onNavigateToRegister = { backStack.add(Screens.Register) },
+                        onLoginSuccess = { backStack.add(Screens.Home) }
                     )
                 }
 
                 is Screens.Register -> NavEntry(key = key) {
                     RegisterScreen(
-                        onNavigateToLogin = {
-                            //backStack.add(Screens.Login)
-                            // TODO: add navigate to Login
-                        }
+                        onNavigateToLogin = { backStack.add(Screens.Login) }
                     )
                 }
 
@@ -122,6 +119,5 @@ fun Navigator(modifier: Modifier = Modifier) {
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }
-        }
-    )
+        })
 }
