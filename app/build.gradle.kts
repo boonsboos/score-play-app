@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -78,6 +79,12 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
+
+    val room_version = "2.8.4"
+    // Room
+    implementation("androidx.room:room-runtime:${room_version}")
+    ksp("androidx.room:room-compiler:$room_version")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

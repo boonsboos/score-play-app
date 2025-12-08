@@ -264,7 +264,6 @@ private fun VisibilityOptionRow(
     }
 }
 
-
 @Composable
 fun PlayerStep() {
     Column(
