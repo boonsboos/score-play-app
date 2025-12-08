@@ -23,7 +23,7 @@ class SearchApi(private val client: HttpClient) : KoinComponent {
     // koin wil search for the right instance of TokenDataStore and gives this to the class
     private val tokenStore: TokenDataStore by inject()
 
-    // returns the stored token or null if the token doesnt exists
+    // returns the stored token or null if the token doesn't exists
     private suspend fun getToken(): String? = tokenStore.token.firstOrNull()
 
     suspend fun searchUsers(query: String): List<SearchUserDto> {
