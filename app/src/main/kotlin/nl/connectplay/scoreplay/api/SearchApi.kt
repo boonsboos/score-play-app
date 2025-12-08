@@ -35,7 +35,7 @@ class SearchApi(private val client: HttpClient) : KoinComponent {
                 header(
                     "Authorization",
                     "Bearer $token"
-                ) // add the JWT token to the request for the autentication
+                ) // add the JWT token to the request for the authentication
             }
         }
 
