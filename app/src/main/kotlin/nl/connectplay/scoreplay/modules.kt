@@ -43,7 +43,6 @@ val apiModule = module {
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
     single { GameApi(get()) }
-    single { AuthApi(get()) }
     single { SearchApi(get()) }
 }
 
