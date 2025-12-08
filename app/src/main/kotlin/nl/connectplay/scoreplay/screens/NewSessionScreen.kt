@@ -18,6 +18,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -100,7 +101,18 @@ fun ChooseGameStep(
     val games by viewModel.gamesList.collectAsState()
     val loading by viewModel.areLoading.collectAsState()
 
+    // Search state
+    var searchQuery by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) { if (games.isEmpty() && !loading) { viewModel.fetch() } }
+
+    val filteredGames = remember(games, searchQuery) {
+        if (searchQuery.isBlank()) games
+        else games.filter { game ->
+            val q = searchQuery.lowercase()
+            game.name.lowercase().contains(q)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -110,6 +122,16 @@ fun ChooseGameStep(
             text = "Choose a Game to play",
             style = MaterialTheme.typography.titleMedium
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Search games…") },
+            singleLine = true
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
@@ -117,7 +139,7 @@ fun ChooseGameStep(
             games.isEmpty() -> Text("No games found")
             else -> {
                 LazyColumn {
-                    items(games, key = { it.id }) { game ->
+                    items(filteredGames, key = { it.id }) { game ->
                         val isSelected = selectedGame?.id == game.id
                         val bgColor =
                             if (isSelected)
