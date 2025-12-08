@@ -1,7 +1,6 @@
 package nl.connectplay.scoreplay.models
 
 import androidx.compose.ui.graphics.Color
-import nl.connectplay.scoreplay.screens.ExampleScreen
 import kotlin.random.Random
 
 data class Example(

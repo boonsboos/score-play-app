@@ -41,7 +41,8 @@ object Routes {
         const val register = "/register"
         const val login = "/login"
     }
-//    object Games {
+
+    //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
 //
@@ -89,8 +90,8 @@ object Routes {
 //        }
 //    }
 //
-//    object Notifications {
-//        const val root = "/notifications"
-//        fun byId(notificationId: String) = "/notifications/$notificationId"
-//    }
+    object Notifications {
+        const val root = "/notifications"
+        fun byId(notificationId: String) = "$root/$notificationId"
+    }
 }
