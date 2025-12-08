@@ -18,7 +18,8 @@ import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.MainViewModel
+import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -26,11 +27,11 @@ import org.koin.core.parameter.parametersOf
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
     val tokenState by mainViewModel.tokenState.collectAsState()
-    
+
     if (!tokenState.isLoaded) return
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
-    
+
     val backStack = rememberNavBackStack(start)
 
     NavDisplay(
@@ -69,9 +70,7 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(
-
                         backStack,
-
                         onLogout = {
                             mainViewModel.logout()
                             backStack.apply {
@@ -91,7 +90,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack = backStack)
+                    NotificationsScreen(backStack)
                 }
 
                 is Screens.Login -> NavEntry(key = key) {
@@ -99,20 +98,26 @@ fun Navigator(modifier: Modifier = Modifier) {
                         viewModel = koinViewModel(),
                         onNavigateToRegister = { backStack.add(Screens.Register) },
                         onLoginSuccess = { backStack.add(Screens.Home) }
-
                     )
                 }
 
                 is Screens.Register -> NavEntry(key = key) {
                     RegisterScreen(
-
                         onNavigateToLogin = { backStack.add(Screens.Login) }
+                    )
+                }
+
+                is Screens.Search -> NavEntry(key = key) {
+                    SearchScreen(
+                        backStack = backStack,
+                        // pass query string from nav key to screen
+                        initialQuery = key.query,
+                        searchViewModel = koinViewModel()
                     )
                 }
 
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }
-        }
-    )
+        })
 }
