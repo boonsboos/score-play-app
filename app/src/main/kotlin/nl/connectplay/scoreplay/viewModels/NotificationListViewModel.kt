@@ -38,4 +38,15 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
             }
         }
     }
+
+    fun markNotificationsAsRead(notification: Notification) {
+        // we get the currentList of notifications
+        _state.update { currentList ->
+            currentList.map { notificationItem -> // loop over the current notificationItem to check witch is clicked one
+                if (notificationItem.notificationId == notification.notificationId)
+                    notificationItem.copy(read = true) // mark clicked notificationItem as read
+                else notificationItem // keep original state
+            }
+        }
+    }
 }
