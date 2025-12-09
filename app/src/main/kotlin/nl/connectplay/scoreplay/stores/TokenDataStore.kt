@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.stores
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -25,17 +26,32 @@ class TokenDataStore(private val context: Context) {
         }
     }
 
+    suspend fun saveUserId(userId: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[USER_ID_KEY] = userId
+        }
+    }
+
     // read the token as a Flow so it updates automatically when changed
     val token: Flow<String?> = context.dataStore.data.map { prefs -> prefs[TOKEN_KEY] }
+    val userId: Flow<Int?> = context.dataStore.data.map { prefs -> prefs[USER_ID_KEY] }
 
     suspend fun clearToken() {
         context.dataStore.edit { prefs ->
             prefs.remove(TOKEN_KEY)
+        }
+        clearUserId()
+    }
+
+    suspend fun clearUserId() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(USER_ID_KEY)
         }
     }
 
     // static private object
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
+        private val USER_ID_KEY = intPreferencesKey("user_id")
     }
 }

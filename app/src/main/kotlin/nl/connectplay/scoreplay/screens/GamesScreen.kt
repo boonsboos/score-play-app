@@ -53,7 +53,7 @@ fun GamesScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Games") },
+        topBar = { ScorePlayTopBar(title = "Games", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Box(
@@ -68,15 +68,21 @@ fun GamesScreen(
             }
 
             LazyColumn {
-                items(items = gamesList, key = { it.id}) {
+                items(items = gamesList, key = { it.id }) {
                     ListItem(
                         modifier = Modifier.clickable {
                             // TODO: navigate to game detail screen
                         },
                         headlineContent = { Text(it.name) },
                         overlineContent = { Text(it.publisher) },
-                        supportingContent = { Text(it.description, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        leadingContent = { Icon(Icons.Filled.Image, "TODO image")}
+                        supportingContent = {
+                            Text(
+                                it.description,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        leadingContent = { Icon(Icons.Filled.Image, "TODO image") }
                     )
                 }
             }

@@ -16,6 +16,7 @@ import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.MainViewModel
@@ -78,6 +79,10 @@ fun Navigator(modifier: Modifier = Modifier) {
                             }
                         }
                     )
+                }
+
+                is Screens.Profile -> NavEntry(key = key) {
+                    ProfileScreen(backStack = backStack, userId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {

@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
+import nl.connectplay.scoreplay.api.ProfileApi
+import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.auth.login.LoginRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
@@ -55,6 +57,7 @@ sealed class LoginEvent {
  */
 class LoginViewModel(
     private val authApi: AuthApi,
+    private val profileApi: ProfileApi,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
@@ -134,6 +137,13 @@ class LoginViewModel(
                         isLoading = false,
                         errorMessage = "Login failed. Please check your username or password."
                     )
+                }
+            } finally {
+                try{
+                    val res = profileApi.getProfile()
+                    tokenDataStore.saveUserId(res.id)
+                }catch(e: InvalidTokenException){
+                    tokenDataStore.clearToken()
                 }
             }
         }

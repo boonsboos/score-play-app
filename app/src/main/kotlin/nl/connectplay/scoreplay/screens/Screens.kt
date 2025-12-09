@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.screens
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 // this object list all screens the app can go to
 object Screens {
@@ -25,6 +26,9 @@ object Screens {
 
     @Serializable
     data object Login : NavKey
+
+    @Serializable
+    data class Profile(val userId: Int? = null) : NavKey
 
     @Serializable
     data class ExampleDetail(val id: Int) : NavKey

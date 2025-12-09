@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
@@ -13,7 +14,9 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.MainViewModel
+import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -24,6 +27,10 @@ val viewModelsModule = module {
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+    // some weird hacky way to provide parameters to ViewModel
+    viewModel { (userId: Int?) ->
+        ProfileViewModel(userId, get())
+    }
 }
 
 // Koin module to provide networking / API dependencies
@@ -39,6 +46,7 @@ val apiModule = module {
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
     single { GameApi(get()) }
+    single { ProfileApi(get(), get()) }
 }
 
 // Koin module for app storage (DataStore)

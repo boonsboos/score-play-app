@@ -33,14 +33,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScorePlayTopBar(
     title: String,
+    backStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
     onSearched: (String) -> Unit = {}
 ) {
@@ -85,7 +89,7 @@ fun ScorePlayTopBar(
         },
         actions = {
             // todo: navigate to user / display their picture
-            IconButton(onClick = {}) {
+            IconButton(onClick = { backStack.add(Screens.Profile()) }) {
                 Icon(
                     imageVector = Icons.Outlined.AccountCircle,
                     contentDescription = "TODO account page"
