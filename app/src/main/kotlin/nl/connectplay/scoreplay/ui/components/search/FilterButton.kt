@@ -14,10 +14,10 @@ fun FilterButton(title: String, selected: Boolean, onClick: () -> Unit) {
     // change button color when selected
     Button(
         onClick = onClick,
-        colors = if (selected)
-            ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
-        else
-            ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary),
+        colors = ButtonDefaults.buttonColors(
+            if (selected) MaterialTheme.colorScheme.primary else
+                MaterialTheme.colorScheme.secondary
+        ),
         modifier = Modifier.height(38.dp)
     ) {
         Text(title)
