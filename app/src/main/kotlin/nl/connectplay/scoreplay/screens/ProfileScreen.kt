@@ -34,10 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import kotlinx.coroutines.flow.compose
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
@@ -56,12 +54,12 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ProfileScreen(
     backStack: NavBackStack<NavKey>,
-    userId: Int?,
+    targetUserId: Int?,
     modifier: Modifier = Modifier,
-    profileViewModel: ProfileViewModel = koinViewModel(parameters = { parametersOf(userId) }),
+    profileViewModel: ProfileViewModel = koinViewModel(parameters = { parametersOf(targetUserId) }),
     tokenStore: TokenDataStore = koinInject()
 ) {
-    val userId by tokenStore.userId.collectAsState(0)
+    val userId by tokenStore.userId.collectAsState(null) // currently logged in user id
     val profileState by profileViewModel.profileState.collectAsState()
     val sessionsState by profileViewModel.sessionsState.collectAsState()
     val gamesState by profileViewModel.gamesState.collectAsState()
@@ -226,7 +224,7 @@ fun ProfileScreen(
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         FallbackImage(
-                                            url = game.name, // should be game.picture when available
+                                            url = null, // should be game.picture when available
                                             size = 75.dp
                                         ) {
                                             Icon(

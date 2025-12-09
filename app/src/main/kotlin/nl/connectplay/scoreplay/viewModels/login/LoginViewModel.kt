@@ -96,6 +96,13 @@ class LoginViewModel(
                 // tells the ui login was success
                 _events.emit(LoginEvent.Success)
 
+                try{
+                    val res = profileApi.getProfile()
+                    tokenDataStore.saveUserId(res.id)
+                }catch(e: InvalidTokenException){
+                    e.printStackTrace()
+                    tokenDataStore.clearToken()
+                }
             } catch (e: Exception) {
                 // show the error message if login failed
                 _uiState.update {
@@ -103,13 +110,6 @@ class LoginViewModel(
                         isLoading = false,
                         errorMessage = "Login failed. Please check your username or password."
                     )
-                }
-            } finally {
-                try{
-                    val res = profileApi.getProfile()
-                    tokenDataStore.saveUserId(res.id)
-                }catch(e: InvalidTokenException){
-                    tokenDataStore.clearToken()
                 }
             }
         }

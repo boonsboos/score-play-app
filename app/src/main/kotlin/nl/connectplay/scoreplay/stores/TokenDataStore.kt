@@ -43,7 +43,7 @@ class TokenDataStore(private val context: Context) {
         clearUserId()
     }
 
-    suspend fun clearUserId() {
+    private suspend fun clearUserId() {
         context.dataStore.edit { prefs ->
             prefs.remove(USER_ID_KEY)
         }

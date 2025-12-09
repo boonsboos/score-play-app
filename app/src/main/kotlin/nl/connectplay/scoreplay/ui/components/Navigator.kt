@@ -83,7 +83,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Profile -> NavEntry(key = key) {
-                    ProfileScreen(backStack = backStack, userId = key.userId)
+                    ProfileScreen(backStack = backStack, targetUserId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {

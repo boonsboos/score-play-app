@@ -1,7 +1,12 @@
 package nl.connectplay.scoreplay.viewModels.profile
 
 /**
- * explanations needed
+ * Represents the UI state for asynchronous operations.
+ *
+ * UiState has three possible states:
+ * - Loading: The operation is in progress.
+ * - Success: The operation completed successfully and contains the resulting data.
+ * - Error: The operation failed, with an error message and an optional exception.
  */
 sealed interface UiState<out T> {
     data object Loading : UiState<Nothing>

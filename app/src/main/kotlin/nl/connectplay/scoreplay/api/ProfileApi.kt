@@ -33,7 +33,7 @@ class ProfileApi(
         }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
-        throw Exception("Failed to fetch profile data")
+        throw Exception("Failed to fetch profile data", e)
     }
 
     suspend fun getLastSessions(userId: Int): List<UserSession> = try {
@@ -46,26 +46,42 @@ class ProfileApi(
             204 -> {
                 emptyList()
             }
+
             502 -> {
                 throw Exception("Bad Gateway")
             }
+
             else -> {
                 res.body()
             }
         }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
-        throw Exception("Failed to fetch last sessions")
+        throw Exception("Failed to fetch last sessions", e)
     }
 
     suspend fun getFollowedGames(userId: Int): List<Game> = try {
-        client.get(Routes.Users.followedGames(userId)) {
+        val res = client.get(Routes.Users.followedGames(userId)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-        }.body()
+        }
+
+        when (res.status.value) {
+            204 -> {
+                emptyList()
+            }
+
+            502 -> {
+                throw Exception("Bad Gateway")
+            }
+
+            else -> {
+                res.body()
+            }
+        }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
-        throw Exception("Failed to fetch followed games")
+        throw Exception("Failed to fetch followed games", e)
     }
 }
