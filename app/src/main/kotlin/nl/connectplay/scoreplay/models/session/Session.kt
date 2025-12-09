@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import nl.connectplay.scoreplay.models.SessionVisibility
 
 @Entity
-data class DbSession(
+data class Session(
     val userId: String,
     val gameId: String,
     val visibility: SessionVisibility,
