@@ -37,7 +37,7 @@ fun NotificationsScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Notifications") },
+        topBar = { ScorePlayTopBar(title = "Notifications", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)

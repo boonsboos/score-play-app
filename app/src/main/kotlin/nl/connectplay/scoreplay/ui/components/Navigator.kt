@@ -18,7 +18,8 @@ import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.MainViewModel
+import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -103,6 +104,15 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Register -> NavEntry(key = key) {
                     RegisterScreen(
                         onNavigateToLogin = { backStack.add(Screens.Login) }
+                    )
+                }
+
+                is Screens.Search -> NavEntry(key = key) {
+                    SearchScreen(
+                        backStack = backStack,
+                        // pass query string from nav key to screen
+                        initialQuery = key.query,
+                        searchViewModel = koinViewModel()
                     )
                 }
 

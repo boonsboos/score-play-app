@@ -1,20 +1,23 @@
 package nl.connectplay.scoreplay
 
+import androidx.appcompat.widget.SearchView
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
-import nl.connectplay.scoreplay.viewModels.LoginViewModel
-import org.koin.core.module.dsl.singleOf
+import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import nl.connectplay.scoreplay.viewModels.MainViewModel
+import nl.connectplay.scoreplay.viewModels.SearchViewModel
+import nl.connectplay.scoreplay.viewModels.main.MainViewModel
+import org.koin.core.module.dsl.singleOf
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 
 // Koin module to provide ViewModels
@@ -26,6 +29,7 @@ val viewModelsModule = module {
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+    viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
 }
 
@@ -39,8 +43,9 @@ val apiModule = module {
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
-    single { NotificationApi(get(),get()) }
+    single { NotificationApi(get(), get()) }
     single { GameApi(get()) }
+    single { SearchApi(get()) }
 }
 
 // Koin module for app storage (DataStore)

@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.viewModels
+package nl.connectplay.scoreplay.viewModels.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,40 +11,6 @@ import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.models.auth.login.LoginRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
-
-/**
- * Represents all ui data for the login screen
- *
- * When something is changing, the screen wil changes to
- *
- * @property credentials this can be username or email
- * @property password password what the user needs
- * @property showPassword for the toggle of hide or unhide password
- * @property isLoading necessary for the check if we are logging in or not
- * @property errorMessage for the errors
- * @property isFormValid the check for the valid value in the inputfields
- */
-data class LoginUiState(
-    val credentials: String = "",
-    val password: String = "",
-    val showPassword: Boolean = false,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val isFormValid: Boolean = false
-)
-
-/**
- * Events that the login screen can react to.
- *
- * These are one-time actions. They do not stay in the state.
- * The UI listens for these events and does something once.
- *
- * For example:
- * - Success → go to the next screen.
- */
-sealed class LoginEvent {
-    object Success : LoginEvent()
-}
 
 /**
  * Handles what the login screen needs
