@@ -1,7 +1,5 @@
 package nl.connectplay.scoreplay.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -43,6 +40,9 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import org.koin.androidx.compose.koinViewModel
 import nl.connectplay.scoreplay.viewModels.SessionState
+import nl.connectplay.scoreplay.viewModels.SessionViewModel
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +52,17 @@ fun NewSessionScreen(
     onEvent: (SessionEvent) -> Unit,
     viewModel: GamesListViewModel = koinViewModel()
 ) {
-    var tab by remember { mutableStateOf(0) }
+    val sessionViewModel: SessionViewModel = koinViewModel()
+    val state by sessionViewModel.state.collectAsState()
 
     val games by viewModel.gamesList.collectAsState()
     val loading by viewModel.areLoading.collectAsState()
 
     LaunchedEffect(Unit) { if (games.isEmpty() && !loading) { viewModel.fetch() } }
+
+    LaunchedEffect(Unit) {
+        onEvent(SessionEvent.SetUser(1234))
+    }
 
     // Search state
     var searchQuery by remember { mutableStateOf("") }
@@ -68,7 +73,6 @@ fun NewSessionScreen(
         if (searchQuery.isBlank()) games
         else games.filter { it.name.contains(searchQuery, ignoreCase = true) }
     }
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -135,6 +139,8 @@ fun NewSessionScreen(
                                 selectedGame = game
                                 searchQuery = game.name
                                 expanded = false
+
+                                onEvent(SessionEvent.SetGame(game.id))
                             }
                         )
                     }
@@ -167,8 +173,19 @@ fun NewSessionScreen(
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2
                         )
-
                     }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = {
+                    onEvent(SessionEvent.SaveSession)
+                },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text("Save Session")
                 }
             }
 

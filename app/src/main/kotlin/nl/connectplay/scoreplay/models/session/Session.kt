@@ -6,8 +6,8 @@ import nl.connectplay.scoreplay.models.SessionVisibility
 
 @Entity
 data class Session(
-    val userId: String,
-    val gameId: String,
+    val userId: Int,
+    val gameId: Int,
     val visibility: SessionVisibility,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0

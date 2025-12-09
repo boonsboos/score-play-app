@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,8 +14,8 @@ import nl.connectplay.scoreplay.models.session.Session
 
 data class SessionState(
     val session: Session? = null,
-    val gameId: String = "",
-    val userId: String = "",
+    val gameId: Int? = null,
+    val userId: Int? = null,
     val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
     val isOnSetup: Boolean = true,
 )
@@ -35,11 +36,14 @@ class SessionViewModel(
                 }
             }
             SessionEvent.SaveSession -> {
-                val gameId = _state.value.gameId
-                val userId = _state.value.userId
-                val visibility = _state.value.visibility
+                val current = _state.value
+                val gameId = current.gameId
+                val userId = current.userId
+                val visibility = current.visibility
 
-                if (gameId.isBlank() || userId.isBlank()) {
+                if (userId == null || gameId == null) {
+                    Log.d("SessionVM", "SaveSession aborted: userId=$userId, gameId=$gameId")
+
                     return
                 }
 
@@ -53,6 +57,13 @@ class SessionViewModel(
                     dao.upsertSession(session)
                 }
             }
+
+            is SessionEvent.SetUser -> {
+                _state.update { it.copy(
+                    userId = event.userId
+                ) }
+            }
+
             is SessionEvent.SetGame -> {
                 _state.update { it.copy(
                     gameId = event.gameId
