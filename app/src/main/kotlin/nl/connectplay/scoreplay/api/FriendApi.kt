@@ -1,32 +1,46 @@
 package nl.connectplay.scoreplay.api
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.NoTransformationFoundException
-import io.ktor.client.call.body
-import io.ktor.client.request.get
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.flow.first
 import nl.connectplay.scoreplay.models.Friend
+import nl.connectplay.scoreplay.models.FriendDto
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
-/**
- * API class for retrieving friends of a user.
- * Uses Ktor HttpClient to make GET requests to the backend.
- */
-class FriendsApi(private val client: HttpClient) {
+class FriendsApi(
+    private val client: HttpClient,
+    private val tokenDataStore: TokenDataStore
+) {
 
     /**
-     * Retrieves all friends for a given user by their ID.
+     * Fetches the friends of a user.
+     * Since the backend returns a list of FriendDto objects, we map them to
+     * frontend Friend models with an avatar letter for display purposes.
      *
-     * @param userId The ID of the user whose friends are being fetched.
-     * @return A list of Friend objects. Returns an empty list if the request fails or no data is found.
+     * @param userId The ID of the user whose friends are being fetched
+     * @return List of Friend objects for UI display
      */
     suspend fun getFriendsById(userId: Int): List<Friend> {
+        // Get the JWT token from the datastore
+        val token = tokenDataStore.token.first() ?: return emptyList()
+
         return try {
-            // Make a GET request to the backend route for the user's friends
-            client.get(Routes.Friend.friends(userId)).body<List<Friend>>()
+            // Make the GET request with the Authorization header
+            val friendDto: List<FriendDto> = client.get("/users/$userId/friends") {
+                header("Authorization", "Bearer $token")
+            }.body() // explicitly specify type for deserialization
 
-
-        } catch (e: NoTransformationFoundException) {
-            // If the response body cannot be transformed into List<Friend>, return an empty list
-            listOf()
+            // Map the backend DTOs to frontend Friend models
+            friendDto.map { dto ->
+                Friend(
+                    username = dto.username,
+                    avatarLetter = dto.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+                )
+            }.sortedBy { it.username.lowercase() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList() // Return empty list on any error
         }
     }
 }

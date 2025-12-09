@@ -34,7 +34,7 @@ val viewModelsModule = module {
         FriendViewModel(
             friendsApi = get(),
             friendRequestApi = get(),
-            userDataStore = get()
+            get()
         )
     }
     viewModelOf(::SearchViewModel)
@@ -53,7 +53,7 @@ val apiModule = module {
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
     single { GameApi(get()) }
-    single { FriendsApi(get()) }
+    single { FriendsApi(get(), get()) }
     single { FriendRequestApi(get()) }
     single { SearchApi(get()) }
 }
@@ -61,5 +61,4 @@ val apiModule = module {
 // Koin module for app storage (DataStore)
 val storeModule = module {
     singleOf(::TokenDataStore)
-    singleOf(::UserDataStore)
 }

@@ -22,8 +22,7 @@ import nl.connectplay.scoreplay.stores.UserDataStore
  */
 class LoginViewModel(
     private val authApi: AuthApi,
-    private val tokenDataStore: TokenDataStore,
-    private val userDataStore: UserDataStore
+    private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -89,8 +88,6 @@ class LoginViewModel(
 
                 // this saves the token so when de user close the app the token wil be used when de app is back online
                 tokenDataStore.saveToken(response.token)
-
-                userDataStore.saveUserId(response.userId)
 
                 _uiState.update { it.copy(isLoading = false) }
 
