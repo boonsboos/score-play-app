@@ -19,7 +19,7 @@ fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
     // the scaffold makes the basic bottomnav layout
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Home",backStack=backStack) },
+        topBar = { ScorePlayTopBar(title = "Home", backStack = backStack) },
         // bottombar uses the backStack on witch screen we are
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(

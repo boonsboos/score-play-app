@@ -1,23 +1,12 @@
-package nl.connectplay.scoreplay.viewModels
+package nl.connectplay.scoreplay.viewModels.main
 
 import androidx.lifecycle.ViewModel
-import nl.connectplay.scoreplay.stores.TokenDataStore
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-/**
- * the ui state for the main screen
- *
- * @property token stored the token or a null
- * @property isLoaded wil be True when the token has finished loading
- */
-data class MainUiState(
-    val token: String? = null,
-    val isLoaded: Boolean = false
-)
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
 class MainViewModel(private val tokenDataStore: TokenDataStore) : ViewModel() {
 

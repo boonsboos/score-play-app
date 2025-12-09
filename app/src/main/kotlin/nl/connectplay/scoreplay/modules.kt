@@ -4,19 +4,23 @@ import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.ProfileApi
+import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
-import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
-import nl.connectplay.scoreplay.viewModels.RegisterViewModel
-import nl.connectplay.scoreplay.viewModels.GamesListViewModel
-import nl.connectplay.scoreplay.viewModels.LoginViewModel
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
 import nl.connectplay.scoreplay.stores.TokenDataStore
-import nl.connectplay.scoreplay.viewModels.MainViewModel
+import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
+import nl.connectplay.scoreplay.viewModels.GamesListViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
+import nl.connectplay.scoreplay.viewModels.RegisterViewModel
+import nl.connectplay.scoreplay.viewModels.SearchViewModel
+import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
+import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.module
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -27,6 +31,8 @@ val viewModelsModule = module {
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+    viewModelOf(::SearchViewModel)
+    viewModelOf(::NotificationListViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
         ProfileViewModel(userId, get())
@@ -39,13 +45,13 @@ val apiModule = module {
     single<HttpClient> { Http.client }
 
     // ExampleApi that depends on HttpClient
-    single {
-        ExampleApi(get()) // get<HttpClient>()
-    }
+    single { ExampleApi(get()) } // get<HttpClient>()
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
+    single { NotificationApi(get(), get()) }
     single { GameApi(get()) }
+    single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
 }
 

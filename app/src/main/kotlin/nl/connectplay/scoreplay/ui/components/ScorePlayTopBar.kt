@@ -80,7 +80,8 @@ fun ScorePlayTopBar(
                             textFieldState = textFieldState,
                             scope = scope,
                             onBack = { searching = !searching },
-                            onSearched = { query -> onSearched(query) }, // bubble the search query up
+                            // navigate to search result screen
+                            onSearched = { query -> backStack.add(Screens.Search(query)) }, // bubble the search query up
                             modifier = modifier
                         )
                     },
@@ -121,6 +122,8 @@ private fun TopBarSearchBar(
             onBack()
             scope.launch {
                 searchBarState.animateToCollapsed()
+                // empty text field since we don't want to keep searching the same thing
+                textFieldState.edit { replace(0, query.length, "") }
             }
         },
         placeholder = {
