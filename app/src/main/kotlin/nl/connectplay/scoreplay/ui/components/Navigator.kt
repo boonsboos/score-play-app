@@ -90,7 +90,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack)
+                    NotificationsScreen(backStack = backStack)
                 }
 
                 is Screens.Login -> NavEntry(key = key) {

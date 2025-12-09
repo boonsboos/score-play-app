@@ -94,8 +94,8 @@ object Routes {
 //        }
 //    }
 //
-//    object Notifications {
-//        const val root = "/notifications"
-//        fun byId(notificationId: String) = "/notifications/$notificationId"
-//    }
+    object Notifications {
+        const val root = "/notifications"
+        fun byId(notificationId: String) = "$root/$notificationId"
+    }
 }
