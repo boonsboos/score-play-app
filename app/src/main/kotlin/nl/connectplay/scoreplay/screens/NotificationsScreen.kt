@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -70,6 +71,7 @@ fun NotificationsScreen(
                                 read = it.read,
                                 // set this notification to unread when clicked
                                 onClick = {
+                                    Log.d("NOTIFY", "Clicked notification: ${it.notificationId}")
                                     notificationViewModel.markNotificationsAsRead(
                                         it
                                     )
