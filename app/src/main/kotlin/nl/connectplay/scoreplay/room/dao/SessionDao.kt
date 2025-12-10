@@ -10,7 +10,7 @@ import nl.connectplay.scoreplay.room.entities.RoomSession
 interface SessionDao {
 
     /**
-     * Upsert means update if exist otherwise insert
+     * Upsert means update if exists otherwise insert
      */
     @Upsert
     suspend fun upsertSession(roomSession: RoomSession)
@@ -19,6 +19,6 @@ interface SessionDao {
     suspend fun deleteSession(roomSession: RoomSession)
 
     @Query("SELECT * FROM sessions WHERE id = :id")
-    fun getSessionById(id: Int): RoomSession
+    suspend fun getSessionById(id: Int): RoomSession
 
 }
