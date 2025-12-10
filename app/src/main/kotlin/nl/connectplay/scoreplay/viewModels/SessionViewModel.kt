@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import nl.connectplay.scoreplay.SessionEvent
-import nl.connectplay.scoreplay.dao.SessionDao
+import nl.connectplay.scoreplay.room.events.SessionEvent
+import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.models.SessionVisibility
-import nl.connectplay.scoreplay.models.session.Session
+import nl.connectplay.scoreplay.room.entities.RoomSession
 
 data class SessionState(
-    val session: Session? = null,
+    val roomSession: RoomSession? = null,
     val gameId: Int? = null,
     val userId: Int? = null,
     val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
@@ -32,9 +32,10 @@ class SessionViewModel(
         when(event) {
             is SessionEvent.DeleteSession -> {
                 viewModelScope.launch {
-                    dao.deleteSession(event.session)
+                    dao.deleteSession(event.roomSession)
                 }
             }
+
             SessionEvent.SaveSession -> {
                 val current = _state.value
                 val gameId = current.gameId
@@ -47,14 +48,14 @@ class SessionViewModel(
                     return
                 }
 
-                val session = Session(
+                val roomSession = RoomSession(
                     gameId = gameId,
                     userId = userId,
                     visibility = visibility
                 )
 
                 viewModelScope.launch {
-                    dao.upsertSession(session)
+                    dao.upsertSession(roomSession)
                 }
             }
 
@@ -69,6 +70,7 @@ class SessionViewModel(
                     gameId = event.gameId
                 ) }
             }
+
             is SessionEvent.SetVisibility -> {
                 _state.update { it.copy(
                     visibility = event.visibility
@@ -86,8 +88,6 @@ class SessionViewModel(
                     isOnSetup = false
                 ) }
             }
-
         }
-
     }
 }

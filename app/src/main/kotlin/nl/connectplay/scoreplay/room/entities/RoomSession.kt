@@ -1,11 +1,11 @@
-package nl.connectplay.scoreplay.models.session
+package nl.connectplay.scoreplay.room.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import nl.connectplay.scoreplay.models.SessionVisibility
 
-@Entity
-data class Session(
+@Entity(tableName = "sessions")
+data class RoomSession(
     val userId: Int,
     val gameId: Int,
     val visibility: SessionVisibility,

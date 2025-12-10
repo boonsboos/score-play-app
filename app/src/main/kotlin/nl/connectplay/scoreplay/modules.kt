@@ -7,8 +7,8 @@ import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.api.http.Http
-import nl.connectplay.scoreplay.dao.SessionDao
-import nl.connectplay.scoreplay.database.SessionDatabase
+import nl.connectplay.scoreplay.room.dao.SessionDao
+import nl.connectplay.scoreplay.room.Database
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -57,14 +57,15 @@ val databaseModule = module {
 
     single {
         Room.databaseBuilder(
-            get(),
-            SessionDatabase::class.java,
-            "scoreplay.db"
-        ).build()
+                get(),
+                Database::class.java,
+                "scoreplay.db"
+            ).fallbackToDestructiveMigration(true)
+            .build()
     }
 
     single<SessionDao> {
-        get<SessionDatabase>().dao
+        get<Database>().dao
     }
 
 }

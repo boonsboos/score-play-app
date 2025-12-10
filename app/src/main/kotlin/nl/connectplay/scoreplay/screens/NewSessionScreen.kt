@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import nl.connectplay.scoreplay.SessionEvent
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
@@ -48,12 +48,10 @@ import nl.connectplay.scoreplay.viewModels.SessionViewModel
 @Composable
 fun NewSessionScreen(
     backStack: NavBackStack<NavKey>,
-    state: SessionState,
     onEvent: (SessionEvent) -> Unit,
     viewModel: GamesListViewModel = koinViewModel()
 ) {
     val sessionViewModel: SessionViewModel = koinViewModel()
-    val state by sessionViewModel.state.collectAsState()
 
     val games by viewModel.gamesList.collectAsState()
     val loading by viewModel.areLoading.collectAsState()
