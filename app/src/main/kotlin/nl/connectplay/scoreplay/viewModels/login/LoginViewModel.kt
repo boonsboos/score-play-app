@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.AuthApi
+import nl.connectplay.scoreplay.api.ProfileApi
+import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.auth.login.LoginRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
@@ -21,6 +23,7 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
  */
 class LoginViewModel(
     private val authApi: AuthApi,
+    private val profileApi: ProfileApi,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
@@ -93,6 +96,13 @@ class LoginViewModel(
                 // tells the ui login was success
                 _events.emit(LoginEvent.Success)
 
+                try{
+                    val res = profileApi.getProfile()
+                    tokenDataStore.saveUserId(res.id)
+                }catch(e: InvalidTokenException){
+                    e.printStackTrace()
+                    tokenDataStore.clearToken()
+                }
             } catch (e: Exception) {
                 // show the error message if login failed
                 _uiState.update {
