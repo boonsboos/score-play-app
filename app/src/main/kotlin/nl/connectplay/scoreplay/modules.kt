@@ -25,8 +25,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import nl.connectplay.scoreplay.viewModels.MainViewModel
-import nl.connectplay.scoreplay.viewModels.SessionViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {

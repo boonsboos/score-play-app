@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.viewModels
+package nl.connectplay.scoreplay.viewModels.session
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -9,16 +9,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
-import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.room.entities.RoomSession
 
-data class SessionState(
-    val roomSession: RoomSession? = null,
-    val gameId: Int? = null,
-    val userId: Int? = null,
-    val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
-    val isOnSetup: Boolean = true,
-)
+
 
 class SessionViewModel(
     private val dao: SessionDao

@@ -20,9 +20,7 @@ import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.RegisterViewModel
-import nl.connectplay.scoreplay.viewModels.SessionState
-import nl.connectplay.scoreplay.viewModels.SessionViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -104,7 +102,6 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                     NewSessionScreen(
                         backStack = backStack,
-                        state = state,
                         onEvent = sessionViewModel::onEvent
                     )
                 }

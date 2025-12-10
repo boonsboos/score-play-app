@@ -35,13 +35,12 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import org.koin.androidx.compose.koinViewModel
-import nl.connectplay.scoreplay.viewModels.SessionState
-import nl.connectplay.scoreplay.viewModels.SessionViewModel
-
+import org.koin.compose.koinInject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,17 +48,20 @@ import nl.connectplay.scoreplay.viewModels.SessionViewModel
 fun NewSessionScreen(
     backStack: NavBackStack<NavKey>,
     onEvent: (SessionEvent) -> Unit,
-    viewModel: GamesListViewModel = koinViewModel()
-) {
-    val sessionViewModel: SessionViewModel = koinViewModel()
+    viewModel: GamesListViewModel = koinViewModel(),
+    tokenStore: TokenDataStore = koinInject()
 
+) {
+    val userId by tokenStore.userId.collectAsState(null)
     val games by viewModel.gamesList.collectAsState()
     val loading by viewModel.areLoading.collectAsState()
 
     LaunchedEffect(Unit) { if (games.isEmpty() && !loading) { viewModel.fetch() } }
 
-    LaunchedEffect(Unit) {
-        onEvent(SessionEvent.SetUser(1234))
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            onEvent(SessionEvent.SetUser(userId!!))
+        }
     }
 
     // Search state
@@ -74,7 +76,7 @@ fun NewSessionScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "New Session") },
+        topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 onEvent(SessionEvent.showScores)
