@@ -15,19 +15,30 @@ import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.NewSessionScreen
+import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.SessionState
 import nl.connectplay.scoreplay.viewModels.SessionViewModel
+import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
-    // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(Screens.NewSession)
+    val mainViewModel = koinViewModel<MainViewModel>()
+    val tokenState by mainViewModel.tokenState.collectAsState()
+
+    if (!tokenState.isLoaded) return
+
+    val start = if (tokenState.token != null) Screens.Home else Screens.Login
+
+    val backStack = rememberNavBackStack(start)
+
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -62,21 +73,21 @@ fun Navigator(modifier: Modifier = Modifier) {
                     )
                 }
 
-                is Screens.Register -> NavEntry(key = key) {
-                    RegisterScreen(
-                        onNavigateToLogin = {
-                            //backStack.add(Screens.Login)
-                            // TODO: add navigate to Login
+                is Screens.Home -> NavEntry(key = key) {
+                    HomeScreen(
+                        backStack,
+                        onLogout = {
+                            mainViewModel.logout()
+                            backStack.apply {
+                                while (isNotEmpty()) removeLast()
+                                add(Screens.Login)
+                            }
                         }
                     )
                 }
 
-
-                is Screens.Home -> NavEntry(key = key) {
-                    HomeScreen(
-                        backStack,
-                        onLogout = {} // TODO()
-                    )
+                is Screens.Profile -> NavEntry(key = key) {
+                    ProfileScreen(backStack = backStack, targetUserId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
@@ -99,8 +110,32 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack)
+                    NotificationsScreen(backStack = backStack)
                 }
+
+                is Screens.Login -> NavEntry(key = key) {
+                    LoginScreen(
+                        viewModel = koinViewModel(),
+                        onNavigateToRegister = { backStack.add(Screens.Register) },
+                        onLoginSuccess = { backStack.add(Screens.Home) }
+                    )
+                }
+
+                is Screens.Register -> NavEntry(key = key) {
+                    RegisterScreen(
+                        onNavigateToLogin = { backStack.add(Screens.Login) }
+                    )
+                }
+
+                is Screens.Search -> NavEntry(key = key) {
+                    SearchScreen(
+                        backStack = backStack,
+                        // pass query string from nav key to screen
+                        initialQuery = key.query,
+                        searchViewModel = koinViewModel()
+                    )
+                }
+
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }

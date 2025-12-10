@@ -17,7 +17,7 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 fun FriendsScreen(backStack: NavBackStack<NavKey>) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Friends") },
+        topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(
             modifier = Modifier

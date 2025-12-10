@@ -28,5 +28,11 @@ object Screens {
     data object Login : NavKey
 
     @Serializable
+    data class Search(val query: String) : NavKey
+
+    @Serializable
+    data class Profile(val userId: Int? = null) : NavKey
+
+    @Serializable
     data class ExampleDetail(val id: Int) : NavKey
 }

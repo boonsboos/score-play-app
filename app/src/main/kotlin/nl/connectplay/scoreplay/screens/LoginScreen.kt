@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-import nl.connectplay.scoreplay.viewModels.LoginViewModel
-import nl.connectplay.scoreplay.viewModels.LoginEvent
+import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
+import nl.connectplay.scoreplay.viewModels.login.LoginEvent
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit, // used to navigate to the register screen
+    onLoginSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle() // bridge from ViewModel to Compose
 
@@ -30,7 +31,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is LoginEvent.Success -> onNavigateToRegister()
+                is LoginEvent.Success -> onLoginSuccess()
             }
         }
     }

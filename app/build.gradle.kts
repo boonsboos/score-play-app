@@ -80,6 +80,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
 
+    implementation(libs.coil.compose)
+
     val room_version = "2.8.4"
     // Room
     implementation("androidx.room:room-runtime:${room_version}")

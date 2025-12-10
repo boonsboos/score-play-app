@@ -6,9 +6,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import nl.connectplay.scoreplay.models.auth.request.SignUpRequest
-import nl.connectplay.scoreplay.models.auth.LoginRequest
-import nl.connectplay.scoreplay.models.auth.LoginResponse
+import nl.connectplay.scoreplay.models.auth.register.RegisterRequest
+import nl.connectplay.scoreplay.models.auth.login.LoginRequest
+import nl.connectplay.scoreplay.models.auth.login.LoginResponse
 
 /**
  * AuthApi is for all authentication API-calls
@@ -24,11 +24,12 @@ class AuthApi(private val client: HttpClient) {
             setBody(request) // put the login data into the request
         }.body() // get the servers JSON and changed it in a LoginResponse object
     }
-    suspend fun registerUser(registerRequest: SignUpRequest): SignUpRequest {
+
+    suspend fun registerUser(registerRequest: RegisterRequest): RegisterRequest {
         return client.post(Routes.Auth.register) {
             contentType(ContentType.Application.Json)
-                setBody(registerRequest)
-            }
+            setBody(registerRequest)
+        }
             .body()
     }
 }
