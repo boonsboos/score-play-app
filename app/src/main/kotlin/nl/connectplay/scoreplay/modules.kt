@@ -79,7 +79,7 @@ val databaseModule = module {
     }
 
     single<SessionDao> {
-        get<Database>().dao
+        get<Database>().sessionDao
     }
 
 }

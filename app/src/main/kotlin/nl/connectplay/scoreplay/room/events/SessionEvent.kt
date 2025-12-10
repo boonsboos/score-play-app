@@ -11,6 +11,6 @@ sealed interface SessionEvent {
     data class SetVisibility(val visibility: SessionVisibility): SessionEvent
     data class DeleteSession(val roomSession: RoomSession): SessionEvent
 
-    object showSetup: SessionEvent
-    object showScores: SessionEvent
+    object ShowSetup: SessionEvent
+    object ShowScores: SessionEvent
 }

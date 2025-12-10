@@ -59,9 +59,7 @@ fun NewSessionScreen(
     LaunchedEffect(Unit) { if (games.isEmpty() && !loading) { viewModel.fetch() } }
 
     LaunchedEffect(userId) {
-        if (userId != null) {
-            onEvent(SessionEvent.SetUser(userId!!))
-        }
+        userId?.let { onEvent(SessionEvent.SetUser(it)) }
     }
 
     // Search state
@@ -79,7 +77,7 @@ fun NewSessionScreen(
         topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                onEvent(SessionEvent.showScores)
+                onEvent(SessionEvent.ShowScores)
             }) { Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Score Screen") }
         },
         bottomBar = { BottomNavBar(backStack) }
@@ -164,12 +162,12 @@ fun NewSessionScreen(
 
                     Column {
                         Text(
-                            text = selectedGame!!.name,
+                            text = selectedGame?.name ?: "",
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Text(
-                            text = selectedGame!!.description,
+                            text = selectedGame?.description ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2
                         )

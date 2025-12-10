@@ -10,15 +10,14 @@ import nl.connectplay.scoreplay.models.session.CreateSessionRequest
 import nl.connectplay.scoreplay.models.session.CreateSessionResponse
 
 /**
- * AuthApi is for all authentication API-calls
+ * Session is for all session API-calls
  *
- * Sends login requests to the API and gets a response
  *
  * @property client The HttpClient used to send requests to the server
  */
 class SessionApi(private val client: HttpClient) {
     suspend fun createSession(payload: CreateSessionRequest): CreateSessionResponse {
-        return client.post(Routes.Auth.login) {
+        return client.post(Routes.Sessions.root) {
             contentType(ContentType.Application.Json)   // let the server know we will send JSON
             setBody(payload)
         }.body()

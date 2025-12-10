@@ -98,7 +98,6 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.NewSession -> NavEntry(key = key) {
                     val sessionViewModel: SessionViewModel = koinViewModel()
-                    val state by sessionViewModel.state.collectAsState()
 
                     NewSessionScreen(
                         backStack = backStack,

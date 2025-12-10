@@ -60,10 +60,10 @@ object Routes {
 //        }
 //    }
 //
-//    object Sessions {
-//        const val root = "/sessions"
-//        fun byId(sessionId: String) = "/sessions/$sessionId"
-//
+   object Sessions {
+        const val root = "/sessions"
+        //fun byId(sessionId: String) = "/sessions/$sessionId"
+
 //        object Players {
 //            fun all(sessionId: String) = "/sessions/$sessionId/players"
 //            fun byId(sessionId: String, playerId: String) = "/sessions/$sessionId/players/$playerId"
@@ -73,8 +73,8 @@ object Routes {
 //            fun all(sessionId: String) = "/sessions/$sessionId/scores"
 //            fun byId(sessionId: String, scoreId: String) = "/sessions/$sessionId/scores/$scoreId"
 //        }
-//    }
-//
+    }
+
     object Users {
         const val root = "/users"
         fun getAll() = root
