@@ -70,13 +70,13 @@ class SessionViewModel(
                 ) }
             }
 
-            SessionEvent.showSetup -> {
+            SessionEvent.ShowSetup -> {
                 _state.update { it.copy(
                     isOnSetup = true
                 ) }
             }
 
-            SessionEvent.showScores -> {
+            SessionEvent.ShowScores -> {
                 _state.update { it.copy(
                     isOnSetup = false
                 ) }
