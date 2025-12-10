@@ -38,4 +38,23 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
             }
         }
     }
+
+    fun markNotificationsAsRead(notification: Notification) {
+        viewModelScope.launch {
+            try {
+                notificationApi.markNotificationsAsRead(notification.notificationId) // send the patch request to the api to mark as read
+                // we get the currentList of notifications
+                _state.update { currentList ->
+                    currentList.map { notificationItem -> // loop over the current notificationItem to check witch is clicked one
+                        if (notificationItem.notificationId == notification.notificationId)
+                            notificationItem.copy(read = true) // mark clicked notificationItem as read
+                        else notificationItem // keep original state
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _error.value = "Failed to update notification"
+            }
+        }
+    }
 }
