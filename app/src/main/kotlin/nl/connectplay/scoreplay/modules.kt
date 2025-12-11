@@ -5,15 +5,16 @@ import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.FriendRequestApi
 import nl.connectplay.scoreplay.api.FriendsApi
+import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.stores.TokenDataStore
-import nl.connectplay.scoreplay.stores.UserDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
+import org.koin.core.module.dsl.singleOf
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
@@ -21,6 +22,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -30,6 +32,7 @@ val viewModelsModule = module {
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+    viewModelOf(::NotificationListViewModel)
     viewModel {
         FriendViewModel(
             friendsApi = get(),
@@ -46,12 +49,11 @@ val apiModule = module {
     single<HttpClient> { Http.client }
 
     // ExampleApi that depends on HttpClient
-    single {
-        ExampleApi(get()) // get<HttpClient>()
-    }
+    single { ExampleApi(get()) } // get<HttpClient>()
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
+    single { NotificationApi(get(), get()) }
     single { GameApi(get()) }
     single { FriendsApi(get(), get()) }
     single { FriendRequestApi(get()) }

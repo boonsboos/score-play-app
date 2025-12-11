@@ -33,12 +33,14 @@ object Routes {
 
     object Games {
         private const val root = "/games"
+
         fun getAll() = root
     }
 
     object Auth {
         const val register = "/register"
         const val login = "/login"
+
     }
 
     object Friend {
@@ -48,15 +50,9 @@ object Routes {
     object FriendRequest {
         fun getFriendRequests(userId: Int) = "/users/$userId/friends"
 
-        fun handleFriendRequest(userId: Int, friendId: Int) = "/users/me/friendrequests"
+        fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
-
-    object Users {
-        private const val root = "/users"
-        fun getAll() = root
-    }
-}
-
+//    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
 //
@@ -108,3 +104,4 @@ object Routes {
 //        const val root = "/notifications"
 //        fun byId(notificationId: String) = "/notifications/$notificationId"
 //    }
+}
