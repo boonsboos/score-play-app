@@ -92,7 +92,7 @@ class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
 
                 // the first sorting rule
                 { item ->
-                    // get the name or titel of the item
+                    // get the name or title of the item
                     val name = when (item) {
                         is SearchResult.UserResult -> item.username.lowercase()
                         is SearchResult.GameResult -> item.title.lowercase()

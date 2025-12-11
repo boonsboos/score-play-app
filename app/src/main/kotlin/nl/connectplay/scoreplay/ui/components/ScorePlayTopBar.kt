@@ -45,7 +45,8 @@ import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 fun ScorePlayTopBar(
     title: String,
     backStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSearched: (String) -> Unit = {}
 ) {
     var searching: Boolean by remember { mutableStateOf(false) }
 
@@ -89,7 +90,7 @@ fun ScorePlayTopBar(
         },
         actions = {
             // todo: navigate to user / display their picture
-            IconButton(onClick = {}) {
+            IconButton(onClick = { backStack.add(Screens.Profile()) }) {
                 Icon(
                     imageVector = Icons.Outlined.AccountCircle,
                     contentDescription = "TODO account page"

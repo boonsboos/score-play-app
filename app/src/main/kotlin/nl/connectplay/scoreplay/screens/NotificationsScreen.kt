@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.foundation.clickable
 
 @Composable
 fun NotificationsScreen(
@@ -63,10 +65,17 @@ fun NotificationsScreen(
 
                 else -> {
                     LazyColumn {
-                        items(notifications) {
+                        items(notifications) { it -> // loops over each notification in the list
                             NotificationItem(
                                 content = it.content + if (it.read) " (Read)" else " (Unread)",
-                                read = it.read
+                                read = it.read,
+                                // set this notification to unread when clicked
+                                onClick = {
+                                    Log.d("NOTIFY", "Clicked notification: ${it.notificationId}")
+                                    notificationViewModel.markNotificationsAsRead(
+                                        it
+                                    )
+                                }
                             )
                         }
                     }
@@ -78,7 +87,7 @@ fun NotificationsScreen(
 
 @Composable
 fun NotificationItem(
-    content: String, read: Boolean, modifier: Modifier = Modifier
+    content: String, read: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -88,6 +97,7 @@ fun NotificationItem(
                     alpha = 0.2F
                 )
             )
+            .clickable { onClick() }
     ) {
 
         Text(

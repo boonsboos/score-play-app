@@ -13,14 +13,14 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
- * The searchAPI is responsible to get the informatie of users and games
+ * The searchAPI is responsible to get the information of users and games
  * The Http request will send requests to the API and the API will respond
  *
  * @property client this is the Ktor instance of the HttpClient
  */
 class SearchApi(private val client: HttpClient) : KoinComponent {
 
-    // koin wil search for the right instance of TokenDataStore and gives this to the class
+    // koin will search for the right instance of TokenDataStore and gives this to the class
     private val tokenStore: TokenDataStore by inject()
 
     // returns the stored token or null if the token doesn't exists

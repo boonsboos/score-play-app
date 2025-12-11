@@ -9,5 +9,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FriendRequestDto(
     val user: UserDto,
-    val status: String
+    val status: FriendshipStatus
 )

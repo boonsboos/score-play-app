@@ -10,10 +10,12 @@ import nl.connectplay.scoreplay.models.Friend
 import nl.connectplay.scoreplay.models.FriendRequest
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
+// UI state for the FriendList screen
 data class FriendsUiState(
     val friendRequests: List<FriendRequest> = emptyList(),
     val friends: List<Friend> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class FriendViewModel(
@@ -22,23 +24,39 @@ class FriendViewModel(
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
+    // Backing property for UI state
     private val _uiState = MutableStateFlow(FriendsUiState())
     val uiState: StateFlow<FriendsUiState> = _uiState.asStateFlow()
 
-    private val hardcodedUserId = 10
+    // Helper function to get the current userId from DataStore
+    private suspend fun getUserId(): Int? {
+        return tokenDataStore.userId.firstOrNull()
+    }
 
-    init { refreshData() }
+    // Initialize the ViewModel by loading the friend data
+    init {
+        refreshData()
+    }
 
+    /**
+     * Refreshes the friends and friend requests data for the current user.
+     * Updates the UI state accordingly.
+     */
     fun refreshData() {
-        _uiState.update { it.copy(isLoading = true) }
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
+            val userId = getUserId()
+            if (userId == null) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "User not logged in") }
+                return@launch
+            }
+
             try {
-                println("Fetching friends for userId=$hardcodedUserId")
-                val friends = friendsApi.getFriendsById(hardcodedUserId)
-                println("Friends fetched: count=${friends.size}")
-                friends.forEach { println("   • Friend: ${it.username}, status=${it.status}") }
-                val requests = friendRequestApi.getAllFriendrequests(hardcodedUserId)
+                // Fetch friends and friend requests from the API
+                val friends = friendsApi.getFriendsById(userId)
+                friends.forEach { println("DEBUG ${it.username} is ${it.status}") }
+                val requests = friendRequestApi.getAllFriendrequests(userId)
 
                 _uiState.update {
                     it.copy(
@@ -48,32 +66,50 @@ class FriendViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = e.message ?: "Failed to fetch friends")
+                }
             }
         }
     }
 
+    /**
+     * Approves a friend request and updates the UI state.
+     */
     fun approveRequest(friendId: Int) {
         viewModelScope.launch {
-            val acceptedFriend = friendRequestApi.accept(hardcodedUserId, friendId)
-            if (acceptedFriend != null) {
-                _uiState.update { state ->
-                    state.copy(
-                        friendRequests = state.friendRequests.filterNot { it.id == friendId },
-                        friends = state.friends + acceptedFriend
-                    )
+            val userId = getUserId() ?: return@launch
+            try {
+                val acceptedFriend = friendRequestApi.accept(userId, friendId)
+                if (acceptedFriend != null) {
+                    _uiState.update { state ->
+                        state.copy(
+                            friendRequests = state.friendRequests.filterNot { it.id == friendId },
+                            friends = state.friends + acceptedFriend
+                        )
+                    }
                 }
+            } catch (e: Exception) {
             }
         }
     }
 
+    /**
+     * Declines a friend request and updates the UI state.
+     */
     fun declineRequest(friendId: Int) {
         viewModelScope.launch {
-            val success = friendRequestApi.decline(hardcodedUserId, friendId)
-            if (success) {
-                _uiState.update { state ->
-                    state.copy(friendRequests = state.friendRequests.filterNot { it.id == friendId })
+            val userId = getUserId() ?: return@launch
+            try {
+                val success = friendRequestApi.decline(userId, friendId)
+                if (success) {
+                    _uiState.update { state ->
+                        state.copy(
+                            friendRequests = state.friendRequests.filterNot { it.id == friendId }
+                        )
+                    }
                 }
+            } catch (e: Exception) {
             }
         }
     }
