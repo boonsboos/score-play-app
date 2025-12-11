@@ -7,6 +7,6 @@ data class FriendRequest(
     val id: Int,
     val username: String,
     val avatarLetter: String,
-    val status: FriendRequestStatus
+    val status: FriendshipStatus
 )
 

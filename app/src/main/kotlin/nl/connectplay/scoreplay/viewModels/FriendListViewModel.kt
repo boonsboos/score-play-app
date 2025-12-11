@@ -57,6 +57,7 @@ class FriendViewModel(
                 val friends = friendsApi.getFriendsById(userId)
                 friends.forEach { println("DEBUG ${it.username} is ${it.status}") }
                 val requests = friendRequestApi.getAllFriendrequests(userId)
+                requests.forEach { println("DEBUG ${it.username}") }
 
                 _uiState.update {
                     it.copy(
@@ -90,6 +91,7 @@ class FriendViewModel(
                     }
                 }
             } catch (e: Exception) {
+                // Optionally handle the error
             }
         }
     }
@@ -110,6 +112,7 @@ class FriendViewModel(
                     }
                 }
             } catch (e: Exception) {
+                // Optionally handle the error
             }
         }
     }
