@@ -42,7 +42,6 @@ import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewSessionScreen(
@@ -90,7 +89,7 @@ fun NewSessionScreen(
         ) {
 
             Text(
-                text = "Choose a Game to play",
+                text = "1. Choose a Game to play",
                 style = MaterialTheme.typography.titleMedium
             )
 
