@@ -21,6 +21,9 @@ object Screens {
     data object Games : NavKey
 
     @Serializable
+    data class GameDetail(val gameId: Int) : NavKey
+
+    @Serializable
     data object Notifications : NavKey
 
     @Serializable

@@ -68,10 +68,10 @@ fun GamesScreen(
             }
 
             LazyColumn {
-                items(items = gamesList, key = { it.id}) {
+                items(items = gamesList, key = { it.id }) {
                     ListItem(
                         modifier = Modifier.clickable {
-                            // TODO: navigate to game detail screen
+                            backStack.add(Screens.GameDetail(it.id))
                         },
                         headlineContent = { Text(it.name) },
                         overlineContent = { Text(it.publisher) },

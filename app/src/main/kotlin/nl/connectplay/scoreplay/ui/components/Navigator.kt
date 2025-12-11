@@ -10,6 +10,7 @@ import androidx.navigation3.ui.NavDisplay
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
+import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
@@ -22,7 +23,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     // Create a navigation back stack starting at the Home screen
-    val backStack = rememberNavBackStack(Screens.Register)
+    val backStack = rememberNavBackStack(Screens.Games)
     NavDisplay(
         modifier = modifier, backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
@@ -80,6 +81,13 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Games -> NavEntry(key = key) {
                     GamesScreen(backStack)
+                }
+
+                is Screens.GameDetail -> NavEntry(key = key) {
+                    GameDetailScreen(
+                        gameId = key.gameId,
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {

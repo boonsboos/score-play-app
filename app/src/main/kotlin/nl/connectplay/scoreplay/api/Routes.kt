@@ -36,6 +36,7 @@ object Routes {
 
         fun getAll() = root
         fun single(gameId: Int) = "$root/$gameId"
+        fun pictures(gameId: Int) = "$root/$gameId/pictures"
     }
 
     object Auth {
