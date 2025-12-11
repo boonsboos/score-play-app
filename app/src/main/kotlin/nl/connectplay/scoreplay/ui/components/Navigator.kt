@@ -14,11 +14,13 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.NewSessionScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -92,6 +94,15 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Games -> NavEntry(key = key) {
                     GamesScreen(backStack)
+                }
+
+                is Screens.NewSession -> NavEntry(key = key) {
+                    val sessionViewModel: SessionViewModel = koinViewModel()
+
+                    NewSessionScreen(
+                        backStack = backStack,
+                        onEvent = sessionViewModel::onEvent
+                    )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {

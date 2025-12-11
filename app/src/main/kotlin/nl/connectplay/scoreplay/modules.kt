@@ -1,13 +1,17 @@
 package nl.connectplay.scoreplay
 
+import androidx.room.Room
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
+import nl.connectplay.scoreplay.room.dao.SessionDao
+import nl.connectplay.scoreplay.room.Database
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -21,6 +25,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -31,6 +36,7 @@ val viewModelsModule = module {
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::MainViewModel)
+    viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
     // some weird hacky way to provide parameters to ViewModel
@@ -51,6 +57,7 @@ val apiModule = module {
     single { AuthApi(get()) }
     single { NotificationApi(get(), get()) }
     single { GameApi(get()) }
+    single { SessionApi(get()) }
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
 }
@@ -58,4 +65,21 @@ val apiModule = module {
 // Koin module for app storage (DataStore)
 val storeModule = module {
     singleOf(::TokenDataStore)
+}
+
+val databaseModule = module {
+
+    single {
+        Room.databaseBuilder(
+                get(),
+                Database::class.java,
+                "scoreplay.db"
+            ).fallbackToDestructiveMigration(true)
+            .build()
+    }
+
+    single<SessionDao> {
+        get<Database>().sessionDao
+    }
+
 }
