@@ -23,9 +23,11 @@ class GamesListViewModel(private val gameApi: GameApi) : ViewModel() {
 
         val allGames = gameApi.all(offset, limit)
 
-        gamesListStateFlow.emit(
-            gamesList.value + allGames
-        )
+        if (allGames != gamesListStateFlow.value) {
+            gamesListStateFlow.emit(
+                gamesList.value + allGames
+            )
+        }
 
         // indicate we are no longer loading
         loadingState.emit(false)

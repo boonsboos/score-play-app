@@ -27,7 +27,10 @@ class GameApi(val client: HttpClient) {
             null
         }
 
-    suspend fun pictures(gameId: Int): List<ImageVector> {
-        return listOf()
-    }
+    suspend fun pictures(gameId: Int): List<String> =
+        try {
+            client.get(Routes.Games.pictures(gameId)).body()
+        } catch (e: NoTransformationFoundException) {
+            listOf()
+        }
 }

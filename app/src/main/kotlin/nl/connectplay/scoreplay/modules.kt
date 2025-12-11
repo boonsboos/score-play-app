@@ -26,6 +26,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -43,6 +44,7 @@ val viewModelsModule = module {
     viewModel { (userId: Int?) ->
         ProfileViewModel(userId, get())
     }
+    viewModelOf(::GameDetailViewModel)
 }
 
 // Koin module to provide networking / API dependencies
