@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FriendDto(
-    val username: String,
-    val profilePicture: String? = null,
+    val user: UserDto,
     val status: String
 )

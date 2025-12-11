@@ -33,12 +33,16 @@ class FriendsApi(
 
             // Map the backend DTOs to frontend Friend models
             friendDto.map { dto ->
+                val username = dto.user.username
+
                 Friend(
-                    username = dto.username,
-                    avatarLetter = dto.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+                    username = username,
+                    avatarLetter = username.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                    status = dto.status
                 )
             }.sortedBy { it.username.lowercase() }
         } catch (e: Exception) {
+            println("FriendsApi.getFriendsById() CALLED with userId=$userId")
             e.printStackTrace()
             emptyList() // Return empty list on any error
         }

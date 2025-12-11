@@ -48,7 +48,7 @@ object Routes {
     object FriendRequest {
         fun getFriendRequests(userId: Int) = "/users/$userId/friends"
 
-        fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
+        fun handleFriendRequest(userId: Int, friendId: Int) = "/users/me/friendrequests"
     }
 
     object Users {

@@ -27,17 +27,18 @@ class FriendViewModel(
 
     private val hardcodedUserId = 10
 
-    init {
-        refreshData()
-    }
+    init { refreshData() }
 
     fun refreshData() {
         _uiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
             try {
-                val friends: List<Friend> = friendsApi.getFriendsById(hardcodedUserId)
-                val requests: List<FriendRequest> = friendRequestApi.getAllFriendrequests(hardcodedUserId)
+                println("Fetching friends for userId=$hardcodedUserId")
+                val friends = friendsApi.getFriendsById(hardcodedUserId)
+                println("Friends fetched: count=${friends.size}")
+                friends.forEach { println("   • Friend: ${it.username}, status=${it.status}") }
+                val requests = friendRequestApi.getAllFriendrequests(hardcodedUserId)
 
                 _uiState.update {
                     it.copy(
@@ -54,7 +55,7 @@ class FriendViewModel(
 
     fun approveRequest(friendId: Int) {
         viewModelScope.launch {
-            val acceptedFriend: Friend? = friendRequestApi.accept(hardcodedUserId, friendId)
+            val acceptedFriend = friendRequestApi.accept(hardcodedUserId, friendId)
             if (acceptedFriend != null) {
                 _uiState.update { state ->
                     state.copy(
@@ -71,9 +72,7 @@ class FriendViewModel(
             val success = friendRequestApi.decline(hardcodedUserId, friendId)
             if (success) {
                 _uiState.update { state ->
-                    state.copy(
-                        friendRequests = state.friendRequests.filterNot { it.id == friendId }
-                    )
+                    state.copy(friendRequests = state.friendRequests.filterNot { it.id == friendId })
                 }
             }
         }

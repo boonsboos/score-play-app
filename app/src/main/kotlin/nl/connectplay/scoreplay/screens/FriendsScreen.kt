@@ -25,6 +25,7 @@ import nl.connectplay.scoreplay.models.Friend
 import nl.connectplay.scoreplay.models.FriendRequest
 import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import org.koin.androidx.compose.koinViewModel
 
@@ -213,22 +214,5 @@ fun FriendRequestRow(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun CircleAvatar(letter: String) {
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.secondary),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            letter,
-            color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 }
