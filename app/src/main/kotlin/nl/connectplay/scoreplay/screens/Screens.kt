@@ -19,8 +19,13 @@ object Screens {
 
     @Serializable
     data object Games : NavKey
+
     @Serializable
-    data object NewSession : NavKey
+    data object SessionSetup : NavKey
+
+    @Serializable
+    data object SessionScore : NavKey
+
     @Serializable
     data object Notifications : NavKey
 

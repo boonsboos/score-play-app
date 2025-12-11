@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.screens
+package nl.connectplay.scoreplay.screens.session
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,7 +49,6 @@ fun NewSessionScreen(
     onEvent: (SessionEvent) -> Unit,
     viewModel: GamesListViewModel = koinViewModel(),
     tokenStore: TokenDataStore = koinInject()
-
 ) {
     val userId by tokenStore.userId.collectAsState(null)
     val games by viewModel.gamesList.collectAsState()

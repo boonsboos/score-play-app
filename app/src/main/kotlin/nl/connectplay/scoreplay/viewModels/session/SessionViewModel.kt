@@ -11,8 +11,6 @@ import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
 
-
-
 class SessionViewModel(
     private val dao: SessionDao
 ): ViewModel() {

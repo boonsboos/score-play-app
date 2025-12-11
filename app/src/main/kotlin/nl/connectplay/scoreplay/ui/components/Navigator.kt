@@ -14,7 +14,7 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
-import nl.connectplay.scoreplay.screens.NewSessionScreen
+import nl.connectplay.scoreplay.screens.session.NewSessionScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
@@ -96,7 +96,16 @@ fun Navigator(modifier: Modifier = Modifier) {
                     GamesScreen(backStack)
                 }
 
-                is Screens.NewSession -> NavEntry(key = key) {
+                is Screens.SessionSetup -> NavEntry(key = key) {
+                    val sessionViewModel: SessionViewModel = koinViewModel()
+
+                    NewSessionScreen(
+                        backStack = backStack,
+                        onEvent = sessionViewModel::onEvent
+                    )
+                }
+
+                is Screens.SessionScore -> NavEntry(key = key) {
                     val sessionViewModel: SessionViewModel = koinViewModel()
 
                     NewSessionScreen(
