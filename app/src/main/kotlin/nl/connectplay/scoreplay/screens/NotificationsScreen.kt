@@ -27,6 +27,9 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import nl.connectplay.scoreplay.models.notifications.NotificationFilter
+import nl.connectplay.scoreplay.ui.components.FilterButton
 
 @Composable
 fun NotificationsScreen(
@@ -44,6 +47,42 @@ fun NotificationsScreen(
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                FilterButton(
+                    title = "All",
+                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.ALL,
+                    onClick = {
+                        notificationViewModel.setFilter(NotificationFilter.ALL)
+                    }
+                )
+                FilterButton(
+                    title = "Unread",
+                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.UNREAD,
+                    onClick = {
+                        notificationViewModel.setFilter(NotificationFilter.UNREAD)
+                    }
+                )
+                FilterButton(
+                    title = "Friend Requests",
+                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.FRIEND_REQUEST,
+                    onClick = {
+                        notificationViewModel.setFilter(NotificationFilter.FRIEND_REQUEST)
+                    }
+                )
+                FilterButton(
+                    title = "Highscores",
+                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.HIGHSCORES,
+                    onClick = {
+                        notificationViewModel.setFilter(NotificationFilter.HIGHSCORES)
+                    }
+                )
+            }
             when {
                 isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -62,6 +101,7 @@ fun NotificationsScreen(
                         text = "No notifications available", textAlign = TextAlign.Center
                     )
                 }
+
 
                 else -> {
                     LazyColumn {

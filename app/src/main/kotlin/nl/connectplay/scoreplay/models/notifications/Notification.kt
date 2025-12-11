@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.models
+package nl.connectplay.scoreplay.models.notifications
 
 import kotlinx.serialization.Serializable
 

@@ -18,8 +18,8 @@ import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.ui.components.search.SearchListItem
-import nl.connectplay.scoreplay.ui.components.search.FilterButton
+import nl.connectplay.scoreplay.ui.components.SearchListItem
+import nl.connectplay.scoreplay.ui.components.FilterButton
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
