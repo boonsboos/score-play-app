@@ -36,8 +36,11 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
             _error.update { null }
             try {
                 val response = notificationApi.getAllNotifications()
-                _allNotifications.value = response
-                _state.value = response
+                _allNotifications.value = response.map { notification ->
+                    notification.copy(
+                        content = mapNotificationContent((notification.content))
+                    )
+                }
                 applyFilter()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -60,8 +63,19 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
         val filtered = when (_filter.value) {
             NotificationFilter.ALL -> allNotifications
             NotificationFilter.UNREAD -> allNotifications.filter { !it.read }
-            NotificationFilter.FRIEND_REQUEST -> allNotifications.filter { it.content.contains("friend", ignoreCase = true) }
-            NotificationFilter.HIGHSCORES -> allNotifications.filter { it.content.contains("highscore", ignoreCase = true)}
+            NotificationFilter.FRIEND_REQUEST -> allNotifications.filter {
+                it.content.contains(
+                    "friend",
+                    ignoreCase = true
+                )
+            }
+
+            NotificationFilter.HIGHSCORES -> allNotifications.filter {
+                it.content.contains(
+                    "highscore",
+                    ignoreCase = true
+                )
+            }
         }
         _state.value = filtered
     }
@@ -82,6 +96,20 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
                 e.printStackTrace()
                 _error.value = "Failed to update notification"
             }
+        }
+    }
+
+    private fun mapNotificationContent(rawContent: String): String {
+        return when {
+            rawContent.contains("FriendRequestReplyEvent") -> {
+                if (rawContent.contains("\"accepts\":true")) {
+                    "Friends is accepted!"
+                } else {
+                    "Don't want to be your friend!"
+                }
+            }
+
+            else -> rawContent
         }
     }
 }

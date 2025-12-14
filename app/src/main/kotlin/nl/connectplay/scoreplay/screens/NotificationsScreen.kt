@@ -27,7 +27,10 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
 import nl.connectplay.scoreplay.ui.components.FilterButton
 
@@ -39,6 +42,8 @@ fun NotificationsScreen(
     val notifications by notificationViewModel.state.collectAsState()
     val isLoading by notificationViewModel.isLoading.collectAsState()
     val error by notificationViewModel.error.collectAsState()
+    val listState = rememberLazyListState()
+    val filterScrollState = rememberScrollState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -50,9 +55,10 @@ fun NotificationsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .horizontalScroll(filterScrollState)
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 FilterButton(
                     title = "All",
@@ -104,7 +110,10 @@ fun NotificationsScreen(
 
 
                 else -> {
-                    LazyColumn {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
                         items(notifications) { it -> // loops over each notification in the list
                             NotificationItem(
                                 content = it.content + if (it.read) " (Read)" else " (Unread)",
@@ -139,7 +148,6 @@ fun NotificationItem(
             )
             .clickable { onClick() }
     ) {
-
         Text(
             text = content, modifier = Modifier.padding(16.dp)
         )
