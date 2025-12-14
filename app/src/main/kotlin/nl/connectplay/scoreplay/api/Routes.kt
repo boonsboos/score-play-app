@@ -41,16 +41,18 @@ object Routes {
         const val login = "/login"
     }
 
-    object Friend {
-        fun friends(userId: Int) = "/users/$userId/friends"
+    object Friends {
+        fun getFriends(userId: Int) = "/users/$userId/friends"
     }
 
     object FriendRequest {
-        fun getFriendRequests(userId: Int) = "users/me/friendrequests"
+        fun getAllFriendRequests() = "/users/me/friendrequests"
 
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
-//    object Games {
+
+
+    //    object Games {
 //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
@@ -93,7 +95,8 @@ object Routes {
         fun sessions(userId: Int) = "$root/$userId/sessions"
         fun followedGames(userId: Int) = "$root/$userId/followed"
     }
-//
+
+    //
     object Notifications {
         const val root = "/notifications"
         fun byId(notificationId: String) = "$root/$notificationId"

@@ -1,50 +1,94 @@
 package nl.connectplay.scoreplay.api
 
-import io.ktor.client.*
-import io.ktor.client.call.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.call.body
 import io.ktor.client.request.*
-import kotlinx.coroutines.flow.first
-import nl.connectplay.scoreplay.models.Friend
-import nl.connectplay.scoreplay.models.FriendDto
+import io.ktor.http.*
+import kotlinx.coroutines.flow.firstOrNull
+import nl.connectplay.scoreplay.models.friends.*
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
+/**
+ * API for managing friends and friend requests:
+ * - Fetch friends
+ * - Fetch friend requests
+ * - Handle friend requests
+ */
 class FriendsApi(
     private val client: HttpClient,
     private val tokenDataStore: TokenDataStore
 ) {
 
-    /**
-     * Fetches the friends of a user.
-     * Since the backend returns a list of FriendDto objects, we map them to
-     * frontend Friend models with an avatar letter for display purposes.
+     /**
+     * Adds the necessary authentication and content headers to an HTTP request.
      *
-     * @param userId The ID of the user whose friends are being fetched
-     * @return List of Friend objects for UI display
+     * This function retrieves the current user token from the TokenDataStore.
+     * If a token is available, it sets the "Authorization" header with a Bearer token
+     * and also sets the "Accept" header to "application/json".
+     *
+     * @param builder The HttpRequestBuilder to which the headers will be added.
+     * @return true if the token was successfully retrieved and headers were added, false otherwise.
+     * */
+    private suspend fun authHeaders(builder: HttpRequestBuilder): Boolean {
+        val token = tokenDataStore.token.firstOrNull() ?: return false
+        builder.header("Authorization", "Bearer $token")
+        builder.header("Accept", "application/json")
+        return true
+    }
+
+    /**
+     * Fetch friends
      */
-    suspend fun getFriendsById(userId: Int): List<Friend> {
-        // Get the JWT token from the datastore
-        val token = tokenDataStore.token.first() ?: return emptyList()
+    suspend fun getFriends(userId: Int): List<UserFriend> {
+        return client.get(Routes.Friends.getFriends(userId)) {
+            if (!authHeaders(this)) return emptyList()
+        }.body()
+    }
+
+    /**
+     * Fetch friendrequests
+     */
+    suspend fun getAllFriendRequests(): FriendRequestListResponse {
+        return try {
+            client.get(Routes.FriendRequest.getAllFriendRequests()) {
+                if (!authHeaders(this)) return FriendRequestListResponse(emptyList(), emptyList())
+            }.body()
+        } catch (e: NoTransformationFoundException) {
+            FriendRequestListResponse(emptyList(), emptyList())
+        }
+    }
+
+    /**
+     * Handle friendrequests
+     */
+    suspend fun accept(friendId: Int): Boolean {
+        val userId = tokenDataStore.userId.firstOrNull() ?: return false
 
         return try {
-            // Make the GET request with the Authorization header
-            val friendDto: List<FriendDto> = client.get("/users/$userId/friends") {
-                header("Authorization", "Bearer $token")
-            }.body() // explicitly specify type for deserialization
+            client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
+                if (!authHeaders(this)) return false
+                contentType(ContentType.Application.Json)
+                setBody(FriendRequestReply(accept = true))
+            }
+            true
+        } catch (e: NoTransformationFoundException) {
+            false
+        }
+    }
 
-            // Map the backend DTOs to frontend Friend models
-            friendDto.map { dto ->
-                val username = dto.user.username
+    suspend fun decline(friendId: Int): Boolean {
+        val userId = tokenDataStore.userId.firstOrNull() ?: return false
 
-                Friend(
-                    username = username,
-                    avatarLetter = username.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    status = dto.status
-                )
-            }.sortedBy { it.username.lowercase() }
-        } catch (e: Exception) {
-            println("FriendsApi.getFriendsById() CALLED with userId=$userId")
-            e.printStackTrace()
-            emptyList() // Return empty list on any error
+        return try {
+            client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
+                if (!authHeaders(this)) return false
+                contentType(ContentType.Application.Json)
+                setBody(FriendRequestReply(accept = false))
+            }
+            true
+        } catch (e: NoTransformationFoundException) {
+            false
         }
     }
 }

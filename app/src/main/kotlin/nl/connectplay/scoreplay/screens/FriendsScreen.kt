@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import nl.connectplay.scoreplay.models.Friend
-import nl.connectplay.scoreplay.models.FriendRequest
+import nl.connectplay.scoreplay.models.friends.FriendRequestListResponse
+import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.CircleAvatar
@@ -35,8 +35,6 @@ fun FriendsScreen(
     friendViewModel: FriendViewModel = koinViewModel()
 ) {
     val uiState by friendViewModel.uiState.collectAsState()
-    val friends = uiState.friends
-    val friendRequests = uiState.friendRequests
 
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
@@ -48,15 +46,19 @@ fun FriendsScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
-            FriendList(friendRequests, friends, friendViewModel)
+            FriendList(
+                friendRequests = uiState.friendRequests,
+                friends = uiState.friends,
+                viewModel = friendViewModel
+            )
         }
     }
 }
 
 @Composable
 fun FriendList(
-    friendRequests: List<FriendRequest>,
-    friends: List<Friend>,
+    friendRequests: FriendRequestListResponse,
+    friends: List<UserFriend>,
     viewModel: FriendViewModel
 ) {
     LazyColumn(
@@ -65,20 +67,36 @@ fun FriendList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        if (friendRequests.isNotEmpty()) {
+        if (friendRequests.pending.isNotEmpty()) {
             item {
                 Text(
-                    "Friend Requests",
+                    "Pending Requests",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onTertiary
                 )
             }
-            items(friendRequests) { request ->
-                FriendRequestRow(
-                    request = request,
-                    onAccept = { viewModel.approveRequest(request.id) },
-                    onDecline = { viewModel.declineRequest(request.id) }
+
+            items(friendRequests.pending) { request ->
+                PendingFriendRequestRow(
+                    friend = request,
+                    onAccept = { viewModel.approveRequest(request.user.id) },
+                    onDecline = { viewModel.declineRequest(request.user.id) }
                 )
+            }
+        }
+
+        if (friendRequests.outstanding.isNotEmpty()) {
+            item {
+                Text(
+                    "Outstanding Requests",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+
+            items(friendRequests.outstanding) { request ->
+                OutstandingFriendRequestRow(request)
             }
         }
 
@@ -91,6 +109,7 @@ fun FriendList(
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
+
             items(friends) { friend ->
                 FriendRow(friend)
             }
@@ -107,7 +126,7 @@ fun FriendList(
 }
 
 @Composable
-fun FriendRow(friend: Friend) {
+fun FriendRow(friend: UserFriend) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
@@ -126,10 +145,10 @@ fun FriendRow(friend: Friend) {
                 .fillMaxSize()
                 .padding(horizontal = 12.dp)
         ) {
-            CircleAvatar(friend.avatarLetter)
+            CircleAvatar(friend)
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                friend.username,
+                friend.user.username,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -138,8 +157,8 @@ fun FriendRow(friend: Friend) {
 }
 
 @Composable
-fun FriendRequestRow(
-    request: FriendRequest,
+fun PendingFriendRequestRow(
+    friend: UserFriend,
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {
@@ -164,17 +183,16 @@ fun FriendRequestRow(
         ) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                CircleAvatar(request.avatarLetter)
+                CircleAvatar(friend)
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    request.username,
+                    friend.user.username,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
             Row {
-
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -213,6 +231,37 @@ fun FriendRequestRow(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun OutstandingFriendRequestRow(request: UserFriend) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircleAvatar(request)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                "${request.user.username} (awaiting response)",
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

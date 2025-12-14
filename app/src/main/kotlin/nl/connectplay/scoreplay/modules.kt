@@ -3,7 +3,6 @@ package nl.connectplay.scoreplay
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
-import nl.connectplay.scoreplay.api.FriendRequestApi
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.GameApi
@@ -38,10 +37,10 @@ val viewModelsModule = module {
     viewModel {
         FriendViewModel(
             friendsApi = get(),
-            friendRequestApi = get(),
-            get()
+            tokenDataStore = get()
         )
     }
+
     viewModelOf(::SearchViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
@@ -64,7 +63,6 @@ val apiModule = module {
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
-    single { FriendRequestApi(get()) }
     single { SearchApi(get()) }
 }
 
