@@ -5,9 +5,10 @@ import androidx.room.RoomDatabase
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
+import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
 @Database(
-    entities = [RoomSession::class],
+    entities = [RoomSession::class, RoomSessionPlayer::class],
     version = 1
 )
 abstract class Database: RoomDatabase() {

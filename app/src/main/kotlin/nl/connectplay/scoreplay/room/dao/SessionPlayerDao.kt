@@ -18,5 +18,5 @@ interface SessionPlayerDao {
     suspend fun deleteSession(roomSessionPlayer: RoomSessionPlayer)
 
     @Query("SELECT * FROM session_players WHERE sessionPlayerId = :sessionPlayerId")
-    suspend fun getSessionPlayerById(sessionPlayerId: RoomSessionPlayer)
+    suspend fun getSessionPlayerById(sessionPlayerId: Int): RoomSessionPlayer
 }
