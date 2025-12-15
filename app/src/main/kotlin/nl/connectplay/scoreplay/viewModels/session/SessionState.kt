@@ -8,5 +8,4 @@ data class SessionState(
     val gameId: Int? = null,
     val userId: Int? = null,
     val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
-    val isOnSetup: Boolean = true,
 )

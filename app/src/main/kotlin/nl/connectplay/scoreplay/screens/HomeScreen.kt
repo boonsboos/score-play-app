@@ -40,7 +40,7 @@ fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
             Button(
                 modifier = Modifier.align(Alignment.Center),
                 onClick = {
-                    backStack.apply { add(Screens.NewSession) }
+                    backStack.apply { add(Screens.SessionSetup) }
                 }
             ) {
                 Text("New Session")

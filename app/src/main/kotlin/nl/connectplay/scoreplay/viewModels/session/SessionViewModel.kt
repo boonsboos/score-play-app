@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
+import nl.connectplay.scoreplay.screens.Screens
 
 class SessionViewModel(
     private val dao: SessionDao
@@ -68,16 +69,12 @@ class SessionViewModel(
                 ) }
             }
 
-            SessionEvent.ShowSetup -> {
+            is SessionEvent.DeleteSessionPlayer -> TODO()
+            SessionEvent.SaveSessionPlayer -> TODO()
+            is SessionEvent.SetPlayer -> {
                 _state.update { it.copy(
-                    isOnSetup = true
-                ) }
-            }
-
-            SessionEvent.ShowScores -> {
-                _state.update { it.copy(
-                    isOnSetup = false
-                ) }
+                    userId = event.userId
+                )}
             }
         }
     }

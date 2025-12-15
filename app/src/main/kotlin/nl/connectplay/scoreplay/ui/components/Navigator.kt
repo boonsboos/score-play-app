@@ -14,7 +14,6 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
-import nl.connectplay.scoreplay.screens.session.NewSessionScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
@@ -22,6 +21,8 @@ import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
+import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -99,7 +100,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.SessionSetup -> NavEntry(key = key) {
                     val sessionViewModel: SessionViewModel = koinViewModel()
 
-                    NewSessionScreen(
+                    SessionSetupScreen(
                         backStack = backStack,
                         onEvent = sessionViewModel::onEvent
                     )
@@ -108,7 +109,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.SessionScore -> NavEntry(key = key) {
                     val sessionViewModel: SessionViewModel = koinViewModel()
 
-                    NewSessionScreen(
+                    SessionScoreScreen (
                         backStack = backStack,
                         onEvent = sessionViewModel::onEvent
                     )
