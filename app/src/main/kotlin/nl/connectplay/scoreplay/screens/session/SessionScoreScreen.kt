@@ -28,7 +28,6 @@ import nl.connectplay.scoreplay.ui.components.SessionTabs
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
-    onEvent: (SessionEvent) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),

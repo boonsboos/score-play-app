@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 data class PlayerUi(
-    val id: String,
+    val id: Int,
     val name: String,
     val isCurrentUser: Boolean = false
 )

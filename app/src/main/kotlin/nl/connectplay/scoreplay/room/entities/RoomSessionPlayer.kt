@@ -8,5 +8,5 @@ data class RoomSessionPlayer (
     val userId: Int,
     val guestName: String? = null,
     @PrimaryKey(autoGenerate = true)
-    val sessionPlayerId: Int
+    val sessionPlayerId: Int = 0
 )

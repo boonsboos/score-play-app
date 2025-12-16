@@ -13,9 +13,10 @@ sealed interface SessionEvent {
 
     data class DeleteSession(val roomSession: RoomSession): SessionEvent
 
-    object SaveSessionPlayer: SessionEvent
+    data class AddPlayer(val userId: Int, val guestName: String? = null): SessionEvent
 
-    data class SetPlayer(val userId: Int): SessionEvent
+    data class RemovePlayer(val userId: Int, val guestName: String?) : SessionEvent
+
     data class DeleteSessionPlayer(val roomSessionPlayer: RoomSessionPlayer): SessionEvent
 
 }

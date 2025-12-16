@@ -98,20 +98,14 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-
                     SessionSetupScreen(
                         backStack = backStack,
-                        onEvent = sessionViewModel::onEvent
                     )
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-
                     SessionScoreScreen (
                         backStack = backStack,
-                        onEvent = sessionViewModel::onEvent
                     )
                 }
 

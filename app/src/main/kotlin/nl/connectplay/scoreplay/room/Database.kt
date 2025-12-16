@@ -9,7 +9,7 @@ import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
 @Database(
     entities = [RoomSession::class, RoomSessionPlayer::class],
-    version = 1
+    version = 2
 )
 abstract class Database: RoomDatabase() {
     abstract val sessionDao: SessionDao
