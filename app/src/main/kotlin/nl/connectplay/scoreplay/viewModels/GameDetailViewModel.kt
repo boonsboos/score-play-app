@@ -1,8 +1,10 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.models.game.Game
 
@@ -21,12 +23,20 @@ class GameDetailViewModel(private val gameApi: GameApi): ViewModel() {
     val loadingState = _loadingState.asStateFlow()
 
     suspend fun getGame(gameId: Int) {
+        Log.i(this::class.simpleName, "Getting game with ID $gameId")
+
         _loadingState.emit(true)
 
         val gameData = gameApi.single(gameId)
         val gamePictures = gameApi.pictures(gameId)
 
-        _uiState.emit(GameDetailUIState(currentGame = gameId, gameData = gameData, imageUrls = gamePictures))
+        _uiState.update { state ->
+            state.currentGame = gameId
+            state.gameData = gameData
+            state.imageUrls = gamePictures
+
+            state
+        }
 
         _loadingState.emit(false)
     }

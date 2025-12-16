@@ -33,6 +33,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.ExpandableText
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -48,7 +49,7 @@ fun GameDetailScreen(
     val state = gameDetail.uiState.collectAsState()
     val loading = gameDetail.loadingState.collectAsState()
 
-    val carouselState = rememberCarouselState{ state.value.imageUrls.size }
+    val carouselState = rememberCarouselState { state.value.imageUrls.size }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -58,7 +59,7 @@ fun GameDetailScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = ""/* TODO Game title */, backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = state.value.gameData?.name ?: "", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
@@ -66,20 +67,17 @@ fun GameDetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            if (loading.value) {
+                // TODO: show loading image
+                return@Scaffold
+            }
+
             Box {
-
-                if (loading.value) {
-                    // TODO: show loading image
-                    return@Box
-                }
-
                 HorizontalUncontainedCarousel(
                     state = carouselState,
                     itemWidth = 200.dp,
                     itemSpacing = 10.dp
                 ) { index ->
-                    // TODO: show game pictures
-
                     AsyncImage(
                         model = ImageRequest.Builder(context = LocalContext.current)
                             .data(state.value.imageUrls[index])
@@ -127,6 +125,8 @@ fun GameDetailScreen(
                     Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
                 }
             }
+
+            ExpandableText(state.value.gameData?.description ?: "No description found")
         }
     }
 }

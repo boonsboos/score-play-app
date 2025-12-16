@@ -57,8 +57,8 @@ val apiModule = module {
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
+    singleOf(::GameApi)
     single { NotificationApi(get(), get()) }
-    single { GameApi(get()) }
     single { SessionApi(get()) }
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
@@ -70,7 +70,6 @@ val storeModule = module {
 }
 
 val databaseModule = module {
-
     single {
         Room.databaseBuilder(
                 get(),
@@ -83,5 +82,4 @@ val databaseModule = module {
     single<SessionDao> {
         get<Database>().sessionDao
     }
-
 }
