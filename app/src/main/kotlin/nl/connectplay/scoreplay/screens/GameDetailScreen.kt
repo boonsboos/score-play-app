@@ -67,7 +67,12 @@ fun GameDetailScreen(
     }
 
     if (loading) {
-        CircularProgressIndicator()
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
         return
     }
 
