@@ -1,39 +1,48 @@
 package nl.connectplay.scoreplay.screens
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.StackedBarChart
-import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconToggleButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ExpandableText
+import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -46,10 +55,10 @@ fun GameDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val gameDetail: GameDetailViewModel = koinViewModel()
-    val state = gameDetail.uiState.collectAsState()
-    val loading = gameDetail.loadingState.collectAsState()
+    val state by gameDetail.uiState.collectAsState()
+    val loading by gameDetail.loadingState.collectAsState()
 
-    val carouselState = rememberCarouselState { state.value.imageUrls.size }
+    val carouselState = rememberCarouselState { state.gameData?.pictures?.size ?: 0 }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -57,55 +66,67 @@ fun GameDetailScreen(
         gameDetail.getGame(gameId = gameId)
     }
 
+    if (loading) {
+        CircularProgressIndicator()
+        return
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = state.value.gameData?.name ?: "", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = state.gameData?.name ?: "fallback", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (loading.value) {
-                // TODO: show loading image
-                return@Scaffold
-            }
-
-            Box {
+            Row(modifier = Modifier.padding(vertical = 6.dp)) {
                 HorizontalUncontainedCarousel(
                     state = carouselState,
-                    itemWidth = 200.dp,
+                    itemWidth = 300.dp,
                     itemSpacing = 10.dp
                 ) { index ->
-                    AsyncImage(
-                        model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(state.value.imageUrls[index])
-                            .build(),
-                        contentDescription = "A picture of ${state.value.gameData?.name ?: "an unknown game"}"
-                    )
+                    FallbackImage(
+                        url = state.gameData?.pictures[index],
+                        size = 300.dp
+                    ) {
+                        Text("No images yet")
+                    }
                 }
             }
+
             // button group
             Row {
                 // Start a new session
                 FilledIconButton(onClick = {
                     // TODO: new session
                 }) {
-                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "New session")
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "New session"
+                    )
                 }
 
                 // Redirect to show leaderboard
-                Button(onClick = {
-                    // TODO: show leaderboard
-                }) {
-                    Icon(imageVector = Icons.Default.StackedBarChart, contentDescription = "Leaderboard")
+                FilledTonalButton(
+                    modifier = Modifier.width(200.dp),
+                    onClick = {
+                        // TODO: show leaderboard
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.StackedBarChart,
+                        contentDescription = "Leaderboard"
+                    )
                     Text("Leaderboard")
                 }
 
                 // Bookmark toggle button
-                OutlinedIconToggleButton(
-                    checked = state.value.gameFollowed,
+                FilledTonalIconToggleButton(
+                    checked = state.gameFollowed,
                     onCheckedChange = {
                         coroutineScope.launch {
                             gameDetail.toggleFollow()
@@ -126,7 +147,56 @@ fun GameDetailScreen(
                 }
             }
 
-            ExpandableText(state.value.gameData?.description ?: "No description found")
+            HorizontalDivider(
+                modifier = Modifier
+                    .width(300.dp)
+                    .padding(vertical = 6.dp),
+                thickness = 1.dp
+            )
+
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+                Column {
+                    Text(text = "Description", style = MaterialTheme.typography.headlineMedium)
+                    ExpandableText(state.gameData?.description ?: "No description found")
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .width(300.dp)
+                    .padding(vertical = 6.dp),
+                thickness = 1.dp
+            )
+
+            Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+                Column {
+                    Text(text = "Details", style = MaterialTheme.typography.headlineMedium)
+                    GameDetailIfPresent("Publisher", state.gameData?.publisher)
+                    GameDetailIfPresent("Duration", state.gameData?.duration?.let { "$it minutes" })
+                    GameDetailIfPresent("Players", state.gameData?.minPlayers?.let { min ->
+                        state.gameData?.maxPlayers.let { max ->
+                            if (min == max) "$min"
+                            else "$min - $max"
+                        }
+                    })
+                    GameDetailIfPresent("Release date", state.gameData?.releaseDate?.toString())
+                }
+            }
+
         }
+    }
+}
+
+@Composable
+private fun GameDetailIfPresent(key: String, value: String?) {
+    if (value != null) GameDetailRow(key = key, value = value)
+}
+
+@Composable
+private fun GameDetailRow(key: String, value: String, modifier: Modifier = Modifier) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = key, fontWeight = FontWeight.Bold)
+        VerticalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value)
     }
 }

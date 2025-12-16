@@ -4,14 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.models.game.Game
 
 class GameDetailUIState(
     var currentGame: Int? = null,
     var gameData: Game? = null,
-    var imageUrls: List<String> = listOf(),
     var gameFollowed: Boolean = false
 )
 
@@ -27,16 +25,14 @@ class GameDetailViewModel(private val gameApi: GameApi): ViewModel() {
 
         _loadingState.emit(true)
 
-        val gameData = gameApi.single(gameId)
-        val gamePictures = gameApi.pictures(gameId)
+        val gameObject = gameApi.single(gameId)
 
-        _uiState.update { state ->
-            state.currentGame = gameId
-            state.gameData = gameData
-            state.imageUrls = gamePictures
-
-            state
-        }
+        _uiState.emit(
+            _uiState.value.apply {
+                gameData = gameObject
+                currentGame = gameId
+            }
+        )
 
         _loadingState.emit(false)
     }

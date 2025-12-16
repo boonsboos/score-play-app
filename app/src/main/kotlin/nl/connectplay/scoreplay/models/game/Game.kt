@@ -14,5 +14,6 @@ data class Game(
     var maxPlayers: Int?,
     var duration: Int?,
     var minAge: Int?,
-    var releaseDate: LocalDate?
+    var releaseDate: LocalDate?,
+    var pictures: List<String> = listOf()
 )
