@@ -20,6 +20,7 @@ import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
+import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
@@ -39,6 +40,7 @@ val viewModelsModule = module {
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
+    viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
         ProfileViewModel(userId, get())

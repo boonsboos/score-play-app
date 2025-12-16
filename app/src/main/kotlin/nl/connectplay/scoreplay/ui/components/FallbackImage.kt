@@ -1,13 +1,10 @@
 package nl.connectplay.scoreplay.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +20,7 @@ import coil.request.ImageRequest
 
 @Composable
 fun FallbackImage(
-    url: String?,
+    url: Any?,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(8.dp),
     size: Dp,

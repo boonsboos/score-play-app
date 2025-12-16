@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
@@ -17,6 +18,7 @@ import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.NewSessionScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.ProfileEditScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
@@ -35,7 +37,10 @@ fun Navigator(modifier: Modifier = Modifier) {
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
-    val backStack = rememberNavBackStack(start)
+    val backStack = rememberNavBackStack(
+        start
+//            Screens.EditProfile(UserProfile(id = 1, username = "Bob", email = "bob@email.com"))
+    )
 
     NavDisplay(
         modifier = modifier, backStack = backStack,
@@ -86,6 +91,10 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Profile -> NavEntry(key = key) {
                     ProfileScreen(backStack = backStack, targetUserId = key.userId)
+                }
+
+                is Screens.EditProfile -> NavEntry(key = key) {
+                    ProfileEditScreen(backStack = backStack, currentUser = key.currentUser)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {

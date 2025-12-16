@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "nl.connectplay.scoreplay"
-        minSdk = 36
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -82,7 +82,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

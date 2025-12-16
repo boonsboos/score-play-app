@@ -41,7 +41,7 @@ object Routes {
         const val login = "/login"
     }
 
-//    object Games {
+    //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
 //
@@ -60,7 +60,7 @@ object Routes {
 //        }
 //    }
 //
-   object Sessions {
+    object Sessions {
         const val root = "/sessions"
         //fun byId(sessionId: String) = "/sessions/$sessionId"
 
@@ -79,11 +79,13 @@ object Routes {
         const val root = "/users"
         fun getAll() = root
         const val me = "$root/me"
+        const val uploadPicture = "$root/me/picture"
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
         fun followedGames(userId: Int) = "$root/$userId/followed"
     }
-//
+
+    //
     object Notifications {
         const val root = "/notifications"
         fun byId(notificationId: String) = "$root/$notificationId"

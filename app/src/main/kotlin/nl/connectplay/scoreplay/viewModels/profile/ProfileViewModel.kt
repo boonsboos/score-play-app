@@ -11,11 +11,11 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 
 class ProfileViewModel(private val userId: Int?, private val profileApi: ProfileApi) : ViewModel() {
-    private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Loading)
+    private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
     val profileState = _profileState.asStateFlow()
-    private val _sessionsState = MutableStateFlow<UiState<List<UserSession>>>(UiState.Loading)
+    private val _sessionsState = MutableStateFlow<UiState<List<UserSession>>>(UiState.Idle)
     val sessionsState = _sessionsState.asStateFlow()
-    private val _gamesState = MutableStateFlow<UiState<List<Game>>>(UiState.Loading)
+    private val _gamesState = MutableStateFlow<UiState<List<Game>>>(UiState.Idle)
     val gamesState = _gamesState.asStateFlow()
 
     init {
