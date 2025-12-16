@@ -95,7 +95,7 @@ fun GameDetailScreen(
                     itemSpacing = 10.dp
                 ) { index ->
                     FallbackImage(
-                        url = state.gameData?.pictures[index],
+                        url = state.gameData?.pictures?.getOrNull(index),
                         size = 300.dp
                     ) {
                         Text("No images yet")
