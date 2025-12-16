@@ -18,42 +18,38 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
 class FriendsApi(
     private val client: HttpClient,
     private val tokenDataStore: TokenDataStore
-) {
+    ) {
 
-     /**
-     * Adds the necessary authentication and content headers to an HTTP request.
-     *
-     * This function retrieves the current user token from the TokenDataStore.
-     * If a token is available, it sets the "Authorization" header with a Bearer token
-     * and also sets the "Accept" header to "application/json".
-     *
-     * @param builder The HttpRequestBuilder to which the headers will be added.
-     * @return true if the token was successfully retrieved and headers were added, false otherwise.
-     * */
-    private suspend fun authHeaders(builder: HttpRequestBuilder): Boolean {
-        val token = tokenDataStore.token.firstOrNull() ?: return false
-        builder.header("Authorization", "Bearer $token")
-        builder.header("Accept", "application/json")
-        return true
-    }
 
     /**
      * Fetch friends
      */
     suspend fun getFriends(userId: Int): List<UserFriend> {
-        return client.get(Routes.Friends.getFriends(userId)) {
-            if (!authHeaders(this)) return emptyList()
-        }.body()
+        return try {
+            val res = client.get(Routes.Friends.getFriends(userId)) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+            }
+            res.body()
+        } catch (e: NoTransformationFoundException) {
+            emptyList()
+        }
     }
+
 
     /**
      * Fetch friendrequests
      */
     suspend fun getAllFriendRequests(): FriendRequestListResponse {
         return try {
-            client.get(Routes.FriendRequest.getAllFriendRequests()) {
-                if (!authHeaders(this)) return FriendRequestListResponse(emptyList(), emptyList())
-            }.body()
+            val res = client.get(Routes.FriendRequest.getAllFriendRequests()) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+
+            }
+            res.body()
         } catch (e: NoTransformationFoundException) {
             FriendRequestListResponse(emptyList(), emptyList())
         }
@@ -67,8 +63,9 @@ class FriendsApi(
 
         return try {
             client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
-                if (!authHeaders(this)) return false
                 contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
                 setBody(FriendRequestReply(accept = true))
             }
             true
@@ -82,8 +79,9 @@ class FriendsApi(
 
         return try {
             client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
-                if (!authHeaders(this)) return false
                 contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
                 setBody(FriendRequestReply(accept = false))
             }
             true

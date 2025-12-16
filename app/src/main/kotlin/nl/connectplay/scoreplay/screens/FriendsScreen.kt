@@ -116,7 +116,7 @@ fun FriendList(
         } else {
             item {
                 Text(
-                    "No friends found",
+                    "No confirmed friends found",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiary
                 )

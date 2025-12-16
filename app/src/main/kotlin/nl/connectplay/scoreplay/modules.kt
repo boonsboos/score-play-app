@@ -63,7 +63,6 @@ val apiModule = module {
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
-    single { SearchApi(get()) }
 }
 
 // Koin module for app storage (DataStore)
