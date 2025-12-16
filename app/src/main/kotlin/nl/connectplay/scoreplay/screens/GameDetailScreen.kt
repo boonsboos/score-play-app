@@ -190,6 +190,7 @@ fun GameDetailScreen(
 @Composable
 private fun GameDetailIfPresent(key: String, value: String?) {
     if (value != null) GameDetailRow(key = key, value = value)
+    else GameDetailRow(key = key, value = "Unknown")
 }
 
 @Composable
