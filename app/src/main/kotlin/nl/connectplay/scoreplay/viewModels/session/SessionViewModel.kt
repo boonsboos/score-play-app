@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -15,11 +18,33 @@ import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
-    private val sessionPlayerDao: SessionPlayerDao
+    private val sessionPlayerDao: SessionPlayerDao,
+    private val gameApi: GameApi
 ): ViewModel() {
     private val _state = MutableStateFlow(SessionState())
 
     val state = _state.asStateFlow()
+
+    private val _games = MutableStateFlow<List<Game>>(emptyList())
+
+    val games: StateFlow<List<Game>> = _games
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
+
+    init {
+        fetchGames()
+    }
+
+    private fun fetchGames() {
+        viewModelScope.launch {
+            if (_games.value.isNotEmpty()) return@launch
+
+            _loading.value = true
+            _games.value = gameApi.all()
+            _loading.value = false
+        }
+    }
 
     fun onEvent(event: SessionEvent) {
         when(event) {

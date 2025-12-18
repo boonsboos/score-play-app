@@ -27,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,17 +40,14 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.PlayerRow
 import nl.connectplay.scoreplay.ui.components.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.SessionTabs
-import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,20 +55,10 @@ fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
     state: SessionState,
     onEvent: (SessionEvent) -> Unit,
-    gamesViewModel: GamesListViewModel = koinViewModel(),
-    //tokenStore: TokenDataStore = koinInject()
+    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
-    val games by gamesViewModel.gamesList.collectAsState()
-    val loading by gamesViewModel.areLoading.collectAsState()
-
-    /** Initializers */
-
-    // Fetches a list of games
-    LaunchedEffect(Unit) {
-        if (games.isEmpty() && !loading) {
-            gamesViewModel.fetch()
-        }
-    }
+    val games by sessionViewModel.games.collectAsState()
+    val loading by sessionViewModel.loading.collectAsState()
 
     /** UI States */
 
@@ -161,28 +147,48 @@ fun SessionSetupScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    filteredGames.forEach { game ->
-                        DropdownMenuItem(
-                            text = { Text(game.name) },
-                            leadingIcon = { Icon(Icons.Default.Image, null) },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = selectedGame?.id == game.id,
-                                    onCheckedChange = { checked ->
-                                        selectedGame = if (checked) game else null
+                    when {
+                        loading -> {
+                            DropdownMenuItem(
+                                text = { Text("Loading games…") },
+                                onClick = {},
+                                enabled = false
+                            )
+                        }
+
+                        filteredGames.isEmpty() -> {
+                            DropdownMenuItem(
+                                text = { Text("No games found") },
+                                onClick = {},
+                                enabled = false
+                            )
+                        }
+
+                        else -> {
+                            filteredGames.forEach { game ->
+                                DropdownMenuItem(
+                                    text = { Text(game.name) },
+                                    leadingIcon = { Icon(Icons.Default.Image, null) },
+                                    trailingIcon = {
+                                        Checkbox(
+                                            checked = selectedGame?.id == game.id,
+                                            onCheckedChange = { checked ->
+                                                selectedGame = if (checked) game else null
+                                            }
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedGame = game
+                                        searchQuery = game.name
+                                        expanded = false
+
+                                        onEvent(
+                                            SessionEvent.SetGame(game.id)
+                                        )
                                     }
                                 )
-                            },
-                            onClick = {
-                                selectedGame = game
-                                searchQuery = game.name
-                                expanded = false
-
-                                onEvent(
-                                    SessionEvent.SetGame(game.id)
-                                )
                             }
-                        )
+                        }
                     }
                 }
             }
