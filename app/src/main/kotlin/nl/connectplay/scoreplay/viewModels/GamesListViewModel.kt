@@ -19,7 +19,7 @@ class GamesListViewModel(private val gameApi: GameApi) : ViewModel() {
 
     suspend fun fetch() {
         // indicate we are loading
-        loadingState.emit(true)
+        loadingState.update { true }
 
         val allGames = gameApi.all(offset, limit)
 
@@ -28,7 +28,7 @@ class GamesListViewModel(private val gameApi: GameApi) : ViewModel() {
         }
 
         // indicate we are no longer loading
-        loadingState.emit(false)
+        loadingState.update { false }
     }
 
     suspend fun fetchMore() {

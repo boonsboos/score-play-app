@@ -19,12 +19,12 @@ class GameDetailViewModel(private val gameApi: GameApi): ViewModel() {
     suspend fun getGame(gameId: Int) = coroutineScope {
         Log.i(this::class.simpleName, "Getting game with ID $gameId")
 
-        _loadingState.emit(true)
+        _loadingState.update { true }
 
         val gameObject = gameApi.single(gameId)
         _gameState.update { gameObject }
 
-        _loadingState.emit(false)
+        _loadingState.update { false }
     }
 
     suspend fun toggleFollow(gameId: Int): Boolean {
