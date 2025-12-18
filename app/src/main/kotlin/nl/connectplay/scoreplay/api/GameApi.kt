@@ -1,18 +1,18 @@
 package nl.connectplay.scoreplay.api;
 
 import android.util.Log
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.Path
 import io.ktor.client.HttpClient;
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.models.game.GameDetailDto
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
 class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
@@ -24,12 +24,12 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
                 parameter("offset", offset)
                 parameter("limit", limit)
             }.body()
-        } catch (e: NoTransformationFoundException) {
+        } catch (_: NoTransformationFoundException) {
             listOf()
         }
     }
 
-    suspend fun single(gameId: Int): Game? =
+    suspend fun single(gameId: Int): GameDetailDto? =
         try {
             val res = client.get(Routes.Games.single(gameId)) {
                 bearerAuth(tokenDataStore.token.first() ?: "")
@@ -40,15 +40,34 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
             }
 
             res.body()
-        } catch (e: NoTransformationFoundException) {
+        } catch (_: NoTransformationFoundException) {
             Log.i(LOG_TAG, "No mapping found for game")
             null
         }
 
-    suspend fun pictures(gameId: Int): List<String> =
+    suspend fun unfollow(gameId: Int): Boolean {
         try {
-            client.get(Routes.Games.pictures(gameId)).body()
-        } catch (e: NoTransformationFoundException) {
-            listOf()
+            val res = client.delete(Routes.Games.unfollow(gameId)) {
+                bearerAuth(tokenDataStore.token.first() ?: "")
+            }
+
+            return res.status == HttpStatusCode.OK
+        } catch(e: Exception) {
+            Log.e(LOG_TAG, "Failed to unfollow game $gameId: ${e.message}", e)
+            return false
         }
+    }
+
+    suspend fun follow(gameId: Int): Boolean {
+        try {
+            val res = client.post(Routes.Games.follow(gameId)) {
+                bearerAuth(tokenDataStore.token.first() ?: "")
+            }
+
+            return res.status == HttpStatusCode.Created
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Failed to follow game $gameId: ${e.message}", e)
+            return false
+        }
+    }
 }

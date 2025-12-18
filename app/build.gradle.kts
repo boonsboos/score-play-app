@@ -79,11 +79,9 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.coil.compose)
     implementation(libs.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.room.compiler)
-
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.ktor)

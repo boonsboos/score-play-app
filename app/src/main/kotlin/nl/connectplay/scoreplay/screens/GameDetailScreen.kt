@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
@@ -18,12 +19,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
@@ -32,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,11 +59,11 @@ fun GameDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val gameDetail: GameDetailViewModel = koinViewModel()
-    val state by gameDetail.uiState.collectAsState()
+    val state by gameDetail.gameState.collectAsState()
     val loading by gameDetail.loadingState.collectAsState()
 
-    val carouselState = rememberCarouselState { state.gameData?.pictures?.size ?: 0 }
-
+    val carouselState = rememberCarouselState { state?.pictures?.size ?: 0 }
+    val snackBarState = remember { SnackbarHostState()  }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(gameId) {
@@ -78,7 +82,10 @@ fun GameDetailScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = state.gameData?.name ?: "fallback", backStack = backStack) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarState)
+        },
+        topBar = { ScorePlayTopBar(title = state?.name ?: "Name unknown", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
@@ -95,7 +102,7 @@ fun GameDetailScreen(
                     itemSpacing = 10.dp
                 ) { index ->
                     FallbackImage(
-                        url = state.gameData?.pictures?.getOrNull(index),
+                        url = state?.pictures?.getOrNull(index),
                         size = 300.dp
                     ) {
                         Text("No images yet")
@@ -130,18 +137,29 @@ fun GameDetailScreen(
                 }
 
                 // Bookmark toggle button
-                FilledTonalIconToggleButton(
-                    checked = state.gameFollowed,
+                OutlinedIconToggleButton(
+                    checked = state?.following ?: false,
                     onCheckedChange = {
                         coroutineScope.launch {
-                            gameDetail.toggleFollow()
+                            val success = gameDetail.toggleFollow(gameId)
+                            if (!success) {
+                                val message = if (state?.following == true) "unfollow" else "follow"
+                                snackBarState.showSnackbar("Failed to $message this game")
+                            }
                         }
                     }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.BookmarkBorder,
-                        contentDescription = "Follow game"
-                    )
+                    if (state?.following == true) {
+                        Icon(
+                            imageVector = Icons.Default.Bookmark,
+                            contentDescription = "Unfollow game"
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.BookmarkBorder,
+                            contentDescription = "Follow game"
+                        )
+                    }
                 }
 
                 // Game edit button
@@ -159,10 +177,10 @@ fun GameDetailScreen(
                 thickness = 1.dp
             )
 
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                 Column {
                     Text(text = "Description", style = MaterialTheme.typography.headlineMedium)
-                    ExpandableText(state.gameData?.description ?: "No description found")
+                    ExpandableText(state?.description ?: "No description found")
                 }
             }
 
@@ -173,18 +191,18 @@ fun GameDetailScreen(
                 thickness = 1.dp
             )
 
-            Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+            Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Column {
                     Text(text = "Details", style = MaterialTheme.typography.headlineMedium)
-                    GameDetailIfPresent("Publisher", state.gameData?.publisher)
-                    GameDetailIfPresent("Duration", state.gameData?.duration?.let { "$it minutes" })
-                    GameDetailIfPresent("Players", state.gameData?.minPlayers?.let { min ->
-                        state.gameData?.maxPlayers.let { max ->
+                    GameDetailIfPresent("Publisher", state?.publisher)
+                    GameDetailIfPresent("Duration", state?.duration?.let { "$it minutes" })
+                    GameDetailIfPresent("Players", state?.minPlayers?.let { min ->
+                        state?.maxPlayers?.let { max ->
                             if (min == max) "$min"
                             else "$min - $max"
                         }
                     })
-                    GameDetailIfPresent("Release date", state.gameData?.releaseDate?.toString())
+                    GameDetailIfPresent("Release date", state?.releaseDate?.toString())
                 }
             }
 
