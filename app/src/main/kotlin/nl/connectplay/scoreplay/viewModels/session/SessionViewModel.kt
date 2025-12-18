@@ -12,7 +12,6 @@ import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
-import nl.connectplay.scoreplay.screens.Screens
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
@@ -42,10 +41,14 @@ class SessionViewModel(
                 }
             }
 
-
-            is SessionEvent.DeleteSession -> {
+            is SessionEvent.StartNewSession -> {
                 viewModelScope.launch {
-                    sessionDao.deleteSession(event.roomSession)
+                    //sessionPlayerDao.deleteAllPlayers()
+                    //sessionDao.deleteSession()
+
+                    _state.value = SessionState(
+                        status = SessionStatus.DRAFT
+                    )
                 }
             }
 
@@ -62,17 +65,24 @@ class SessionViewModel(
 
                 viewModelScope.launch {
                     // 1. Save Session
-                    sessionDao.upsertSession(
-                        RoomSession(
-                            gameId = gameId,
-                            userId = userId,
-                            visibility = current.visibility
-                        )
+                    val session = RoomSession(
+                        gameId = gameId,
+                        userId = userId,
+                        visibility = current.visibility
                     )
+
+                    sessionDao.upsertSession(session)
 
                     // 2. Save Players
                     current.sessionPlayers.forEach { player ->
                         sessionPlayerDao.upsertSessionPlayer(player)
+                    }
+
+                    _state.update {
+                        it.copy(
+                            roomSession = session.copy(),
+                            status = SessionStatus.SAVED
+                        )
                     }
                 }
             }
@@ -94,15 +104,7 @@ class SessionViewModel(
 
                     // Check if this player already exists
                     val alreadyExists = current.sessionPlayers.any { existing ->
-                        when {
-                            // Friend: unique per userId
-                            event.guestName == null ->
-                                existing.userId == event.userId && existing.guestName == null
-
-                            // Guest: guest names must be unique
-                            else ->
-                                existing.guestName == event.guestName
-                        }
+                        existing.userId == event.userId && existing.guestName == event.guestName
                     }
 
                     // If player already exists, do nothing
