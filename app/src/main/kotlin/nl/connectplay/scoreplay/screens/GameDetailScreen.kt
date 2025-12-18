@@ -67,10 +67,6 @@ fun GameDetailScreen(
     val snackBarState = remember { SnackbarHostState()  }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(gameId) {
-        gameDetail.getGame(gameId = gameId)
-    }
-
     if (loading) {
         androidx.compose.foundation.layout.Box(
             modifier = Modifier.fillMaxSize(),
