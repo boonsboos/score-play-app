@@ -40,8 +40,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import nl.connectplay.scoreplay.models.notifications.Notification
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
-import nl.connectplay.scoreplay.models.notifications.NotificationType
+import nl.connectplay.scoreplay.models.notifications.NotificationUi
+import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.ui.components.FilterButton
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun NotificationsScreen(
@@ -54,7 +57,7 @@ fun NotificationsScreen(
     val listState = rememberLazyListState()
     val filterScrollState = rememberScrollState()
     val selectedNotification =
-        remember { mutableStateOf<Notification?>(null) } // holds the selected notification
+        remember { mutableStateOf<NotificationUi?>(null) } // holds the selected notification
 
 
     Scaffold(
@@ -137,9 +140,8 @@ fun NotificationsScreen(
                     ) {
                         items(notifications) { it -> // loops over each notification in the list
                             NotificationItem(
-                                content = it.content + if (it.read) " (Read)" else " (Unread)",
+                                event = it.event,
                                 read = it.read,
-                                notificationType = it.notificationType,
                                 // set this notification to unread when clicked
                                 onClick = {
                                     Log.d("NOTIFY", "Clicked notification: ${it.notificationId}")
@@ -155,37 +157,38 @@ fun NotificationsScreen(
     }
 
     selectedNotification.value?.let { notification ->
-        AlertDialog(
-            onDismissRequest = {
-                notificationViewModel.markNotificationsAsRead(notification)
-                selectedNotification.value = null
-            },
-            title = {
-                Text("Notification")
-            },
-            text = {
-                Text(notification.content)
-            },
-            confirmButton = {
-                Text(
-                    text = "Close",
-                    modifier = Modifier.clickable {
-                        notificationViewModel.markNotificationsAsRead(notification)
-                        selectedNotification.value = null
-                    }
-                )
-            }
-        )
+        // TODO: instead, redirect to the correct screen
+//        AlertDialog(
+//            onDismissRequest = {
+//                notificationViewModel.markNotificationsAsRead(notification.notificationId)
+//                selectedNotification.value = null
+//            },
+//            title = {
+//                Text("Notification")
+//            },
+//            text = {
+//                Text(notification.content)
+//            },
+//            confirmButton = {
+//                Text(
+//                    text = "Close",
+//                    modifier = Modifier.clickable {
+//                        notificationViewModel.markNotificationsAsRead(notification.notificationId)
+//                        selectedNotification.value = null
+//                    }
+//                )
+//            }
+//        )
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun NotificationItem(
-    content: String,
+    event: BaseEvent,
     read: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    notificationType: NotificationType,
 ) {
     Row(
         modifier = modifier
@@ -198,15 +201,17 @@ fun NotificationItem(
             .clickable { onClick() }
     ) {
         Icon(
-            imageVector = if (notificationType == NotificationType.FRIEND_REQUEST)
-                Icons.Filled.Person
-            else
-                Icons.Filled.EmojiEvents,
+            imageVector = when(event) {
+                is FriendRequestEvent -> {
+                    Icons.Filled.Person
+                }
+                else -> Icons.Filled.EmojiEvents
+            },
             contentDescription = null,
             modifier = Modifier.padding(start = 12.dp)
         )
         Text(
-            text = content, modifier = Modifier.padding(16.dp)
+            text = "${event.created} ${if (read) "(Read)" else "(Unread)" }", modifier = Modifier.padding(16.dp)
         )
     }
 }

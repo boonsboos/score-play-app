@@ -13,6 +13,5 @@ import kotlinx.serialization.Serializable
 data class Notification(
     val notificationId: String,
     val content: String,
-    val read: Boolean,
-    val notificationType: NotificationType,
+    val read: Boolean
 )

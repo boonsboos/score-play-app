@@ -12,6 +12,7 @@ import androidx.navigation3.ui.NavDisplay
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
+import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.NewSessionScreen
@@ -102,6 +103,13 @@ fun Navigator(modifier: Modifier = Modifier) {
                     NewSessionScreen(
                         backStack = backStack,
                         onEvent = sessionViewModel::onEvent
+                    )
+                }
+
+                is Screens.GameDetail -> NavEntry(key = key) {
+                    GameDetailScreen(
+                        gameId = key.gameId,
+                        backStack = backStack
                     )
                 }
 

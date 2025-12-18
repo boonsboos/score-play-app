@@ -7,11 +7,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.NotificationApi
-import nl.connectplay.scoreplay.models.notifications.Notification
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
+import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
+import kotlinx.serialization.json.Json
+import nl.connectplay.scoreplay.models.notifications.NotificationUi
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
+import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
+import java.util.UUID
 
 class NotificationListViewModel(private val notificationApi: NotificationApi) : ViewModel() {
-    private val _state = MutableStateFlow<List<Notification>>(emptyList())
+    private val _state = MutableStateFlow<List<NotificationUi>>(emptyList())
     val state = _state.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
@@ -20,10 +25,14 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    private val _allNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _allNotifications = MutableStateFlow<List<NotificationUi>>(emptyList())
 
     private val _filter = MutableStateFlow(NotificationFilter.ALL)
     val filter = _filter.asStateFlow()
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     init {
         loadNotifications()
@@ -33,17 +42,22 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
         viewModelScope.launch {
             _isLoading.update { true }
             _error.update { null }
+
             try {
                 val response = notificationApi.getAllNotifications()
+
                 _allNotifications.value = response.map { notification ->
-                    notification.copy(
-                        content = mapNotificationContent((notification.content))
+                    NotificationUi(
+                        notificationId = notification.notificationId,
+                        event = json.decodeFromString<BaseEvent>(notification.content),
+                        read = notification.read
                     )
                 }
+
                 applyFilter()
             } catch (e: Exception) {
                 e.printStackTrace()
-                _error.update { e.message ?: "An unexpected error occurred" }
+                _error.update { e.message ?: "A error occurred" }
             } finally {
                 _isLoading.update { false }
             }
@@ -59,56 +73,48 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
 
     fun applyFilter() {
         val allNotifications = _allNotifications.value
-        val filtered = when (_filter.value) {
-            NotificationFilter.ALL -> allNotifications
-            NotificationFilter.UNREAD -> allNotifications.filter { !it.read }
-            NotificationFilter.FRIEND_REQUEST -> allNotifications.filter {
-                it.content.contains(
-                    "friend",
-                    ignoreCase = true
-                )
-            }
 
-            NotificationFilter.HIGHSCORES -> allNotifications.filter {
-                it.content.contains(
-                    "highscore",
-                    ignoreCase = true
-                )
-            }
+        val filtered = when (_filter.value) {
+            NotificationFilter.ALL ->
+                allNotifications
+
+            NotificationFilter.UNREAD ->
+                allNotifications.filter { !it.read }
+
+            NotificationFilter.FRIEND_REQUEST ->
+                allNotifications.filter { it.event is FriendRequestEvent }
+
+            NotificationFilter.HIGHSCORES ->
+                allNotifications.filter { it.event is HighscoreEvent }
         }
+
         _state.value = filtered
     }
 
-    fun markNotificationsAsRead(notification: Notification) {
+    fun markNotificationsAsRead(notificationId: String) {
         viewModelScope.launch {
             try {
-                notificationApi.markNotificationsAsRead(notification.notificationId) // send the patch request to the api to mark as read
-                // we get the currentList of notifications
+                notificationApi.markNotificationsAsRead(notificationId)
+
                 _state.update { currentList ->
-                    currentList.map { notificationItem -> // loop over the current notificationItem to check witch is clicked one
-                        if (notificationItem.notificationId == notification.notificationId)
-                            notificationItem.copy(read = true) // mark clicked notificationItem as read
-                        else notificationItem // keep original state
+                    currentList.map { item ->
+                        if (item.notificationId == notificationId)
+                            item.copy(read = true)
+                        else item
+                    }
+                }
+
+                _allNotifications.update { currentList ->
+                    currentList.map { item ->
+                        if (item.notificationId == notificationId)
+                            item.copy(read = true)
+                        else item
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.value = "Failed to update notification"
             }
-        }
-    }
-
-    private fun mapNotificationContent(rawContent: String): String {
-        return when {
-            rawContent.contains("FriendRequestReplyEvent") -> {
-                if (rawContent.contains("\"accepts\":true")) {
-                    "Friends is accepted!"
-                } else {
-                    "Don't want to be your friend!"
-                }
-            }
-
-            else -> rawContent
         }
     }
 }
