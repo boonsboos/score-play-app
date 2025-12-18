@@ -2,19 +2,27 @@ package nl.connectplay.scoreplay.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.models.game.GameDetailDto
 
-class GameDetailViewModel(private val gameApi: GameApi): ViewModel() {
+class GameDetailViewModel(private val gameId: Int, private val gameApi: GameApi): ViewModel() {
     private val _gameState = MutableStateFlow<GameDetailDto?>(null)
     val gameState = _gameState.asStateFlow()
 
     private val _loadingState = MutableStateFlow(false)
     val loadingState = _loadingState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            getGame(gameId)
+        }
+    }
 
     suspend fun getGame(gameId: Int) = coroutineScope {
         Log.i(this::class.simpleName, "Getting game with ID $gameId")

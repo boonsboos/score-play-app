@@ -50,15 +50,16 @@ import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameDetailScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameDetail: GameDetailViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
-    val gameDetail: GameDetailViewModel = koinViewModel()
     val state by gameDetail.gameState.collectAsState()
     val loading by gameDetail.loadingState.collectAsState()
 
@@ -177,7 +178,9 @@ fun GameDetailScreen(
                 thickness = 1.dp
             )
 
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)) {
                 Column {
                     Text(text = "Description", style = MaterialTheme.typography.headlineMedium)
                     ExpandableText(state?.description ?: "No description found")
