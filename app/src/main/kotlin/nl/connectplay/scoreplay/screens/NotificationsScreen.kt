@@ -200,6 +200,7 @@ fun NotificationItem(
             )
             .clickable { onClick() }
     ) {
+        // todo() hier een when op basis van event type een extra compasable voor highscore, friendrequest enzo daar een template voor maken
         Icon(
             imageVector = when(event) {
                 is FriendRequestEvent -> {
