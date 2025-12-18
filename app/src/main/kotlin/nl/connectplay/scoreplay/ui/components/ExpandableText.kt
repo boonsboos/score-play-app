@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,7 @@ fun ExpandableText(
     Column(
         modifier = Modifier
             .animateContentSize(animationSpec = tween(100))
-            .clickable(enabled = showMore) {
+            .clickable {
                 showMore = !showMore
             }
             .fillMaxWidth()
