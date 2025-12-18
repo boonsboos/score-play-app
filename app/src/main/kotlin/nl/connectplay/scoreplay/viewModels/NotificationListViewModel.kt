@@ -25,7 +25,6 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     private val _filter = MutableStateFlow(NotificationFilter.ALL)
     val filter = _filter.asStateFlow()
 
-
     init {
         loadNotifications()
     }

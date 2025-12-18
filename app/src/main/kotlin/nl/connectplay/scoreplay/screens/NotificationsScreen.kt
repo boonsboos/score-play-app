@@ -31,7 +31,16 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import nl.connectplay.scoreplay.models.notifications.Notification
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
+import nl.connectplay.scoreplay.models.notifications.NotificationType
 import nl.connectplay.scoreplay.ui.components.FilterButton
 
 @Composable
@@ -44,14 +53,24 @@ fun NotificationsScreen(
     val error by notificationViewModel.error.collectAsState()
     val listState = rememberLazyListState()
     val filterScrollState = rememberScrollState()
+    val selectedNotification =
+        remember { mutableStateOf<Notification?>(null) } // holds the selected notification
+
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Notifications", backStack = backStack) },
+        modifier = Modifier.fillMaxSize(), // the screen is filled entire size
+        topBar = {
+            ScorePlayTopBar(
+                title = "Notifications",
+                backStack = backStack
+            )
+        }, // added the composable topbar
+        // added the composable bottombar
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
+            // horizontal scrollbar for the filterbuttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,7 +81,9 @@ fun NotificationsScreen(
             ) {
                 FilterButton(
                     title = "All",
+                    // mark this filter button as selected when the ALL filter is active (also for styling)
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.ALL,
+                    // change the filter state so the ViewModel knows which filter is active
                     onClick = {
                         notificationViewModel.setFilter(NotificationFilter.ALL)
                     }
@@ -118,12 +139,12 @@ fun NotificationsScreen(
                             NotificationItem(
                                 content = it.content + if (it.read) " (Read)" else " (Unread)",
                                 read = it.read,
+                                notificationType = it.notificationType,
                                 // set this notification to unread when clicked
                                 onClick = {
                                     Log.d("NOTIFY", "Clicked notification: ${it.notificationId}")
-                                    notificationViewModel.markNotificationsAsRead(
-                                        it
-                                    )
+                                    selectedNotification.value =
+                                        it // store the clicked notifications
                                 }
                             )
                         }
@@ -132,11 +153,39 @@ fun NotificationsScreen(
             }
         }
     }
+
+    selectedNotification.value?.let { notification ->
+        AlertDialog(
+            onDismissRequest = {
+                notificationViewModel.markNotificationsAsRead(notification)
+                selectedNotification.value = null
+            },
+            title = {
+                Text("Notification")
+            },
+            text = {
+                Text(notification.content)
+            },
+            confirmButton = {
+                Text(
+                    text = "Close",
+                    modifier = Modifier.clickable {
+                        notificationViewModel.markNotificationsAsRead(notification)
+                        selectedNotification.value = null
+                    }
+                )
+            }
+        )
+    }
 }
 
 @Composable
 fun NotificationItem(
-    content: String, read: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit
+    content: String,
+    read: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    notificationType: NotificationType,
 ) {
     Row(
         modifier = modifier
@@ -148,6 +197,14 @@ fun NotificationItem(
             )
             .clickable { onClick() }
     ) {
+        Icon(
+            imageVector = if (notificationType == NotificationType.FRIEND_REQUEST)
+                Icons.Filled.Person
+            else
+                Icons.Filled.EmojiEvents,
+            contentDescription = null,
+            modifier = Modifier.padding(start = 12.dp)
+        )
         Text(
             text = content, modifier = Modifier.padding(16.dp)
         )
