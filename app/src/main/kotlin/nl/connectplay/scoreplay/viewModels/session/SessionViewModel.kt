@@ -43,8 +43,8 @@ class SessionViewModel(
 
             is SessionEvent.StartNewSession -> {
                 viewModelScope.launch {
-                    //sessionPlayerDao.deleteAllPlayers()
-                    //sessionDao.deleteSession()
+                    sessionPlayerDao.deleteAllPlayers()
+                    sessionDao.deleteSession()
 
                     _state.value = SessionState(
                         status = SessionStatus.DRAFT
