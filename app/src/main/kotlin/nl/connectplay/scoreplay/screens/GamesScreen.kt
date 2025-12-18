@@ -36,10 +36,10 @@ fun GamesScreen(
     backStack: NavBackStack<NavKey>,
     gameListViewModel: GamesListViewModel = koinViewModel()
 ) {
-    val gamesList by gameListViewModel.gamesList.collectAsStateWithLifecycle()
+    val gamesList by gameListViewModel.gamesSet.collectAsStateWithLifecycle()
     val gamesAreLoading by gameListViewModel.areLoading.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(GAMES_SCREEN_LOGTAG) {
         try {
             gameListViewModel.fetch()
         } catch (e: Exception) {
@@ -68,7 +68,7 @@ fun GamesScreen(
             }
 
             LazyColumn {
-                items(items = gamesList, key = { it.id }) {
+                items(items = gamesList.toList(), key = { it.id }) {
                     ListItem(
                         modifier = Modifier.clickable {
                             backStack.add(Screens.GameDetail(it.id))
