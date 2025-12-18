@@ -48,6 +48,7 @@ import nl.connectplay.scoreplay.ui.components.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.SessionTabs
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -56,13 +57,11 @@ import org.koin.compose.koinInject
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel(),
+    state: SessionState,
+    onEvent: (SessionEvent) -> Unit,
     gamesViewModel: GamesListViewModel = koinViewModel(),
-    tokenStore: TokenDataStore = koinInject()
+    //tokenStore: TokenDataStore = koinInject()
 ) {
-    val userId by tokenStore.userId.collectAsState(null)
-    val sessionState by sessionViewModel.state.collectAsState()
-
     val games by gamesViewModel.gamesList.collectAsState()
     val loading by gamesViewModel.areLoading.collectAsState()
 
@@ -72,16 +71,6 @@ fun SessionSetupScreen(
     LaunchedEffect(Unit) {
         if (games.isEmpty() && !loading) {
             gamesViewModel.fetch()
-        }
-    }
-
-    // Sets the first player as the current user
-    LaunchedEffect(userId) {
-        userId?.let {
-            sessionViewModel.onEvent(SessionEvent.SetUser(it))
-            sessionViewModel.onEvent(
-                SessionEvent.AddPlayer(userId = it, guestName = null)
-            )
         }
     }
 
@@ -117,7 +106,7 @@ fun SessionSetupScreen(
         topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                sessionViewModel.onEvent(SessionEvent.SaveSession)
+                onEvent(SessionEvent.SaveSession)
                 backStack.add(Screens.SessionScore)
             }) { Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Score Screen") }
         },
@@ -189,7 +178,7 @@ fun SessionSetupScreen(
                                 searchQuery = game.name
                                 expanded = false
 
-                                sessionViewModel.onEvent(
+                                onEvent(
                                     SessionEvent.SetGame(game.id)
                                 )
                             }
@@ -260,8 +249,8 @@ fun SessionSetupScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            sessionState.sessionPlayers.forEach { player ->
-                val isOwner = player.userId == userId && player.guestName == null
+            state.sessionPlayers.forEach { player ->
+                val isOwner = player.userId == state.userId && player.guestName == null
 
                 PlayerRow(
                     player = PlayerUi(
@@ -271,7 +260,7 @@ fun SessionSetupScreen(
                     ),
                     onRemove = {
                         if (!isOwner) {
-                            sessionViewModel.onEvent(
+                            onEvent(
                                 SessionEvent.RemovePlayer(
                                     userId = player.userId,
                                     guestName = player.guestName
@@ -360,13 +349,13 @@ fun SessionSetupScreen(
                             if (isFriendMode) {
                                 val friend =
                                     mockFriends.first { it.id == selectedFriendId }
-                                sessionViewModel.onEvent(
+                                onEvent(
                                     SessionEvent.AddPlayer(friend.id, friend.name)
                                 )
                             } else {
-                                sessionViewModel.onEvent(
+                                onEvent(
                                     SessionEvent.AddPlayer(
-                                        userId = userId!!,
+                                        userId = state.userId!!,
                                         guestName = newPlayerName.trim()
                                     )
                                 )

@@ -18,13 +18,31 @@ class SessionViewModel(
     private val sessionDao: SessionDao,
     private val sessionPlayerDao: SessionPlayerDao
 ): ViewModel() {
-
     private val _state = MutableStateFlow(SessionState())
 
     val state = _state.asStateFlow()
 
     fun onEvent(event: SessionEvent) {
         when(event) {
+            is SessionEvent.Initialize -> {
+                _state.update { current ->
+
+                    // If already initialized. Do nothing.
+                    if (current.userId != null) return@update current
+
+                    val ownerPlayer = RoomSessionPlayer(
+                        userId = event.userId,
+                        guestName = null
+                    )
+
+                    current.copy(
+                        userId = event.userId,
+                        sessionPlayers = listOf(ownerPlayer)
+                    )
+                }
+            }
+
+
             is SessionEvent.DeleteSession -> {
                 viewModelScope.launch {
                     sessionDao.deleteSession(event.roomSession)
@@ -59,12 +77,6 @@ class SessionViewModel(
                 }
             }
 
-            is SessionEvent.SetUser -> {
-                _state.update { it.copy(
-                    userId = event.userId
-                ) }
-            }
-
             is SessionEvent.SetGame -> {
                 _state.update { it.copy(
                     gameId = event.gameId
@@ -79,15 +91,10 @@ class SessionViewModel(
 
             is SessionEvent.AddPlayer -> {
                 _state.update { current ->
-                    val ownerId = current.userId ?: return@update current
 
                     // Check if this player already exists
                     val alreadyExists = current.sessionPlayers.any { existing ->
                         when {
-                            // Owner: can only be added once
-                            event.guestName == null && event.userId == ownerId ->
-                                existing.userId == ownerId && existing.guestName == null
-
                             // Friend: unique per userId
                             event.guestName == null ->
                                 existing.userId == event.userId && existing.guestName == null

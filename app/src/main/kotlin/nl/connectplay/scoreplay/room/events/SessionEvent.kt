@@ -5,9 +5,8 @@ import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
 sealed interface SessionEvent {
+    data class Initialize(val userId: Int): SessionEvent
     object SaveSession: SessionEvent
-
-    data class SetUser(val userId: Int): SessionEvent
     data class SetGame(val gameId: Int): SessionEvent
     data class SetVisibility(val visibility: SessionVisibility): SessionEvent
 
