@@ -8,17 +8,15 @@ import nl.connectplay.scoreplay.room.entities.RoomSession
 
 @Dao
 interface SessionDao {
-
     /**
      * Upsert means update if exists otherwise insert
      */
     @Upsert
     suspend fun upsertSession(roomSession: RoomSession)
 
-    @Delete
-    suspend fun deleteSession(roomSession: RoomSession)
+    @Query("DELETE FROM sessions")
+    suspend fun deleteSession()
 
     @Query("SELECT * FROM sessions WHERE id = :id")
     suspend fun getSessionById(id: Int): RoomSession
-
 }
