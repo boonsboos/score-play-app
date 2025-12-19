@@ -41,8 +41,13 @@ class SessionViewModel(
             if (_games.value.isNotEmpty()) return@launch
 
             _loading.value = true
-            _games.value = gameApi.all()
-            _loading.value = false
+            try {
+                _games.value = gameApi.all()
+            } catch (e: Exception) {
+                Log.e("SessionViewModel", "Failed to fetch games", e)
+            } finally {
+                _loading.value = false
+            }
         }
     }
 
