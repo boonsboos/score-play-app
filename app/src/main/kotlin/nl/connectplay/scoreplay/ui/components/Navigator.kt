@@ -125,7 +125,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    SessionScoreScreen (
+                    SessionScoreScreen(
                         backStack = backStack,
                     )
                 }

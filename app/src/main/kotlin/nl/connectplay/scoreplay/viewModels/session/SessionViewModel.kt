@@ -76,8 +76,10 @@ class SessionViewModel(
                     sessionPlayerDao.deleteAllPlayers()
                     sessionDao.deleteSession()
 
+                    val currentUserId = _state.value.userId
                     _state.value = SessionState(
-                        status = SessionStatus.DRAFT
+                        status = SessionStatus.DRAFT,
+                        userId = currentUserId
                     )
                 }
             }
