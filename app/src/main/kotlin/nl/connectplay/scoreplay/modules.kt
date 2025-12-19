@@ -27,6 +27,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -45,6 +46,7 @@ val viewModelsModule = module {
     viewModel { (userId: Int?) ->
         ProfileViewModel(userId, get())
     }
+    viewModelOf(::GameDetailViewModel)
 }
 
 // Koin module to provide networking / API dependencies
@@ -57,8 +59,8 @@ val apiModule = module {
 
     // AuthApi that depends on HttpClient
     single { AuthApi(get()) }
+    singleOf(::GameApi)
     single { NotificationApi(get(), get()) }
-    single { GameApi(get()) }
     single { SessionApi(get()) }
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
@@ -70,7 +72,6 @@ val storeModule = module {
 }
 
 val databaseModule = module {
-
     single {
         Room.databaseBuilder(
                 get(),
@@ -83,5 +84,4 @@ val databaseModule = module {
     single<SessionDao> {
         get<Database>().sessionDao
     }
-
 }

@@ -53,7 +53,7 @@ fun NewSessionScreen(
 
 ) {
     val userId by tokenStore.userId.collectAsState(null)
-    val games by viewModel.gamesList.collectAsState()
+    val games by viewModel.gamesSet.collectAsState()
     val loading by viewModel.areLoading.collectAsState()
 
     LaunchedEffect(Unit) { if (games.isEmpty() && !loading) { viewModel.fetch() } }
