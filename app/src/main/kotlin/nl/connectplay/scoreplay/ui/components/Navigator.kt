@@ -37,10 +37,7 @@ fun Navigator(modifier: Modifier = Modifier) {
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
-    val backStack = rememberNavBackStack(
-        start
-//            Screens.EditProfile(UserProfile(id = 1, username = "Bob", email = "bob@email.com"))
-    )
+    val backStack = rememberNavBackStack(start)
 
     NavDisplay(
         modifier = modifier, backStack = backStack,

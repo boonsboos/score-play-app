@@ -77,7 +77,7 @@ fun ProfileScreen(
             val exception = (profileState as UiState.Error).exception
             if (exception is InvalidTokenException) {
                 backStack.apply {
-                    while (isNotEmpty()) removeLast()
+                    while (isNotEmpty()) removeAt(lastIndex)
                     add(Screens.Login)
                 }
             }

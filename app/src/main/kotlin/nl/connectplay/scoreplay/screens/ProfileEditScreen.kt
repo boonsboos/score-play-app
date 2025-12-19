@@ -46,6 +46,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
@@ -71,7 +72,6 @@ fun ProfileEditScreen(
     ),
 ) {
     val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var showPicker by remember { mutableStateOf(false) }
 
     val profileState by profileEditViewModel.updatedProfileState.collectAsState()
@@ -94,7 +94,6 @@ fun ProfileEditScreen(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && cameraUri != null) {
-            imageUri = cameraUri
             profileEditViewModel.onPictureChanged(cameraUri!!)
         }
     }
@@ -103,7 +102,6 @@ fun ProfileEditScreen(
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            imageUri = it
             profileEditViewModel.onPictureChanged(it)
         }
     }
@@ -119,6 +117,16 @@ fun ProfileEditScreen(
 
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) backStack.removeAt(backStack.lastIndex)
+        // check if error is TokenInvalid and handle logout
+        if (profileState is UiState.Error) {
+            val exception = (profileState as UiState.Error).exception
+            if (exception is InvalidTokenException) {
+                backStack.apply {
+                    while (isNotEmpty()) removeAt(lastIndex)
+                    add(Screens.Login)
+                }
+            }
+        }
     }
 
     Scaffold(

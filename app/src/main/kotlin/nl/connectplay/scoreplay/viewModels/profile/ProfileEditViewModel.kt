@@ -2,14 +2,15 @@ package nl.connectplay.scoreplay.viewModels.profile
 
 import android.content.Context
 import android.net.Uri
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.models.user.UserProfile
-import java.io.File
 
 class ProfileEditViewModel(
     private val currentUser: UserProfile, private val profileApi: ProfileApi
@@ -42,7 +43,17 @@ class ProfileEditViewModel(
         _pendingImageUri.value = newPicture
     }
 
+    private fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
     fun onSaveProfile(context: Context) {
+        val emailState = _email.value
+        if (!isValidEmail(emailState)) {
+            _updatedProfileState.update { UiState.Error("Invalid email format") }
+            return
+        }
+
         viewModelScope.launch {
             _updatedProfileState.value = UiState.Loading
             try {

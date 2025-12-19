@@ -102,7 +102,12 @@ class ProfileApi(
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             setBody(mapOf("username" to username, "email" to email))
         }
-        res.body()
+        if (res.status.value == 401) {
+            tokenDataStore.clearToken()
+            throw InvalidTokenException("Invalid or expired token")
+        } else {
+            res.body()
+        }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
         throw Exception("Failed to update profile data", e)
@@ -125,15 +130,18 @@ class ProfileApi(
                                     "form-data; name=\"file\"; filename=\"picture.jpg\""
                                 )
                                 append(HttpHeaders.ContentType, ContentType.Image.JPEG)
-                            }
-                        ) {
+                            }) {
                             bytes.inputStream().asSource().buffered()
                         }
-                    }
-                )
+                    })
             )
         }
-        res.body()
+        if (res.status.value == 401) {
+            tokenDataStore.clearToken()
+            throw InvalidTokenException("Invalid or expired token")
+        } else {
+            res.body()
+        }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
         throw Exception("Failed to upload profile picture", e)
