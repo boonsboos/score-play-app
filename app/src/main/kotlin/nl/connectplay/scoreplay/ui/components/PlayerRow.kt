@@ -50,7 +50,7 @@ fun PlayerRow(
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = player.name.first().toString(),
+                    text = player.name.firstOrNull()?.toString().orEmpty(),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
