@@ -12,6 +12,7 @@ import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import kotlinx.serialization.json.Json
 import nl.connectplay.scoreplay.models.notifications.NotificationUi
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import java.util.UUID
 
@@ -46,12 +47,14 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
             try {
                 val response = notificationApi.getAllNotifications()
 
-                _allNotifications.value = response.map { notification ->
-                    NotificationUi(
-                        notificationId = notification.notificationId,
-                        event = json.decodeFromString<BaseEvent>(notification.content),
-                        read = notification.read
-                    )
+                _allNotifications.update {
+                    response.map { notification ->
+                        NotificationUi(
+                            notificationId = notification.notificationId,
+                            event = json.decodeFromString<BaseEvent>(notification.content),
+                            read = notification.read
+                        )
+                    }
                 }
 
                 applyFilter()
@@ -75,17 +78,11 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
         val allNotifications = _allNotifications.value
 
         val filtered = when (_filter.value) {
-            NotificationFilter.ALL ->
-                allNotifications
-
-            NotificationFilter.UNREAD ->
-                allNotifications.filter { !it.read }
-
-            NotificationFilter.FRIEND_REQUEST ->
-                allNotifications.filter { it.event is FriendRequestEvent }
-
-            NotificationFilter.HIGHSCORES ->
-                allNotifications.filter { it.event is HighscoreEvent }
+            NotificationFilter.ALL -> allNotifications
+            NotificationFilter.UNREAD -> allNotifications.filter { !it.read }
+            NotificationFilter.FRIEND_REQUEST -> allNotifications.filter { it.event is FriendRequestEvent }
+            NotificationFilter.REPLIES -> allNotifications.filter { it.event is FriendRequestReplyEvent }
+            NotificationFilter.HIGHSCORES -> allNotifications.filter { it.event is HighscoreEvent }
         }
 
         _state.value = filtered

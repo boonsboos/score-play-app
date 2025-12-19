@@ -29,20 +29,30 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import nl.connectplay.scoreplay.models.notifications.Notification
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
 import nl.connectplay.scoreplay.models.notifications.NotificationUi
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
+import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import kotlin.time.ExperimentalTime
 
@@ -106,6 +116,13 @@ fun NotificationsScreen(
                     }
                 )
                 FilterButton(
+                    title = "Replies",
+                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.REPLIES,
+                    onClick = {
+                        notificationViewModel.setFilter(NotificationFilter.REPLIES)
+                    }
+                )
+                FilterButton(
                     title = "Highscores",
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.HIGHSCORES,
                     onClick = {
@@ -138,17 +155,49 @@ fun NotificationsScreen(
                         state = listState,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(notifications) { it -> // loops over each notification in the list
-                            NotificationItem(
-                                event = it.event,
-                                read = it.read,
-                                // set this notification to unread when clicked
-                                onClick = {
-                                    Log.d("NOTIFY", "Clicked notification: ${it.notificationId}")
-                                    selectedNotification.value =
-                                        it // store the clicked notifications
-                                }
-                            )
+                        items(notifications) { notification ->
+                            when (val event = notification.event) {
+
+                                is FriendRequestEvent ->
+                                    FriendRequestNotificationItem(
+                                        event = event,
+                                        read = notification.read,
+                                        onClick = {
+                                            Log.d(
+                                                "NOTIFY",
+                                                "Clicked notification: ${notification.notificationId}"
+                                            )
+                                            selectedNotification.value = notification
+                                        }
+                                    )
+
+                                is FriendRequestReplyEvent ->
+                                    FriendRequestReplyNotificationItem(
+                                        event = event,
+                                        read = notification.read,
+                                        onClick = {
+                                            Log.d(
+                                                "NOTIFY",
+                                                "Clicked notification: ${notification.notificationId}"
+                                            )
+                                            selectedNotification.value = notification
+                                        }
+                                    )
+
+                                is HighscoreEvent ->
+                                    HighscoreNotificationItem(
+                                        event = event,
+                                        read = notification.read,
+                                        onClick = {
+                                            Log.d(
+                                                "NOTIFY",
+                                                "Clicked notification: ${notification.notificationId}"
+                                            )
+                                            selectedNotification.value = notification
+                                        }
+                                    )
+                            }
+                            HorizontalDivider()
                         }
                     }
                 }
@@ -157,62 +206,103 @@ fun NotificationsScreen(
     }
 
     selectedNotification.value?.let { notification ->
-        // TODO: instead, redirect to the correct screen
-//        AlertDialog(
-//            onDismissRequest = {
-//                notificationViewModel.markNotificationsAsRead(notification.notificationId)
-//                selectedNotification.value = null
-//            },
-//            title = {
-//                Text("Notification")
-//            },
-//            text = {
-//                Text(notification.content)
-//            },
-//            confirmButton = {
-//                Text(
-//                    text = "Close",
-//                    modifier = Modifier.clickable {
-//                        notificationViewModel.markNotificationsAsRead(notification.notificationId)
-//                        selectedNotification.value = null
-//                    }
-//                )
-//            }
-//        )
+        LaunchedEffect(notification.notificationId) {
+            when (val event = notification.event) {
+                is HighscoreEvent -> backStack.add(Screens.Leaderboard(gameId = event.gameId))
+                is FriendRequestEvent -> backStack.add(Screens.Profile(userId = event.friendId))
+                is FriendRequestReplyEvent -> backStack.add(Screens.Friends)
+            }
+
+            // mark as read after the user clicked the notification
+            notificationViewModel.markNotificationsAsRead(notification.notificationId)
+
+            // clear selection so this block wouldnt trigger again
+            selectedNotification.value = null
+        }
+    }
+}
+
+@Composable
+fun NotificationRow(
+    read: Boolean,
+    onClick: () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                if (read)
+                    MaterialTheme.colorScheme.surfaceContainerLowest
+                else
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        content = content
+    )
+}
+
+@Composable
+fun FriendRequestNotificationItem(
+    event: FriendRequestEvent,
+    read: Boolean,
+    onClick: () -> Unit,
+) {
+    NotificationRow(read, onClick) {
+        Icon(Icons.Filled.Person, null)
+        Spacer(Modifier.width(12.dp))
+        Text("Friend request • ${event.createdFormatted(read)}")
+    }
+}
+
+@Composable
+fun FriendRequestReplyNotificationItem(
+    event: FriendRequestReplyEvent,
+    read: Boolean,
+    onClick: () -> Unit,
+) {
+    val text =
+        if (event.accepted) "Friend request accepted"
+        else "Friend request declined"
+
+    NotificationRow(read, onClick) {
+        Icon(Icons.Filled.Person, null)
+        Spacer(Modifier.width(12.dp))
+        Text("$text • ${event.createdFormatted(read)}")
+    }
+}
+
+@Composable
+fun HighscoreNotificationItem(
+    event: HighscoreEvent,
+    read: Boolean,
+    onClick: () -> Unit,
+) {
+    NotificationRow(read, onClick) {
+        Icon(Icons.Filled.EmojiEvents, null)
+        Spacer(Modifier.width(12.dp))
+        Text("New highscore • ${event.createdFormatted(read)}")
     }
 }
 
 @OptIn(ExperimentalTime::class)
-@Composable
-fun NotificationItem(
-    event: BaseEvent,
-    read: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                if (read) MaterialTheme.colorScheme.surfaceContainerLowest else MaterialTheme.colorScheme.primary.copy(
-                    alpha = 0.2F
-                )
-            )
-            .clickable { onClick() }
-    ) {
-        // todo() hier een when op basis van event type een extra compasable voor highscore, friendrequest enzo daar een template voor maken
-        Icon(
-            imageVector = when(event) {
-                is FriendRequestEvent -> {
-                    Icons.Filled.Person
-                }
-                else -> Icons.Filled.EmojiEvents
-            },
-            contentDescription = null,
-            modifier = Modifier.padding(start = 12.dp)
+fun BaseEvent.createdFormatted(read: Boolean): String {
+    val formatted = created
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .format(
+            LocalDateTime.Format {
+                day()
+                char('-')
+                monthNumber()
+                char('-')
+                year()
+                char(' ')
+                hour()
+                char(':')
+                minute()
+            }
         )
-        Text(
-            text = "${event.created} ${if (read) "(Read)" else "(Unread)" }", modifier = Modifier.padding(16.dp)
-        )
-    }
+    return formatted
 }

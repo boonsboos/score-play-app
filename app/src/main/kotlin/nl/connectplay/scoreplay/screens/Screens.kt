@@ -42,5 +42,8 @@ object Screens {
     data class Profile(val userId: Int? = null) : NavKey
 
     @Serializable
+    data class Leaderboard(val gameId: Int) : NavKey
+
+    @Serializable
     data class ExampleDetail(val id: Int) : NavKey
 }
