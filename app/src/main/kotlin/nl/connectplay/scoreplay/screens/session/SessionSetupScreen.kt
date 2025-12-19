@@ -359,12 +359,15 @@ fun SessionSetupScreen(
                                     SessionEvent.AddPlayer(friend.id, friend.name)
                                 )
                             } else {
-                                onEvent(
-                                    SessionEvent.AddPlayer(
-                                        userId = state.userId!!,
-                                        guestName = newPlayerName.trim()
+                                val userId = state.userId
+                                if (userId != null) {
+                                    onEvent(
+                                        SessionEvent.AddPlayer(
+                                            userId = state.userId,
+                                            guestName = newPlayerName.trim()
+                                        )
                                     )
-                                )
+                                }
                             }
 
                             newPlayerName = ""
