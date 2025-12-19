@@ -34,6 +34,9 @@ object Routes {
     object Games {
         private const val root = "/games"
         fun getAll() = root
+        fun single(gameId: Int) = "$root/$gameId"
+        fun follow(gameId: Int) = "$root/$gameId/follow"
+        fun unfollow(gameId: Int) = "$root/$gameId/unfollow"
     }
 
     object Auth {

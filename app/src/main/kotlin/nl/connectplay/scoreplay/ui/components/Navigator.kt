@@ -14,6 +14,7 @@ import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
+import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
@@ -126,6 +127,13 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.SessionScore -> NavEntry(key = key) {
                     SessionScoreScreen (
                         backStack = backStack,
+                    )
+                }
+
+                is Screens.GameDetail -> NavEntry(key = key) {
+                    GameDetailScreen(
+                        gameId = key.gameId,
+                        backStack = backStack
                     )
                 }
 
