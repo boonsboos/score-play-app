@@ -111,7 +111,7 @@ fun ProfileEditScreen(
     ) { granted ->
         if (granted) {
             createCameraUri()
-            takePhotoLauncher.launch(cameraUri!!)
+            cameraUri?.let { takePhotoLauncher.launch(it) }
         } else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
     }
 
@@ -240,7 +240,9 @@ fun ProfileEditScreen(
                         text = "Change profile picture",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Row() {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         ScorePlayButton(
                             label = "Take photo",
                             onClick = {
@@ -253,7 +255,7 @@ fun ProfileEditScreen(
                                 ) {
                                     PackageManager.PERMISSION_GRANTED -> {
                                         createCameraUri()
-                                        takePhotoLauncher.launch(cameraUri!!)
+                                        cameraUri?.let { takePhotoLauncher.launch(it) }
                                     }
 
                                     else ->

@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.api
 
+import android.net.http.NetworkException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
