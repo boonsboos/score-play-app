@@ -5,6 +5,7 @@ import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -83,5 +84,38 @@ class ProfileApi(
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
         throw Exception("Failed to fetch followed games", e)
+    }
+
+    suspend fun deleteAccount() {
+        try {
+            val res = client.delete(Routes.Users.deleteMe()) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+            }
+
+            when (res.status.value) {
+                /**
+                 *200 for OK
+                 * 204 for No Content
+                 */
+                200, 204 -> {
+                    tokenDataStore.clearToken()
+                }
+                /**
+                 * No authorization
+                 */
+                401 -> {
+                    tokenDataStore.clearToken()
+                    throw InvalidTokenException("Invalid or expired token")
+                }
+                else -> {
+                    throw Exception("Failed to delete account (status ${res.status.value})")
+                }
+            }
+        } catch (e: NoTransformationFoundException) {
+            e.printStackTrace()
+            throw Exception("Failed to delete account", e)
+        }
     }
 }

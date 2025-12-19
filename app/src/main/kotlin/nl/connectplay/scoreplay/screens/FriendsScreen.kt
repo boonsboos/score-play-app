@@ -46,12 +46,35 @@ fun FriendsScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
-            FriendList(
-                friendRequests = uiState.friendRequests,
-                friends = uiState.friends,
-                viewModel = friendViewModel
-            )
+            when {
+                uiState.isLoading -> {
+                    // Show loading indicator while data is being fetched
+                    FriendsLoadingSection()
+                }
+                else -> {
+                    FriendList(
+                        friendRequests = uiState.friendRequests,
+                        friends = uiState.friends,
+                        viewModel = friendViewModel
+                    )
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun FriendsLoadingSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        LinearProgressIndicator()
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("Loading…")
     }
 }
 
@@ -59,7 +82,7 @@ fun FriendsScreen(
 fun FriendList(
     friendRequests: FriendRequestListResponse,
     friends: List<UserFriend>,
-    viewModel: FriendViewModel
+    viewModel: FriendViewModel = koinViewModel()
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

@@ -44,7 +44,11 @@ val viewModelsModule = module {
     viewModelOf(::SearchViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
-        ProfileViewModel(userId, get())
+        ProfileViewModel(
+            userId = userId,
+            profileApi = get(),
+            tokenDataStore = get()
+        )
     }
 }
 

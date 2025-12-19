@@ -88,14 +88,6 @@ class FriendViewModel(
             val success = friendsApi.accept(friendId) // Boolean
 
             if (success) {
-                _uiState.update { state ->
-                    state.copy(
-                        friendRequests = state.friendRequests.copy(
-                            pending = state.friendRequests.pending
-                                .filterNot { it.user.id == friendId }
-                        )
-                    )
-                }
                 refreshData()
             }
         }
@@ -110,16 +102,8 @@ class FriendViewModel(
             val success = friendsApi.decline(friendId) // Boolean
 
             if (success) {
-                _uiState.update { state ->
-                    state.copy(
-                        friendRequests = state.friendRequests.copy(
-                            pending = state.friendRequests.pending
-                                .filterNot { it.user.id == friendId }
-                        )
-                    )
-                }
+                refreshData()
             }
-            refreshData()
         }
     }
 

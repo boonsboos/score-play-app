@@ -46,7 +46,7 @@ object Routes {
     }
 
     object FriendRequest {
-        fun getAllFriendRequests() = "/users/me/friendrequests"
+        const val getAllFriendRequests = "/users/me/friendrequests"
 
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
@@ -91,6 +91,7 @@ object Routes {
         const val root = "/users"
         fun getAll() = root
         const val me = "$root/me"
+        fun deleteMe() = "$root/me"
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
         fun followedGames(userId: Int) = "$root/$userId/followed"

@@ -32,7 +32,8 @@ class FriendsApi(
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
             res.body()
-        } catch (e: NoTransformationFoundException) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }
@@ -41,19 +42,16 @@ class FriendsApi(
     /**
      * Fetch friendrequests
      */
-    suspend fun getAllFriendRequests(): FriendRequestListResponse {
-        return try {
-            val res = client.get(Routes.FriendRequest.getAllFriendRequests()) {
+    suspend fun getAllFriendRequests(): FriendRequestListResponse =try {
+             client.get(Routes.FriendRequest.getAllFriendRequests) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-
-            }
-            res.body()
+            }.body()
         } catch (e: NoTransformationFoundException) {
+            e.printStackTrace()
             FriendRequestListResponse(emptyList(), emptyList())
         }
-    }
 
     /**
      * Handle friendrequests
@@ -66,10 +64,11 @@ class FriendsApi(
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-                setBody(FriendRequestReply(accept = true))
+                setBody(mapOf("accept" to true))
             }
             true
-        } catch (e: NoTransformationFoundException) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
@@ -82,10 +81,11 @@ class FriendsApi(
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-                setBody(FriendRequestReply(accept = false))
+                setBody(mapOf("accept" to false))
             }
             true
-        } catch (e: NoTransformationFoundException) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
