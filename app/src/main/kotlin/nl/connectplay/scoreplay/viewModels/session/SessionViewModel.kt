@@ -157,7 +157,9 @@ class SessionViewModel(
                     )
                 }
             }
-            is SessionEvent.DeleteSessionPlayer -> TODO()
+            is SessionEvent.DeleteSessionPlayer -> {
+                Log.w("SessionVM", "DeleteSessionPlayer event received but not implemented; ignoring.")
+            }
         }
     }
 }
