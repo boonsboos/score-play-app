@@ -58,8 +58,9 @@ class ProfileEditViewModel(
             _updatedProfileState.value = UiState.Loading
             try {
                 _pendingImageUri.value?.let { uri ->
-                    val bytes = context.contentResolver.openInputStream(uri)?.readBytes()
-                        ?: throw Exception("Failed to read image")
+                    val bytes = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        inputStream.readBytes()
+                    } ?: throw Exception("Failed to read image")
                     profileApi.uploadProfilePicture(bytes)
                 }
 
