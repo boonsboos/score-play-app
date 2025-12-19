@@ -12,6 +12,7 @@ import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.Database
+import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -70,6 +71,7 @@ val storeModule = module {
 }
 
 val databaseModule = module {
+
     single {
         Room.databaseBuilder(
                 get(),
@@ -82,4 +84,9 @@ val databaseModule = module {
     single<SessionDao> {
         get<Database>().sessionDao
     }
+
+    single<SessionPlayerDao> {
+        get<Database>().sessionPlayerDao
+    }
+
 }

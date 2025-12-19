@@ -13,12 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
+fun HomeScreen(
+    backStack: NavBackStack<NavKey>,
+    onLogout: () -> Unit,
+    sessionViewModel: SessionViewModel = koinViewModel()
+) {
     // the scaffold makes the basic bottomnav layout
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -40,7 +47,8 @@ fun HomeScreen(backStack: NavBackStack<NavKey>, onLogout: () -> Unit) {
             Button(
                 modifier = Modifier.align(Alignment.Center),
                 onClick = {
-                    backStack.apply { add(Screens.NewSession) }
+                    sessionViewModel.onEvent(SessionEvent.StartNewSession)
+                    backStack.apply { add(Screens.SessionSetup) }
                 }
             ) {
                 Text("New Session")
