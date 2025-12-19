@@ -14,7 +14,9 @@ android {
 
     defaultConfig {
         applicationId = "nl.connectplay.scoreplay"
-        minSdk = 36
+        // This is to ensure compatibility with older devices while targeting the latest SDK
+        // Now we support Android 14 and above
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
