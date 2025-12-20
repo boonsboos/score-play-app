@@ -29,7 +29,7 @@ class FriendsApi(
         }
     }
 
-    suspend fun getAllFriendRequests(): FriendRequestListResponse =try {
+    suspend fun getAllFriendRequests(): FriendRequestListResponse = try {
              client.get(Routes.FriendRequest.getAllFriendRequests) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
@@ -58,6 +58,6 @@ class FriendsApi(
     }
 
     suspend fun accept(friendId: Int): Boolean = reply(friendId = friendId, accept = true)
-    suspend fun decline(friendId: Int): Boolean = reply(friendId = friendId, accept = true)
+    suspend fun decline(friendId: Int): Boolean = reply(friendId = friendId, accept = false)
 
 }

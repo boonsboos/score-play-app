@@ -74,7 +74,7 @@ class FriendViewModel(
                         isLoading = false
                     )
                 }
-            } catch (e: NoTransformationFoundException) {
+            } catch (e: Exception) {
                 Log.d(this::class.simpleName, "Failed to refresh screen: ${e.message}", e)
                 _uiState.update {
                     it.copy(
