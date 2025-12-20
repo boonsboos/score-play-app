@@ -92,13 +92,18 @@ class FriendViewModel(
      */
     fun approveRequest(friendId: Int) {
         viewModelScope.launch {
-            val success = friendsApi.accept(friendId) // Boolean
-
-            if (success) {
-                refreshData()
-            } else {
+            try {
+                val success = friendsApi.accept(friendId)
+                if (success) {
+                    refreshData()
+                } else {
+                    _errors.update { FriendError(it.count+1, "Could not approve friend request, try again later") }
+                }
+            } catch(e: Exception) {
+                Log.d(this::class.simpleName, "Failed to approve friend req: ${e.message}", e)
                 _errors.update { FriendError(it.count+1, "Could not approve friend request, try again later") }
             }
+
         }
     }
 
@@ -108,12 +113,16 @@ class FriendViewModel(
      */
     fun declineRequest(friendId: Int) {
         viewModelScope.launch {
-            val success = friendsApi.decline(friendId) // Boolean
-
-            if (success) {
-                refreshData()
-            } else {
-                _errors.update { FriendError(it.count+1,"Could not decline friend request, try again later") }
+            try {
+                val success = friendsApi.decline(friendId)
+                if (success) {
+                    refreshData()
+                } else {
+                    _errors.update { FriendError(it.count+1, "Could not decline friend request, try again later") }
+                }
+            } catch(e: Exception) {
+                Log.d(this::class.simpleName, "Failed to decline friend req: ${e.message}", e)
+                _errors.update { FriendError(it.count+1, "Could not decline friend request, try again later") }
             }
         }
     }

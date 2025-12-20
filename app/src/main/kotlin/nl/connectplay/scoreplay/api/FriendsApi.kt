@@ -43,18 +43,12 @@ class FriendsApi(
     private suspend fun reply(friendId: Int, accept: Boolean): Boolean {
         val userId = tokenDataStore.userId.firstOrNull() ?: return false
 
-        return try {
-            client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-                setBody(mapOf("accept" to accept))
-            }
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        return client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+            setBody(mapOf("accept" to accept))
+        }.status == HttpStatusCode.OK
     }
 
     suspend fun accept(friendId: Int): Boolean = reply(friendId = friendId, accept = true)
