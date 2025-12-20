@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -78,14 +79,10 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
     fun deleteAccount() {
         viewModelScope.launch {
             try {
-                println("Calling API to delete account")
                 profileApi.deleteAccount()
-                println("Account deleted successfully")
                 _deleteAccountEvent.emit(Unit)
-            } catch (e: InvalidTokenException) {
-                println("Token invalid")
             } catch (e: Exception) {
-                println("Error deleting account: ${e.message}")
+                Log.e(this::class.simpleName, "Error deleting account: ${e.message}", e)
             }
         }
     }
