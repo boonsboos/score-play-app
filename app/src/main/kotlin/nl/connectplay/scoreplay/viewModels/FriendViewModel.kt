@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.call.NoTransformationFoundException
@@ -15,22 +16,25 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
  */
 data class FriendsUiState(
     val friendRequests: FriendRequestListResponse =
-        FriendRequestListResponse(pending = emptyList(), outstanding = emptyList()),
+        FriendRequestListResponse(),
     val friends: List<UserFriend> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+)
+
+data class FriendError(
+    val count: Int = 0,
+    val message: String? = null
 )
 
 class FriendViewModel(
     private val friendsApi: FriendsApi,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
-
-    /**
-     * Backing property for UI state
-     */
     private val _uiState = MutableStateFlow(FriendsUiState())
     val uiState: StateFlow<FriendsUiState> = _uiState.asStateFlow()
+
+    private val _errors = MutableStateFlow(FriendError())
+    val errors = _errors.asStateFlow()
 
     private suspend fun getUserId(): Int? {
         return tokenDataStore.userId.firstOrNull()
@@ -44,12 +48,13 @@ class FriendViewModel(
      * Refreshes both friends and friend requests for the logged-in user.
      */
     fun refreshData() {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+        _uiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
             val userId = getUserId()
             if (userId == null) {
-                _uiState.update { it.copy(isLoading = false, errorMessage = "User not logged in") }
+                _uiState.update { it.copy(isLoading = false) }
+                _errors.update { FriendError(it.count+1,"Your session expired, please log in again") }
                 return@launch
             }
 
@@ -70,12 +75,14 @@ class FriendViewModel(
                     )
                 }
             } catch (e: NoTransformationFoundException) {
+                Log.d(this::class.simpleName, "Failed to refresh screen: ${e.message}", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = e.message
                     )
                 }
+
+                _errors.update { FriendError(it.count+1,"Something went wrong") }
             }
         }
     }
@@ -89,6 +96,8 @@ class FriendViewModel(
 
             if (success) {
                 refreshData()
+            } else {
+                _errors.update { FriendError(it.count+1, "Could not approve friend request, try again later") }
             }
         }
     }
@@ -103,6 +112,8 @@ class FriendViewModel(
 
             if (success) {
                 refreshData()
+            } else {
+                _errors.update { FriendError(it.count+1,"Could not decline friend request, try again later") }
             }
         }
     }

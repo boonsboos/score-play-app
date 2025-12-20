@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,8 +13,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +39,18 @@ fun FriendsScreen(
 ) {
     val uiState by friendViewModel.uiState.collectAsState()
 
+    val error by friendViewModel.errors.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(error) {
+        error.message?.let { snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short) }
+    }
+
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -48,8 +60,17 @@ fun FriendsScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    // Show loading indicator while data is being fetched
-                    FriendsLoadingSection()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        LinearProgressIndicator()
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Loading…")
+                    }
                 }
                 else -> {
                     FriendList(
@@ -64,30 +85,18 @@ fun FriendsScreen(
 }
 
 @Composable
-fun FriendsLoadingSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        LinearProgressIndicator()
-        Spacer(modifier = Modifier.height(12.dp))
-        Text("Loading…")
-    }
-}
-
-@Composable
 fun FriendList(
     friendRequests: FriendRequestListResponse,
     friends: List<UserFriend>,
-    viewModel: FriendViewModel = koinViewModel()
+    viewModel: FriendViewModel
 ) {
+    val listState = rememberLazyListState()
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        state = listState
     ) {
 
         if (friendRequests.pending.isNotEmpty()) {
@@ -139,7 +148,7 @@ fun FriendList(
         } else {
             item {
                 Text(
-                    "No confirmed friends found",
+                    "No friends found :(",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiary
                 )
