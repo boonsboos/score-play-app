@@ -34,6 +34,9 @@ object Routes {
     object Games {
         private const val root = "/games"
         fun getAll() = root
+        fun single(gameId: Int) = "$root/$gameId"
+        fun follow(gameId: Int) = "$root/$gameId/follow"
+        fun unfollow(gameId: Int) = "$root/$gameId/unfollow"
     }
 
     object Auth {
@@ -51,8 +54,6 @@ object Routes {
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
-
-    //    object Games {
 //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
@@ -72,10 +73,10 @@ object Routes {
 //        }
 //    }
 //
-//    object Sessions {
-//        const val root = "/sessions"
-//        fun byId(sessionId: String) = "/sessions/$sessionId"
-//
+    object Sessions {
+        const val root = "/sessions"
+        //fun byId(sessionId: String) = "/sessions/$sessionId"
+
 //        object Players {
 //            fun all(sessionId: String) = "/sessions/$sessionId/players"
 //            fun byId(sessionId: String, playerId: String) = "/sessions/$sessionId/players/$playerId"
@@ -85,13 +86,15 @@ object Routes {
 //            fun all(sessionId: String) = "/sessions/$sessionId/scores"
 //            fun byId(sessionId: String, scoreId: String) = "/sessions/$sessionId/scores/$scoreId"
 //        }
-//    }
-//
+    }
+
     object Users {
         const val root = "/users"
         fun getAll() = root
         const val me = "$root/me"
-        fun deleteMe() = "$root/me"
+
+        const val uploadPicture = "$root/me/picture"
+
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
         fun followedGames(userId: Int) = "$root/$userId/followed"

@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -9,19 +10,28 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
+import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
+import nl.connectplay.scoreplay.screens.ProfileEditScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
+import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
+import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 @Composable
@@ -86,12 +96,51 @@ fun Navigator(modifier: Modifier = Modifier) {
                     ProfileScreen(backStack = backStack, targetUserId = key.userId)
                 }
 
+                is Screens.EditProfile -> NavEntry(key = key) {
+                    ProfileEditScreen(backStack = backStack, currentUser = key.currentUser)
+                }
+
                 is Screens.Friends -> NavEntry(key = key) {
                     FriendsScreen(backStack)
                 }
 
                 is Screens.Games -> NavEntry(key = key) {
                     GamesScreen(backStack)
+                }
+
+                is Screens.SessionSetup -> NavEntry(key = key) {
+                    val sessionViewModel: SessionViewModel = koinViewModel()
+                    val state by sessionViewModel.state.collectAsState()
+
+                    val tokenStore: TokenDataStore = koinInject()
+                    val userId by tokenStore.userId.collectAsState(null)
+
+                    LaunchedEffect(userId) {
+                        userId?.let {
+                            sessionViewModel.onEvent(
+                                SessionEvent.Initialize(it)
+                            )
+                        }
+                    }
+
+                    SessionSetupScreen(
+                        backStack = backStack,
+                        state = state,
+                        onEvent = sessionViewModel::onEvent
+                    )
+                }
+
+                is Screens.SessionScore -> NavEntry(key = key) {
+                    SessionScoreScreen(
+                        backStack = backStack,
+                    )
+                }
+
+                is Screens.GameDetail -> NavEntry(key = key) {
+                    GameDetailScreen(
+                        gameId = key.gameId,
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {

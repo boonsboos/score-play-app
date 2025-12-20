@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -13,7 +14,9 @@ android {
 
     defaultConfig {
         applicationId = "nl.connectplay.scoreplay"
-        minSdk = 36
+        // This is to ensure compatibility with older devices while targeting the latest SDK
+        // Now we support Android 14 and above
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -78,8 +81,12 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.room.compiler)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.ktor)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -89,3 +96,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+

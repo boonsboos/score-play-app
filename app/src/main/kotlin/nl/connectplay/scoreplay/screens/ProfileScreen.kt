@@ -76,6 +76,7 @@ fun ProfileScreen(
         is UiState.Success -> state.data.username
         UiState.Loading -> "Loading…"
         is UiState.Error -> "Error"
+        UiState.Idle, is UiState.Initial -> "Profile"
     }
 
     LaunchedEffect(profileState) {
@@ -83,7 +84,7 @@ fun ProfileScreen(
             val exception = (profileState as UiState.Error).exception
             if (exception is InvalidTokenException) {
                 backStack.apply {
-                    while (isNotEmpty()) removeLast()
+                    while (isNotEmpty()) removeAt(lastIndex)
                     add(Screens.Login)
                 }
             }
@@ -115,18 +116,16 @@ fun ProfileScreen(
         floatingActionButton = {
             if (profileState is UiState.Success) {
                 val profile = (profileState as UiState.Success).data
-                if (profile.id == userId)
-                    FloatingActionButton(onClick = {
-                        TODO("Add function to edit user")
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Edit Profile Picture"
-                        )
-                    }
+                if (profile.id == userId) FloatingActionButton(onClick = {
+                    backStack.add(Screens.EditProfile(profile))
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Edit Profile Picture"
+                    )
+                }
             }
-        }
-    ) { innerPadding ->
+        }) { innerPadding ->
 
         Column(
             modifier = Modifier
@@ -164,8 +163,7 @@ fun ProfileScreen(
                                 "Last ${state.data.size} sessions",
                                 onClick = { /* TODO: Navigate to all sessions */ })
                             LazyColumn(
-                                modifier = modifier
-                                    .fillMaxWidth()
+                                modifier = modifier.fillMaxWidth()
                             ) {
                                 items(items) { session ->
                                     Row(
@@ -178,8 +176,7 @@ fun ProfileScreen(
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         FallbackImage(
-                                            url = session.endOfSessionPictureUrl,
-                                            size = 75.dp
+                                            url = session.endOfSessionPictureUrl, size = 75.dp
                                         ) {
                                             Icon(
                                                 modifier = Modifier.size(75.dp),
@@ -208,8 +205,7 @@ fun ProfileScreen(
                                                         hour()
                                                         char(':')
                                                         minute()
-                                                    }),
-                                                modifier = Modifier
+                                                    }), modifier = Modifier
                                             )
                                         }
                                     }
@@ -259,8 +255,7 @@ fun ProfileScreen(
                                             )
                                         }
                                         Text(
-                                            text = game.name,
-                                            modifier = Modifier.padding(16.dp)
+                                            text = game.name, modifier = Modifier.padding(16.dp)
                                         )
                                     }
                                     HorizontalDivider()
@@ -303,6 +298,10 @@ fun ProfileScreen(
                         )
                     }
                 }
+
+                else -> {
+                    // Do nothing for Idle and Initial states
+                }
             }
         }
     }
@@ -314,8 +313,7 @@ fun ProfileAvatar(url: String?) {
         url = url,
         size = 128.dp,
         shape = CircleShape,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.primaryContainer)
+        modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     ) {
         Icon(
             imageVector = Icons.Outlined.Person,
@@ -358,10 +356,7 @@ fun ErrorSection(errorState: UiState.Error) {
 
 @Composable
 fun SectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-    empty: Boolean = false
+    title: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}, empty: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -403,12 +398,14 @@ fun SectionHeader(
 
 @Composable
 fun <T> StateSection(
-    uiState: UiState<T>,
-    content: @Composable (UiState.Success<T>) -> Unit
+    uiState: UiState<T>, content: @Composable (UiState.Success<T>) -> Unit
 ) {
     when (uiState) {
         UiState.Loading -> LoadingSection()
         is UiState.Error -> ErrorSection(uiState)
         is UiState.Success -> content(uiState)
+        else -> {
+            // Do nothing for Idle and Initial states
+        }
     }
 }
