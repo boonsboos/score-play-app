@@ -19,6 +19,8 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowRightAlt
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,12 +32,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
@@ -59,10 +65,12 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = koinViewModel(parameters = { parametersOf(targetUserId) }),
     tokenStore: TokenDataStore = koinInject()
 ) {
-    val userId by tokenStore.userId.collectAsState(null) // currently logged in user id
+    val userId by tokenStore.userId.collectAsState(null)
     val profileState by profileViewModel.profileState.collectAsState()
     val sessionsState by profileViewModel.sessionsState.collectAsState()
     val gamesState by profileViewModel.gamesState.collectAsState()
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val title = when (val state = profileState) {
         is UiState.Success -> state.data.username
@@ -72,7 +80,6 @@ fun ProfileScreen(
     }
 
     LaunchedEffect(profileState) {
-        // check if error is TokenInvalid and handle logout
         if (profileState is UiState.Error) {
             val exception = (profileState as UiState.Error).exception
             if (exception is InvalidTokenException) {
@@ -80,6 +87,24 @@ fun ProfileScreen(
                     while (isNotEmpty()) removeAt(lastIndex)
                     add(Screens.Login)
                 }
+            }
+        }
+    }
+
+    LaunchedEffect(profileViewModel) {
+        profileViewModel.logoutEvent.collectLatest {
+            backStack.apply {
+                while (isNotEmpty()) removeLast()
+                add(Screens.Login)
+            }
+        }
+    }
+
+    LaunchedEffect(profileViewModel) {
+        profileViewModel.deleteAccountEvent.collectLatest {
+            backStack.apply {
+                while (isNotEmpty()) removeLast()
+                add(Screens.Login)
             }
         }
     }
@@ -220,7 +245,7 @@ fun ProfileScreen(
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         FallbackImage(
-                                            url = null, // should be game.picture when available
+                                            url = null,
                                             size = 75.dp
                                         ) {
                                             Icon(
@@ -238,6 +263,40 @@ fun ProfileScreen(
                             }
                         }
                     }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ScorePlayButton(
+                            label = "Log off",
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .padding(top = 40.dp),
+                            onClick = { profileViewModel.logout() })
+                        ScorePlayButton(
+                            label = "Delete account",
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f),
+                            onClick = { showDeleteDialog = true })
+                    }
+
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = false },
+                            title = { Text("Confirm Delete") },
+                            text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
+                            confirmButton = {
+                                Button(onClick = {
+                                    showDeleteDialog = false
+                                    profileViewModel.deleteAccount()
+                                }) { Text("Yes") }
+                            },
+                            dismissButton = {
+                                Button(onClick = { showDeleteDialog = false }) { Text("No") }
+                            }
+                        )
+                    }
                 }
 
                 else -> {
@@ -249,9 +308,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileAvatar(
-    url: String?,
-) {
+fun ProfileAvatar(url: String?) {
     FallbackImage(
         url = url,
         size = 128.dp,
@@ -266,7 +323,6 @@ fun ProfileAvatar(
         )
     }
 }
-
 
 @Composable
 fun LoadingSection() {

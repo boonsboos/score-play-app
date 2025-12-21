@@ -1,11 +1,11 @@
 package nl.connectplay.scoreplay.api
 
-import android.net.http.NetworkException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -25,7 +25,6 @@ import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
-import java.io.File
 
 class ProfileApi(
     val client: HttpClient, private val tokenDataStore: TokenDataStore
@@ -94,6 +93,40 @@ class ProfileApi(
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
         throw Exception("Failed to fetch followed games", e)
+    }
+
+    suspend fun deleteAccount() {
+        try {
+            val res = client.delete(Routes.Users.me) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+            }
+
+            when (res.status.value) {
+                /**
+                 *200 for OK
+                 * 204 for No Content
+                 */
+                200, 204 -> {
+                    tokenDataStore.clearToken()
+                }
+                /**
+                 * No authorization
+                 */
+                401 -> {
+                    tokenDataStore.clearToken()
+                    throw InvalidTokenException("Invalid or expired token")
+                }
+
+                else -> {
+                    throw Exception("Failed to delete account (status ${res.status.value})")
+                }
+            }
+        } catch (e: NoTransformationFoundException) {
+            e.printStackTrace()
+            throw Exception("Failed to delete account", e)
+        }
     }
 
     suspend fun updateProfile(username: String, email: String): UserProfile = try {

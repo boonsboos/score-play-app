@@ -1,22 +1,37 @@
 package nl.connectplay.scoreplay.viewModels.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.ProfileApi
+import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
-class ProfileViewModel(private val userId: Int?, private val profileApi: ProfileApi) : ViewModel() {
+class ProfileViewModel(private val userId: Int?, private val profileApi: ProfileApi, private val tokenDataStore: TokenDataStore) : ViewModel() {
     private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
     val profileState = _profileState.asStateFlow()
+
     private val _sessionsState = MutableStateFlow<UiState<List<UserSession>>>(UiState.Idle)
     val sessionsState = _sessionsState.asStateFlow()
+
     private val _gamesState = MutableStateFlow<UiState<List<Game>>>(UiState.Idle)
     val gamesState = _gamesState.asStateFlow()
+
+
+
+    private val _logoutEvent = MutableSharedFlow<Unit>()
+    val logoutEvent: SharedFlow<Unit> = _logoutEvent
+
+    private val _deleteAccountEvent = MutableSharedFlow<Unit>()
+    val deleteAccountEvent: SharedFlow<Unit> = _deleteAccountEvent
 
     init {
         loadProfile()
@@ -60,4 +75,23 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
             }
         }
     }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            try {
+                profileApi.deleteAccount()
+                _deleteAccountEvent.emit(Unit)
+            } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Error deleting account: ${e.message}", e)
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            tokenDataStore.clearToken()
+            _logoutEvent.emit(Unit)
+        }
+    }
+
 }
