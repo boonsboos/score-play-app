@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("friendRequestReply")
-class FriendRequestReplyEvent(val friendId: Int, val accepted: Boolean) : BaseEvent()
+class FriendRequestReplyEvent(val accepts: Boolean) : BaseEvent()

@@ -56,6 +56,13 @@ import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import kotlin.time.ExperimentalTime
 
+/**
+ * Screen that displays all notifications for the user.
+ *
+ * This screen shows a list of notifications
+ * - allows filtering by type
+ * - redirects when a notification is clicked
+ */
 @Composable
 fun NotificationsScreen(
     backStack: NavBackStack<NavKey>,
@@ -151,11 +158,13 @@ fun NotificationsScreen(
 
 
                 else -> {
+                    // this makes a scrollable list of notifications
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(notifications) { notification ->
+                            // checks the type of the event
                             when (val event = notification.event) {
 
                                 is FriendRequestEvent ->
@@ -205,11 +214,12 @@ fun NotificationsScreen(
         }
     }
 
+    // mark notification as read after selection and navigate to the event
     selectedNotification.value?.let { notification ->
         LaunchedEffect(notification.notificationId) {
             when (val event = notification.event) {
                 is HighscoreEvent -> backStack.add(Screens.Leaderboard(gameId = event.gameId))
-                is FriendRequestEvent -> backStack.add(Screens.Profile(userId = event.friendId))
+                is FriendRequestEvent -> backStack.add(Screens.Profile(userId = event.targetUserId))
                 is FriendRequestReplyEvent -> backStack.add(Screens.Friends)
             }
 
@@ -222,6 +232,7 @@ fun NotificationsScreen(
     }
 }
 
+// notifications row layout for a notification item
 @Composable
 fun NotificationRow(
     read: Boolean,
@@ -264,7 +275,7 @@ fun FriendRequestReplyNotificationItem(
     onClick: () -> Unit,
 ) {
     val text =
-        if (event.accepted) "Friend request accepted"
+        if (event.accepts) "Friend request accepted"
         else "Friend request declined"
 
     NotificationRow(read, onClick) {
@@ -287,6 +298,8 @@ fun HighscoreNotificationItem(
     }
 }
 
+
+// converts the date to a displayfriendly format
 @OptIn(ExperimentalTime::class)
 fun BaseEvent.createdFormatted(read: Boolean): String {
     val formatted = created

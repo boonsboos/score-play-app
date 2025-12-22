@@ -17,20 +17,26 @@ import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import java.util.UUID
 
 class NotificationListViewModel(private val notificationApi: NotificationApi) : ViewModel() {
+    // the currently visible notifications for the UI
     private val _state = MutableStateFlow<List<NotificationUi>>(emptyList())
     val state = _state.asStateFlow()
 
+    // checks if the notifications are being loaded
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    // store all notifications before filtering
     private val _allNotifications = MutableStateFlow<List<NotificationUi>>(emptyList())
 
+    // holdes t he filterstate
     private val _filter = MutableStateFlow(NotificationFilter.ALL)
     val filter = _filter.asStateFlow()
 
+
+    // JSON parser to convert backend content into JSON objects
     private val json = Json {
         ignoreUnknownKeys = true
     }
@@ -41,12 +47,14 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
 
     fun loadNotifications() {
         viewModelScope.launch {
+            // set the loading state and clear previous errors
             _isLoading.update { true }
             _error.update { null }
 
             try {
                 val response = notificationApi.getAllNotifications()
 
+                // maps the backend notifications to UI models
                 _allNotifications.update {
                     response.map { notification ->
                         NotificationUi(
@@ -91,8 +99,10 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     fun markNotificationsAsRead(notificationId: String) {
         viewModelScope.launch {
             try {
+                // let the backend know that the notification has been read
                 notificationApi.markNotificationsAsRead(notificationId)
 
+                // update the read state in the visible notification list
                 _state.update { currentList ->
                     currentList.map { item ->
                         if (item.notificationId == notificationId)
@@ -101,6 +111,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
                     }
                 }
 
+                // update the full notification list
                 _allNotifications.update { currentList ->
                     currentList.map { item ->
                         if (item.notificationId == notificationId)

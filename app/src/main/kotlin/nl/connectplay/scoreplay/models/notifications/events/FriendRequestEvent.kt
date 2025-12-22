@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("friendRequest")
-class FriendRequestEvent(val friendId: Int): BaseEvent()
+class FriendRequestEvent(val targetUserId: Int) : BaseEvent()
