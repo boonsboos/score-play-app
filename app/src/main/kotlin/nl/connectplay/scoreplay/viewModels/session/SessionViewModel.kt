@@ -51,6 +51,23 @@ class SessionViewModel(
         }
     }
 
+    fun loadActiveSessionFromDb() {
+        viewModelScope.launch {
+            val session = sessionDao.getSession()
+            val players: List<RoomSessionPlayer> = sessionPlayerDao.getSessionPlayers()
+
+            _state.update {
+                it.copy(
+                    roomSession = session,
+                    gameId = session.gameId,
+                    userId = session.userId,
+                    sessionPlayers = players,
+                    status = if (session != null) SessionStatus.SAVED else SessionStatus.ERROR
+                )
+            }
+        }
+    }
+
     fun onEvent(event: SessionEvent) {
         when(event) {
             is SessionEvent.Initialize -> {

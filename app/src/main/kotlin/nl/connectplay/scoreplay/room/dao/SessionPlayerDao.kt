@@ -14,8 +14,8 @@ interface SessionPlayerDao {
     @Upsert
     suspend fun upsertSessionPlayer(roomSessionPlayer: RoomSessionPlayer)
 
-    @Query("SELECT * FROM session_players WHERE sessionPlayerId = :sessionPlayerId")
-    suspend fun getSessionPlayerById(sessionPlayerId: Int): RoomSessionPlayer
+    @Query("SELECT * FROM session_players")
+    suspend fun getSessionPlayers(): List<RoomSessionPlayer>
 
     @Query("DELETE FROM session_players")
     suspend fun deleteAllPlayers()

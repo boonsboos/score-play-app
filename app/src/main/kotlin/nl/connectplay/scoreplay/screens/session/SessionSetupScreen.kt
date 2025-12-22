@@ -41,10 +41,10 @@ import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
-import nl.connectplay.scoreplay.ui.components.PlayerRow
-import nl.connectplay.scoreplay.ui.components.PlayerUi
+import nl.connectplay.scoreplay.ui.components.session.PlayerRow
+import nl.connectplay.scoreplay.ui.components.session.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.ui.components.SessionTabs
+import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel

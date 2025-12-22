@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,23 +18,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.ui.components.SessionTabs
-import nl.connectplay.scoreplay.ui.components.SpeedDial
-import nl.connectplay.scoreplay.ui.components.SpeedDialAction
+import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
+import nl.connectplay.scoreplay.ui.components.session.SessionTabs
+import nl.connectplay.scoreplay.ui.components.session.SpeedDial
+import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
+import nl.connectplay.scoreplay.viewModels.session.SessionState
 
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
+    state: SessionState,
+    onEvent: (SessionEvent) -> Unit,
 ) {
+    var showNewRoundDialog by remember { mutableStateOf((false)) }
+
+    Log.d(
+        "SessionScoreScreen",
+        "state = $state"
+    )
+
     val actions = listOf(
         SpeedDialAction(
             label = "Finish",
@@ -43,7 +60,7 @@ fun SessionScoreScreen(
         SpeedDialAction(
             label = "New Round",
             icon = Icons.Default.Add,
-            onClick = { /* add round */ }
+            onClick = { showNewRoundDialog = true }
         )
     )
 
@@ -106,5 +123,19 @@ fun SessionScoreScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+
+    if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
+            AddRoundDialog(
+                sessionId = state.roomSession?.id ?: return,
+                gameId = state.roomSession.gameId,
+                players = state.sessionPlayers,
+                onDismiss = { showNewRoundDialog = false },
+                onSave = { scores ->
+                    //viewModel.addRound(scores)
+                    showNewRoundDialog = false
+                }
+            )
+
     }
 }

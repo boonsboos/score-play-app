@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.ui.components
+package nl.connectplay.scoreplay.ui.components.session
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.animation.*
