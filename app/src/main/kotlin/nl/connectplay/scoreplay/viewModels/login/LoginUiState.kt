@@ -10,7 +10,7 @@ package nl.connectplay.scoreplay.viewModels.login
  * @property showPassword for the toggle of hide or unhide password
  * @property isLoading necessary for the check if we are logging in or not
  * @property errorMessage for the errors
- * @property isFormValid the check for the valid value in the inputfields
+ * @property isFormValid the check for the valid value in the input fields
  */
 data class LoginUiState(
     val credentials: String = "",
