@@ -166,10 +166,16 @@ fun Navigator(modifier: Modifier = Modifier) {
                         backStack = backStack,
                         // pass query string from nav key to screen
                         initialQuery = key.query,
-                        searchViewModel = koinViewModel()
+                        searchViewModel = koinViewModel(),
+                        onGameClick = { gameId ->
+                            backStack.add(Screens.GameDetail(gameId = gameId.toInt()))
+                        },
+                        onUserClick = { userId ->
+                            backStack.add(Screens.Profile(userId = userId.toInt()))
+                        }
                     )
                 }
-
+                
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }

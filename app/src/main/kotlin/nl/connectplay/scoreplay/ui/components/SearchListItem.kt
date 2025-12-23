@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.ui.components.search
+package nl.connectplay.scoreplay.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth

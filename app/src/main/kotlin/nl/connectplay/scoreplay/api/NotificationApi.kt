@@ -9,7 +9,7 @@ import io.ktor.client.request.patch
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.firstOrNull
-import nl.connectplay.scoreplay.models.Notification
+import nl.connectplay.scoreplay.models.notifications.Notification
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
 class NotificationApi(
