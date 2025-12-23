@@ -19,7 +19,6 @@ import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.models.user.UserProfile
-import java.util.UUID
 
 class NotificationListViewModel(private val notificationApi: NotificationApi, private val profileApi: ProfileApi) : ViewModel() {
     // the currently visible notifications for the UI
@@ -59,7 +58,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
             _isLoading.update { true }
             _error.update { null }
 
-            val usersRequired = mutableListOf<Int>()
+            val requiredUserIds = mutableListOf<Int>()
 
             try {
                 val response = notificationApi.getAllNotifications()
@@ -71,7 +70,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
 
                         // we only need to load the user object if the score is set by a Score & Play user
                         if (event is HighscoreEvent && event.score.sessionPlayer.guest == null) {
-                            usersRequired.add(event.score.sessionPlayer.userId)
+                            requiredUserIds.add(event.score.sessionPlayer.userId)
                         }
 
                         NotificationUi(
@@ -84,7 +83,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
 
                 applyFilter()
 
-                val foundRequiredUsers = usersRequired
+                val foundRequiredUsers = requiredUserIds
                     .asFlow()
                     .map { userId ->
                         val foundUser = profileApi.getProfile(userId)
