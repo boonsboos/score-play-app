@@ -10,10 +10,10 @@ data class Game(
     val name: String,
     val description: String,
     val publisher: String,
-    var minPlayers: Int?,
-    var maxPlayers: Int?,
-    var duration: Int?,
-    var minAge: Int?,
-    var releaseDate: LocalDate?,
+    var minPlayers: Int? = null,
+    var maxPlayers: Int? = null,
+    var duration: Int? = null,
+    var minAge: Int? = null,
+    var releaseDate: LocalDate? = null,
     var pictures: List<String> = listOf()
 )

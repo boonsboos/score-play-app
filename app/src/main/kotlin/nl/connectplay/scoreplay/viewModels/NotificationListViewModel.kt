@@ -3,20 +3,25 @@ package nl.connectplay.scoreplay.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import kotlinx.serialization.json.Json
+import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.models.notifications.NotificationUi
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
+import nl.connectplay.scoreplay.models.user.UserProfile
 import java.util.UUID
 
-class NotificationListViewModel(private val notificationApi: NotificationApi) : ViewModel() {
+class NotificationListViewModel(private val notificationApi: NotificationApi, private val profileApi: ProfileApi) : ViewModel() {
     // the currently visible notifications for the UI
     private val _state = MutableStateFlow<List<NotificationUi>>(emptyList())
     val state = _state.asStateFlow()
@@ -35,6 +40,9 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
     private val _filter = MutableStateFlow(NotificationFilter.ALL)
     val filter = _filter.asStateFlow()
 
+    private val _requiredUsers = MutableStateFlow<Map<Int, UserProfile>>(emptyMap())
+    val highscoreEventUsers = _requiredUsers.asStateFlow()
+
 
     // JSON parser to convert backend content into JSON objects
     private val json = Json {
@@ -51,21 +59,41 @@ class NotificationListViewModel(private val notificationApi: NotificationApi) : 
             _isLoading.update { true }
             _error.update { null }
 
+            val usersRequired = mutableListOf<Int>()
+
             try {
                 val response = notificationApi.getAllNotifications()
 
                 // maps the backend notifications to UI models
                 _allNotifications.update {
                     response.map { notification ->
+                        val event = json.decodeFromString<BaseEvent>(notification.content)
+
+                        // we only need to load the user object if the score is set by a Score & Play user
+                        if (event is HighscoreEvent && event.score.sessionPlayer.guest == null) {
+                            usersRequired.add(event.score.sessionPlayer.userId)
+                        }
+
                         NotificationUi(
                             notificationId = notification.notificationId,
-                            event = json.decodeFromString<BaseEvent>(notification.content),
+                            event = event,
                             read = notification.read
                         )
-                    }
+                    }.reversed() // show newest first
                 }
 
                 applyFilter()
+
+                val foundRequiredUsers = usersRequired
+                    .asFlow()
+                    .map { userId ->
+                        val foundUser = profileApi.getProfile(userId)
+                        userId to foundUser
+                    }
+                    .toList()
+                    .toMap()
+
+                _requiredUsers.update { foundRequiredUsers }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.update { e.message ?: "A error occurred" }
