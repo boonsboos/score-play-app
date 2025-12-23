@@ -56,6 +56,7 @@ import nl.connectplay.scoreplay.viewModels.profile.UiState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
+import nl.connectplay.scoreplay.ui.components.LoadingSection
 
 @Composable
 fun ProfileScreen(
@@ -321,20 +322,6 @@ fun ProfileAvatar(url: String?) {
             tint = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.size((128.dp) * 0.75f)
         )
-    }
-}
-
-@Composable
-fun LoadingSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LinearProgressIndicator()
-        Spacer(modifier = Modifier.height(12.dp))
-        Text("Loading…")
     }
 }
 

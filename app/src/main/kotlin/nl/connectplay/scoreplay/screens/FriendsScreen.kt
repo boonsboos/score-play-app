@@ -31,6 +31,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import org.koin.androidx.compose.koinViewModel
+import nl.connectplay.scoreplay.ui.components.LoadingSection
 
 @Composable
 fun FriendsScreen(
@@ -60,17 +61,7 @@ fun FriendsScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        LinearProgressIndicator()
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Loading…")
-                    }
+                    LoadingSection()
                 }
                 else -> {
                     FriendList(
