@@ -30,8 +30,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
@@ -42,6 +44,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -54,6 +57,8 @@ import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.ui.components.CircleAvatar
+import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import kotlin.time.ExperimentalTime
 
@@ -276,7 +281,19 @@ fun FriendRequestNotificationItem(
         event = event,
         read = read,
         onClick = onClick,
-        leadingContent = { Icon(Icons.Filled.Person, null) },
+        leadingContent = {
+            FallbackImage(
+                url = event.from.picture,
+                size = 50.dp,
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        },
         headlineContent = { Text("New friend request from ${event.from.username}") },
         supportingContent = { Text("Will you accept?") },
     )
@@ -292,11 +309,23 @@ fun FriendRequestReplyNotificationItem(
         event = event,
         read = read,
         onClick = onClick,
-        leadingContent = { Icon(Icons.Filled.Person, null) },
+        leadingContent = {
+            FallbackImage(
+                url = event.respondingUser.picture,
+                size = 50.dp,
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        },
         headlineContent = { Text("${event.respondingUser.username} responded!") },
         supportingContent = {
             if (event.accepts) {
-                Text("${event.respondingUser.username} accepted your friend request! Friends forever!")
+                Text("${event.respondingUser.username} accepted your friend request! Yay!")
             } else {
                 Text("${event.respondingUser.username} declined your friend request... :(")
             }
@@ -315,13 +344,16 @@ fun HighscoreNotificationItem(
         event = event,
         read = read,
         onClick = onClick,
-        headlineContent = { Text("New highscore on ${event.game.name}") },
-        leadingContent = { Icon(Icons.Filled.EmojiEvents, null) },
+        headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
+        leadingContent = { Icon(
+            imageVector = Icons.Filled.EmojiEvents,
+            contentDescription = null,
+            modifier = Modifier.size(50.dp)) },
         supportingContent = {
             if (userDto != null) {
-                Text("${userDto.username} got the #${event.podium} score with ${event.score.score}")
+                Text("${userDto.username} got a score of ${event.score.score}!")
             } else {
-                Text("${event.score.sessionPlayer.guest} got the #${event.podium} score with ${event.score.score}")
+                Text("${event.score.sessionPlayer.guest} got a score of ${event.score.score}!")
             }
         }
     )
