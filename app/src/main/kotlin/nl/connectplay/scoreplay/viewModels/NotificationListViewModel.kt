@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -83,19 +84,21 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
 
                 applyFilter()
 
-                val foundRequiredUsers = requiredUserIds
-                    .asFlow()
-                    .map { userId ->
-                        val foundUser = profileApi.getProfile(userId)
-                        userId to foundUser
-                    }
-                    .toList()
-                    .toMap()
+                val foundRequiredUsers = async {
+                    requiredUserIds
+                        .asFlow()
+                        .map { userId ->
+                            val foundUser = profileApi.getProfile(userId)
+                            userId to foundUser
+                        }
+                        .toList()
+                        .toMap()
+                }
 
-                _requiredUsers.update { foundRequiredUsers }
+                _requiredUsers.update { foundRequiredUsers.await() }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _error.update { e.message ?: "A error occurred" }
+                _error.update { e.message ?: "An error occurred" }
             } finally {
                 _isLoading.update { false }
             }

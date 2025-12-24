@@ -359,7 +359,7 @@ fun HighscoreNotificationItem(
     )
 }
 
-// converts the date to a displayfriendly format
+// converts the date to a display-friendly format
 @OptIn(ExperimentalTime::class)
 fun BaseEvent.formatCreatedTime(): String {
     val formatted = created

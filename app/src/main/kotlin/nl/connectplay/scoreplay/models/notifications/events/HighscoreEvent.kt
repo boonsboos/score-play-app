@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.connectplay.scoreplay.models.dto.ScoreDto
 import nl.connectplay.scoreplay.models.game.Game
-import nl.connectplay.scoreplay.screens.Screens
 
 @Serializable
 @SerialName("highscore")

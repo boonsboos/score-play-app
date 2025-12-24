@@ -195,8 +195,8 @@ fun ProfileEditScreen(
                 )
 
                 ScorePlayInputField(
-                    value = emailState
-                        ?: "Email can not be empty if we are editing our profile",
+                    // should never be null, but UserProfile.email is nullable for other parts of the program.
+                    value = emailState!!,
                     placeholder = "Email address",
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
