@@ -29,19 +29,22 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -53,6 +56,9 @@ import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
+import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.ui.components.CircleAvatar
+import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import kotlin.time.ExperimentalTime
 
@@ -66,11 +72,13 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun NotificationsScreen(
     backStack: NavBackStack<NavKey>,
-    notificationViewModel: NotificationListViewModel = koinViewModel()
+    notificationViewModel: NotificationListViewModel = koinViewModel(),
 ) {
     val notifications by notificationViewModel.state.collectAsState()
     val isLoading by notificationViewModel.isLoading.collectAsState()
     val error by notificationViewModel.error.collectAsState()
+    val requiredHighScoreUsers by notificationViewModel.highscoreEventUsers.collectAsState()
+
     val listState = rememberLazyListState()
     val filterScrollState = rememberScrollState()
     val selectedNotification =
@@ -96,7 +104,8 @@ fun NotificationsScreen(
                     .fillMaxWidth()
                     .horizontalScroll(filterScrollState)
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .height(40.dp), // make sure the notifications aren't clipping the filter buttons
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 FilterButton(
@@ -156,7 +165,6 @@ fun NotificationsScreen(
                     )
                 }
 
-
                 else -> {
                     // this makes a scrollable list of notifications
                     LazyColumn(
@@ -203,6 +211,11 @@ fun NotificationsScreen(
                                                 "Clicked notification: ${notification.notificationId}"
                                             )
                                             selectedNotification.value = notification
+                                        },
+                                        userDto = if (event.score.sessionPlayer.guest == null) {
+                                            requiredHighScoreUsers[event.score.sessionPlayer.userId]
+                                        } else {
+                                            null
                                         }
                                     )
                             }
@@ -218,8 +231,8 @@ fun NotificationsScreen(
     selectedNotification.value?.let { notification ->
         LaunchedEffect(notification.notificationId) {
             when (val event = notification.event) {
-                is HighscoreEvent -> backStack.add(Screens.Leaderboard(gameId = event.gameId))
-                is FriendRequestEvent -> backStack.add(Screens.Profile(userId = event.targetUserId))
+                is HighscoreEvent -> backStack.add(Screens.Leaderboard(gameId = event.game.id))
+                is FriendRequestEvent -> backStack.add(Screens.Profile(userId = event.from.id))
                 is FriendRequestReplyEvent -> backStack.add(Screens.Friends)
             }
 
@@ -232,26 +245,29 @@ fun NotificationsScreen(
     }
 }
 
-// notifications row layout for a notification item
 @Composable
 fun NotificationRow(
+    event: BaseEvent,
     read: Boolean,
     onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit
+    leadingContent: @Composable () -> Unit,
+    headlineContent: @Composable () -> Unit,
+    supportingContent: @Composable () -> Unit
 ) {
-    Row(
+    ListItem(
+        leadingContent = leadingContent,
+        overlineContent = { Text(event.formatCreatedTime()) },
+        headlineContent = headlineContent,
+        supportingContent = supportingContent,
+        colors = ListItemDefaults.colors()
+            .copy(containerColor = if (read)
+                MaterialTheme.colorScheme.surfaceContainerLowest
+            else
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            ),
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                if (read)
-                    MaterialTheme.colorScheme.surfaceContainerLowest
-                else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-            )
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        content = content
+            .clickable { onClick() },
     )
 }
 
@@ -261,11 +277,26 @@ fun FriendRequestNotificationItem(
     read: Boolean,
     onClick: () -> Unit,
 ) {
-    NotificationRow(read, onClick) {
-        Icon(Icons.Filled.Person, null)
-        Spacer(Modifier.width(12.dp))
-        Text("Friend request • ${event.createdFormatted(read)}")
-    }
+    NotificationRow(
+        event = event,
+        read = read,
+        onClick = onClick,
+        leadingContent = {
+            FallbackImage(
+                url = event.from.picture,
+                size = 50.dp,
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        },
+        headlineContent = { Text("New friend request from ${event.from.username}") },
+        supportingContent = { Text("Will you accept?") },
+    )
 }
 
 @Composable
@@ -274,15 +305,32 @@ fun FriendRequestReplyNotificationItem(
     read: Boolean,
     onClick: () -> Unit,
 ) {
-    val text =
-        if (event.accepts) "Friend request accepted"
-        else "Friend request declined"
-
-    NotificationRow(read, onClick) {
-        Icon(Icons.Filled.Person, null)
-        Spacer(Modifier.width(12.dp))
-        Text("$text • ${event.createdFormatted(read)}")
-    }
+    NotificationRow(
+        event = event,
+        read = read,
+        onClick = onClick,
+        leadingContent = {
+            FallbackImage(
+                url = event.respondingUser.picture,
+                size = 50.dp,
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        },
+        headlineContent = { Text("${event.respondingUser.username} responded!") },
+        supportingContent = {
+            if (event.accepts) {
+                Text("${event.respondingUser.username} accepted your friend request! Yay!")
+            } else {
+                Text("${event.respondingUser.username} declined your friend request... :(")
+            }
+        }
+    )
 }
 
 @Composable
@@ -290,18 +338,30 @@ fun HighscoreNotificationItem(
     event: HighscoreEvent,
     read: Boolean,
     onClick: () -> Unit,
+    userDto: UserProfile?
 ) {
-    NotificationRow(read, onClick) {
-        Icon(Icons.Filled.EmojiEvents, null)
-        Spacer(Modifier.width(12.dp))
-        Text("New highscore • ${event.createdFormatted(read)}")
-    }
+    NotificationRow(
+        event = event,
+        read = read,
+        onClick = onClick,
+        headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
+        leadingContent = { Icon(
+            imageVector = Icons.Filled.EmojiEvents,
+            contentDescription = null,
+            modifier = Modifier.size(50.dp)) },
+        supportingContent = {
+            if (userDto != null) {
+                Text("${userDto.username} got a score of ${event.score.score}!")
+            } else {
+                Text("${event.score.sessionPlayer.guest} got a score of ${event.score.score}!")
+            }
+        }
+    )
 }
 
-
-// converts the date to a displayfriendly format
+// converts the date to a display-friendly format
 @OptIn(ExperimentalTime::class)
-fun BaseEvent.createdFormatted(read: Boolean): String {
+fun BaseEvent.formatCreatedTime(): String {
     val formatted = created
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .format(

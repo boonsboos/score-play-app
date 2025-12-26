@@ -49,7 +49,7 @@ class ProfileEditViewModel(
 
     fun onSaveProfile(context: Context) {
         val emailState = _email.value
-        if (!isValidEmail(emailState)) {
+        if (emailState == null || !isValidEmail(emailState)) {
             _updatedProfileState.update { UiState.Error("Invalid email format") }
             return
         }
@@ -66,7 +66,7 @@ class ProfileEditViewModel(
 
                 val result = profileApi.updateProfile(
                     username = _username.value,
-                    email = _email.value,
+                    email = emailState,
                 )
 
                 _pictureUrl.value = result.picture
