@@ -37,6 +37,10 @@ object Routes {
         fun single(gameId: Int) = "$root/$gameId"
         fun follow(gameId: Int) = "$root/$gameId/follow"
         fun unfollow(gameId: Int) = "$root/$gameId/unfollow"
+
+        object Leaderboard {
+            fun scores(gameId: Int) = single(gameId) + "/leaderboard"
+        }
     }
 
     object Auth {
