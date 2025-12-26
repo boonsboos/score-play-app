@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
@@ -80,7 +81,11 @@ fun LeaderboardScreen(
                                 modifier = requiredSpaceModifier
                             )
                         } else {
-                            Text("#${index+1}", modifier = requiredSpaceModifier)
+                            Text(
+                                text = "#${index+1}",
+                                modifier = requiredSpaceModifier,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     },
                     headlineContent = {
