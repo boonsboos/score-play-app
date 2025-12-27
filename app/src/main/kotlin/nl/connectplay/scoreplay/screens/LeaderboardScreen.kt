@@ -78,7 +78,7 @@ fun LeaderboardScreen(
                                 imageVector = Icons.Filled.EmojiEvents,
                                 contentDescription = "Trophy",
                                 tint = iconColor,
-                                modifier = requiredSpaceModifier
+                                modifier = requiredSpaceModifier.height(40.dp)
                             )
                         } else {
                             Text(
