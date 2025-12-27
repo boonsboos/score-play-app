@@ -131,8 +131,17 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
+                    val sessionViewModel: SessionViewModel = koinViewModel()
+                    val state by sessionViewModel.state.collectAsState()
+
+                    LaunchedEffect(Unit) {
+                        sessionViewModel.loadActiveSessionFromDb()
+                    }
+
                     SessionScoreScreen(
                         backStack = backStack,
+                        state = state,
+                        onEvent = sessionViewModel::onEvent
                     )
                 }
 
