@@ -166,7 +166,8 @@ fun Navigator(modifier: Modifier = Modifier) {
                         backStack = backStack,
                         // pass query string from nav key to screen
                         initialQuery = key.query,
-                        searchViewModel = koinViewModel()
+                        searchViewModel = koinViewModel(),
+                        onUserClick = { backStack.add(Screens.Profile(userId = it)) }
                     )
                 }
 

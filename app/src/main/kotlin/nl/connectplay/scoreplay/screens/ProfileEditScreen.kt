@@ -195,7 +195,7 @@ fun ProfileEditScreen(
                 )
 
                 ScorePlayInputField(
-                    value = emailState,
+                    value = emailState?: "",
                     placeholder = "Email address",
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email

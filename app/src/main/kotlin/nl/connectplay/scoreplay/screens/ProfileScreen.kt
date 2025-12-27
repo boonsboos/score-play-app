@@ -24,7 +24,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +45,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
+import nl.connectplay.scoreplay.models.friends.FriendshipStatus
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
@@ -145,11 +145,21 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.size(24.dp))
                     if (profile.id != userId) {
-                        ScorePlayButton(
-                            label = "Request Friend",
-                            onClick = { /* TODO: Implement friend request */ })
-                    }
+                        val friendshipStatus by profileViewModel.friendshipStatus.collectAsState()
 
+                        ScorePlayButton(
+                            label = when (friendshipStatus) {
+                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> "Remove Friend"
+                                FriendshipStatus.PENDING -> "Pending…"
+                                null, FriendshipStatus.REJECTED -> "Add Friend"
+                            },
+                            enabled = friendshipStatus != FriendshipStatus.PENDING,
+                            onClick = {
+                                profileViewModel.onFriendButtonClicked(profile.id)
+                            },
+                            modifier = Modifier.fillMaxWidth(0.5f)
+                        )
+                    }
                     StateSection(sessionsState) { state ->
                         val items = state.data
                         if (items.isEmpty()) {
@@ -264,22 +274,24 @@ fun ProfileScreen(
                             }
                         }
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        ScorePlayButton(
-                            label = "Log off",
+                    if (profile.id == userId) {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .padding(top = 40.dp),
-                            onClick = { profileViewModel.logout() })
-                        ScorePlayButton(
-                            label = "Delete account",
-                            modifier = Modifier
-                                .fillMaxWidth(0.5f),
-                            onClick = { showDeleteDialog = true })
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            ScorePlayButton(
+                                label = "Log off",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.5f)
+                                    .padding(top = 40.dp),
+                                onClick = { profileViewModel.logout() })
+                            ScorePlayButton(
+                                label = "Delete account",
+                                modifier = Modifier
+                                    .fillMaxWidth(0.5f),
+                                onClick = { showDeleteDialog = true })
+                        }
                     }
 
                     if (showDeleteDialog) {

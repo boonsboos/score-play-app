@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchUserDto(
-    val userId: String,
+    val userId: Int,
     val username: String,
     val pictureUrl: String? = null
 )

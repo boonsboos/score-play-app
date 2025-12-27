@@ -51,6 +51,10 @@ object Routes {
     object FriendRequest {
         const val getAllFriendRequests = "/users/me/friendrequests"
 
+        fun addFriend(userId: Int) = "/users/$userId/friends"
+
+        fun removeFriend(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
+
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 

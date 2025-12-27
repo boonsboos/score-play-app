@@ -43,8 +43,8 @@ class ProfileEditViewModel(
         _pendingImageUri.value = newPicture
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun isValidEmail(email: String?): Boolean {
+        return if (email != null)Patterns.EMAIL_ADDRESS.matcher(email).matches() else false
     }
 
     fun onSaveProfile(context: Context) {
@@ -66,7 +66,7 @@ class ProfileEditViewModel(
 
                 val result = profileApi.updateProfile(
                     username = _username.value,
-                    email = _email.value,
+                    email = _email.value!!,
                 )
 
                 _pictureUrl.value = result.picture

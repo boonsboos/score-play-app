@@ -29,7 +29,7 @@ fun SearchScreen(
     initialQuery: String? = null, // first search string that the screen gets
     searchViewModel: SearchViewModel,
     // callback when a result (user or game) is clicked
-    onUserClick: (String) -> Unit = {},
+    onUserClick: (Int) -> Unit = {},
     onGameClick: (String) -> Unit = {}
 ) {
     // propagate query from Search event to searchViewModel
