@@ -60,6 +60,7 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
+import nl.connectplay.scoreplay.utilities.formatted
 import kotlin.time.ExperimentalTime
 
 /**
@@ -245,6 +246,7 @@ fun NotificationsScreen(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun NotificationRow(
     event: BaseEvent,
@@ -256,7 +258,7 @@ fun NotificationRow(
 ) {
     ListItem(
         leadingContent = leadingContent,
-        overlineContent = { Text(event.formatCreatedTime()) },
+        overlineContent = { Text(event.created.formatted()) },
         headlineContent = headlineContent,
         supportingContent = supportingContent,
         colors = ListItemDefaults.colors()
@@ -357,25 +359,4 @@ fun HighscoreNotificationItem(
             }
         }
     )
-}
-
-// converts the date to a display-friendly format
-@OptIn(ExperimentalTime::class)
-fun BaseEvent.formatCreatedTime(): String {
-    val formatted = created
-        .toLocalDateTime(TimeZone.currentSystemDefault())
-        .format(
-            LocalDateTime.Format {
-                day()
-                char('-')
-                monthNumber()
-                char('-')
-                year()
-                char(' ')
-                hour()
-                char(':')
-                minute()
-            }
-        )
-    return formatted
 }
