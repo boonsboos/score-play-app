@@ -35,7 +35,7 @@ fun AddRoundDialog(
         text = {
             Column {
                 players.forEach { player ->
-                    val label = player.guestName ?: "Player ${player.sessionPlayerId}"
+                    val label = player.guestName ?: "You"
 
                     OutlinedTextField(
                         value = scores[player.sessionPlayerId] ?: "",
