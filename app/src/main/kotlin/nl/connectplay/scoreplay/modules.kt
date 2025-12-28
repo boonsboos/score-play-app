@@ -13,6 +13,7 @@ import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.Database
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -87,6 +88,10 @@ val databaseModule = module {
 
     single<SessionPlayerDao> {
         get<Database>().sessionPlayerDao
+    }
+
+    single<SessionScoreDao> {
+        get<Database>().sessionScoreDao
     }
 
 }

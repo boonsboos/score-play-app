@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
+import RoundDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -10,6 +11,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
@@ -137,6 +139,30 @@ fun Navigator(modifier: Modifier = Modifier) {
                         state = state,
                         onEvent = sessionViewModel::onEvent
                     )
+                }
+
+                is Screens.RoundDetail -> NavEntry(key = key) {
+                    val sessionViewModel: SessionViewModel = koinViewModel()
+                    val state by sessionViewModel.state.collectAsState()
+                    val sessionScoreDao: SessionScoreDao = koinInject()
+
+                    // Make sure we have the active session (needed for sessionId)
+                    LaunchedEffect(Unit) {
+                        if (state.roomSession == null) {
+                            sessionViewModel.loadActiveSessionFromDb()
+                        }
+                    }
+
+                    val sessionId = state.roomSession?.id
+
+                    if (sessionId != null) {
+                        RoundDetailScreen(
+                            backStack = backStack,
+                            sessionId = sessionId,
+                            turn = key.turn,
+                            sessionScoreDao = sessionScoreDao
+                        )
+                    }
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {

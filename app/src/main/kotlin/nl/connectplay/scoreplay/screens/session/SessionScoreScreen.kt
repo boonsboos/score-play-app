@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,12 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -91,7 +98,7 @@ fun SessionScoreScreen(
                     modifier = Modifier.align(Alignment.BottomEnd)
                 )
             }
-                               },
+        },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
@@ -104,35 +111,55 @@ fun SessionScoreScreen(
                 currentScreen = Screens.SessionScore
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
 
 
-            Text(
-                text = "There's no rounds yet!",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall
-            )
+            if (state.roomSession == null || state.turns.isEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "There's no rounds yet!",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineSmall
+                )
 
-            Text(
-                text = "Start a round to record your scores!",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Start a round to record your scores!",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                LazyColumn {
+                    items(state.turns) { turn ->
+                        ListItem(
+                            headlineContent = { Text("Round $turn") },
+                            trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                            colors = ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                headlineColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.clickable {
+                                backStack.add(Screens.RoundDetail(sessionId = state.roomSession.id, turn = turn))
+                            }
+
+                        )
+                    }
+                }
+            }
+
         }
     }
 
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
             AddRoundDialog(
-                sessionId = state.roomSession?.id ?: return,
-                gameId = state.roomSession.gameId,
                 players = state.sessionPlayers,
                 onDismiss = { showNewRoundDialog = false },
-                onSave = { scores ->
-                    //viewModel.addRound(scores)
+                onSave = { inputs ->
+                    val session = state.roomSession ?: return@AddRoundDialog
+                    onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
                     showNewRoundDialog = false
                 }
             )

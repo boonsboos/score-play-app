@@ -19,5 +19,6 @@ data class SessionState(
     val status: SessionStatus = SessionStatus.DRAFT,
     val sessionPlayers: List<RoomSessionPlayer> = emptyList(),
     val scores: List<RoomSessionScore> = emptyList(),
+    val turns: List<Int> = emptyList(),
     val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
 )

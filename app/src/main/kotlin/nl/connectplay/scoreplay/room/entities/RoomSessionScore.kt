@@ -40,7 +40,7 @@ data class RoomSessionScore(
     val gameId: Int,
     val score: Double,
     val turn: Int = 0,
-    val achievedOn: Instant = Instant.now(),
+    //val achievedOn: Instant = Instant.now(),
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 )

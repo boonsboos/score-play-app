@@ -15,14 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 import nl.connectplay.scoreplay.room.entities.RoomSessionScore
+import nl.connectplay.scoreplay.room.events.RoundScoreInput
 
 @Composable
 fun AddRoundDialog(
-    sessionId: Int,
-    gameId: Int,
     players: List<RoomSessionPlayer>,
     onDismiss: () -> Unit,
-    onSave: (List<RoomSessionScore>) -> Unit
+    onSave: (List<RoundScoreInput>) -> Unit
 ) {
     val scores = remember {
         mutableStateMapOf<Int, String>().apply {
@@ -36,12 +35,14 @@ fun AddRoundDialog(
         text = {
             Column {
                 players.forEach { player ->
+                    val label = player.guestName ?: "Player ${player.sessionPlayerId}"
+
                     OutlinedTextField(
                         value = scores[player.sessionPlayerId] ?: "",
                         onValueChange = {
                             scores[player.sessionPlayerId] = it
                         },
-                        label = { Text(player.guestName.toString()) },
+                        label = { Text(label) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -52,19 +53,19 @@ fun AddRoundDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val roundScores = players.mapNotNull { player ->
+                    val inputs = players.mapNotNull { player ->
                         val value = scores[player.sessionPlayerId]
+                            ?.trim()
                             ?.toDoubleOrNull()
                             ?: return@mapNotNull null
 
-                        RoomSessionScore(
-                            sessionId = sessionId,
-                            gameId = gameId,
+                        RoundScoreInput(
                             sessionPlayerId = player.sessionPlayerId,
                             score = value
                         )
                     }
-                    onSave(roundScores)
+
+                    onSave(inputs)
                 }
             ) {
                 Text("Save round")

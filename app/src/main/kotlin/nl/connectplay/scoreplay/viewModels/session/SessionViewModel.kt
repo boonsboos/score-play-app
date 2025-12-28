@@ -13,12 +13,15 @@ import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
+import nl.connectplay.scoreplay.room.entities.RoomSessionScore
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
     private val sessionPlayerDao: SessionPlayerDao,
+    private val sessionScoreDao: SessionScoreDao,
     private val gameApi: GameApi
 ): ViewModel() {
     private val _state = MutableStateFlow(SessionState())
@@ -62,8 +65,13 @@ class SessionViewModel(
                     gameId = session.gameId,
                     userId = session.userId,
                     sessionPlayers = players,
-                    status = if (session != null) SessionStatus.SAVED else SessionStatus.ERROR
+                    status = SessionStatus.SAVED
                 )
+            }
+
+            // Observe rounds list
+            sessionScoreDao.observeTurns(session.id).collect { turns ->
+                _state.update { it.copy(turns = turns) }
             }
         }
     }
@@ -181,8 +189,30 @@ class SessionViewModel(
                     )
                 }
             }
+
             is SessionEvent.DeleteSessionPlayer -> {
                 Log.w("SessionVM", "DeleteSessionPlayer event received but not implemented; ignoring.")
+            }
+
+            is SessionEvent.AddRound -> {
+                viewModelScope.launch {
+                    val nextTurn = (sessionScoreDao.getMaxTurn(event.sessionId) ?: 0) + 1
+
+                    val entities = event.scores.map { input ->
+                        RoomSessionScore(
+                            sessionId = event.sessionId,
+                            sessionPlayerId = input.sessionPlayerId,
+                            gameId = event.gameId,
+                            score = input.score,
+                            turn = nextTurn
+                        )
+                    }
+
+                    sessionScoreDao.insertAll(entities)
+
+                    // refresh state
+                    loadActiveSessionFromDb()
+                }
             }
         }
     }
