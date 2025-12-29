@@ -18,6 +18,7 @@ import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileEditScreen
@@ -173,6 +174,13 @@ fun Navigator(modifier: Modifier = Modifier) {
                         onUserClick = { userId ->
                             backStack.add(Screens.Profile(userId = userId.toInt()))
                         }
+                    )
+                }
+
+                is Screens.Leaderboard -> NavEntry(key = key) {
+                    LeaderboardScreen(
+                        backStack = backStack,
+                        gameId = key.gameId
                     )
                 }
                 
