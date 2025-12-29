@@ -49,7 +49,7 @@ fun LocalDateTime.formatted() = this.format(
 )
 
 fun LocalDateTime.formattedDate() = this.format(
-LocalDateTime.Format {
+    LocalDateTime.Format {
         day()
         char('-')
         monthNumber()
