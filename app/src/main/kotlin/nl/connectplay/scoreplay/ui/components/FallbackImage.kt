@@ -21,7 +21,7 @@ import coil3.request.crossfade
 
 @Composable
 fun FallbackImage(
-    url: String?,
+    url: Any?,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(8.dp),
     size: Dp,

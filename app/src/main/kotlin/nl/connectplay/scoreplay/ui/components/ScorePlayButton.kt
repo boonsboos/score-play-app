@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 fun ScorePlayButton(
     label: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             // set the color to our defined primary color
             contentColor = MaterialTheme.colorScheme.onPrimary, // is for the text/icon color

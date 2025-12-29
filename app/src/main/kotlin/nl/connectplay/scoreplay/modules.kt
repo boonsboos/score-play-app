@@ -4,6 +4,7 @@ import androidx.room.Room
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
+import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.api.NotificationApi
@@ -22,7 +23,9 @@ import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
+import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
+import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -42,9 +45,22 @@ val viewModelsModule = module {
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
+    viewModel {
+        FriendViewModel(
+            friendsApi = get(),
+            tokenDataStore = get()
+        )
+    }
+
+    viewModelOf(::SearchViewModel)
+    viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
-        ProfileViewModel(userId, get())
+        ProfileViewModel(
+            userId = userId,
+            profileApi = get(),
+            tokenDataStore = get()
+        )
     }
     viewModelOf(::GameDetailViewModel)
 }
@@ -64,6 +80,7 @@ val apiModule = module {
     single { SessionApi(get()) }
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
+    single { FriendsApi(get(), get()) }
 }
 
 // Koin module for app storage (DataStore)
