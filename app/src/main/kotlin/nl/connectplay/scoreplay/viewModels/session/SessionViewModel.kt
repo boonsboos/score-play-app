@@ -6,9 +6,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
@@ -17,12 +20,15 @@ import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 import nl.connectplay.scoreplay.room.entities.RoomSessionScore
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
     private val sessionPlayerDao: SessionPlayerDao,
     private val sessionScoreDao: SessionScoreDao,
-    private val gameApi: GameApi
+    private val gameApi: GameApi,
+    private val friendsApi: FriendsApi,
+    private val tokenDataStore: TokenDataStore
 ): ViewModel() {
     private val _state = MutableStateFlow(SessionState())
 
@@ -32,11 +38,32 @@ class SessionViewModel(
 
     val games: StateFlow<List<Game>> = _games
 
+    private val _friends = MutableStateFlow<List<UserFriend>>(emptyList())
+
+    val friends: StateFlow<List<UserFriend>> = _friends
+
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
+    private suspend fun getUserId(): Int? {
+        return tokenDataStore.userId.firstOrNull()
+    }
+
     init {
         fetchGames()
+        fetchFriends()
+
+        viewModelScope.launch {
+            friends.collect { list ->
+                Log.d("SessionVM", "friends updated: size=${list.size} -> $list")
+            }
+        }
+
+        viewModelScope.launch {
+            games.collect { list ->
+                Log.d("SessionVM", "games updated: size=${list.size} -> $list")
+            }
+        }
     }
 
     private fun fetchGames() {
@@ -48,6 +75,28 @@ class SessionViewModel(
                 _games.value = gameApi.all()
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch games", e)
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    private fun fetchFriends() {
+        viewModelScope.launch {
+            val userId = getUserId()
+            if (_friends.value.isNotEmpty()) return@launch
+
+            _loading.value = true
+
+            if (userId == null) {
+                _loading.value = false
+                return@launch
+            }
+
+            try {
+                _friends.value = friendsApi.getFriends(userId)
+            } catch (e: Exception) {
+                Log.e("SessionViewModel", "Failed to fetch friends", e)
             } finally {
                 _loading.value = false
             }

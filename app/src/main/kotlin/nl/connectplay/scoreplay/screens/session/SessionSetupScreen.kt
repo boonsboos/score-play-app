@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,7 @@ fun SessionSetupScreen(
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
     val games by sessionViewModel.games.collectAsState()
+    val friends by sessionViewModel.friends.collectAsState()
     val loading by sessionViewModel.loading.collectAsState()
 
     /** UI States */
@@ -72,15 +74,6 @@ fun SessionSetupScreen(
     var isFriendMode by remember { mutableStateOf(true) }
     var newPlayerName by remember { mutableStateOf("") }
     var selectedFriendId by remember { mutableStateOf<Int?>(null) }
-
-    /** @TODO REMOVE MOCK FRIENDS LATER */
-    val mockFriends = remember {
-        listOf(
-            PlayerUi(id = 101, name = "Alice", isCurrentUser = false),
-            PlayerUi(id = 102, name = "Bob", isCurrentUser = false),
-            PlayerUi(id = 103, name = "Charlie", isCurrentUser = false)
-        )
-    }
 
     val filteredGames = remember(games, searchQuery) {
         if (searchQuery.isBlank()) games
@@ -320,19 +313,19 @@ fun SessionSetupScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         if (isFriendMode) {
-                            mockFriends.forEach { friend ->
+                            friends.forEach { friend ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Checkbox(
-                                        checked = selectedFriendId == friend.id,
+                                        checked = selectedFriendId == friend.user.id,
                                         onCheckedChange = {
                                             selectedFriendId =
-                                                if (it) friend.id else null
+                                                if (it) friend.user.id else null
                                         }
                                     )
-                                    Text(friend.name)
+                                    Text(friend.user.username)
                                 }
                             }
                         } else {
@@ -354,9 +347,9 @@ fun SessionSetupScreen(
                         onClick = {
                             if (isFriendMode) {
                                 val friend =
-                                    mockFriends.first { it.id == selectedFriendId }
+                                    friends.first { it.user.id == selectedFriendId }
                                 onEvent(
-                                    SessionEvent.AddPlayer(friend.id, friend.name)
+                                    SessionEvent.AddPlayer(friend.user.id, friend.user.username)
                                 )
                             } else {
                                 val userId = state.userId
