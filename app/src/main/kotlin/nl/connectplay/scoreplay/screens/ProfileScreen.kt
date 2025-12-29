@@ -52,7 +52,7 @@ import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
-import nl.connectplay.scoreplay.viewModels.profile.UiState
+import nl.connectplay.scoreplay.viewModels.UiState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -94,7 +94,7 @@ fun ProfileScreen(
     LaunchedEffect(profileViewModel) {
         profileViewModel.logoutEvent.collectLatest {
             backStack.apply {
-                while (isNotEmpty()) removeLast()
+                while (isNotEmpty()) removeAt(lastIndex)
                 add(Screens.Login)
             }
         }
@@ -103,7 +103,7 @@ fun ProfileScreen(
     LaunchedEffect(profileViewModel) {
         profileViewModel.deleteAccountEvent.collectLatest {
             backStack.apply {
-                while (isNotEmpty()) removeLast()
+                while (isNotEmpty()) removeAt(lastIndex)
                 add(Screens.Login)
             }
         }

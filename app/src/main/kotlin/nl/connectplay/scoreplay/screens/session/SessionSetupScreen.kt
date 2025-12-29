@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.PlayerRow
 import nl.connectplay.scoreplay.ui.components.PlayerUi
@@ -48,15 +50,26 @@ import nl.connectplay.scoreplay.ui.components.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    state: SessionState,
-    onEvent: (SessionEvent) -> Unit,
-    sessionViewModel: SessionViewModel = koinViewModel()
+    sessionViewModel: SessionViewModel = koinViewModel(),
+    tokenStore: TokenDataStore = koinInject()
 ) {
+    val state by sessionViewModel.state.collectAsState()
+    val userId by tokenStore.userId.collectAsState(null)
+
+    LaunchedEffect(userId) {
+        userId?.let {
+            sessionViewModel.onEvent(
+                SessionEvent.Initialize(it)
+            )
+        }
+    }
+
     val games by sessionViewModel.games.collectAsState()
     val loading by sessionViewModel.loading.collectAsState()
 
@@ -92,7 +105,7 @@ fun SessionSetupScreen(
         topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                onEvent(SessionEvent.SaveSession)
+                sessionViewModel.onEvent(SessionEvent.SaveSession)
                 backStack.add(Screens.SessionScore)
             }) { Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Score Screen") }
         },
@@ -182,7 +195,7 @@ fun SessionSetupScreen(
                                         searchQuery = game.name
                                         expanded = false
 
-                                        onEvent(
+                                        sessionViewModel.onEvent(
                                             SessionEvent.SetGame(game.id)
                                         )
                                     }
@@ -266,7 +279,7 @@ fun SessionSetupScreen(
                     ),
                     onRemove = {
                         if (!isOwner) {
-                            onEvent(
+                            sessionViewModel.onEvent(
                                 SessionEvent.RemovePlayer(
                                     userId = player.userId,
                                     guestName = player.guestName
@@ -355,15 +368,15 @@ fun SessionSetupScreen(
                             if (isFriendMode) {
                                 val friend =
                                     mockFriends.first { it.id == selectedFriendId }
-                                onEvent(
+                                sessionViewModel.onEvent(
                                     SessionEvent.AddPlayer(friend.id, friend.name)
                                 )
                             } else {
                                 val userId = state.userId
                                 if (userId != null) {
-                                    onEvent(
+                                    sessionViewModel.onEvent(
                                         SessionEvent.AddPlayer(
-                                            userId = state.userId,
+                                            userId = userId,
                                             guestName = newPlayerName.trim()
                                         )
                                     )

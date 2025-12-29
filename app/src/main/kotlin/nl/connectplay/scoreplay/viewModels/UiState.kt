@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.viewModels.profile
+package nl.connectplay.scoreplay.viewModels
 
 /**
  * Represents the UI state for asynchronous operations.
