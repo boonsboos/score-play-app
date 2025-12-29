@@ -16,6 +16,7 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 
 class ProfileViewModel(private val userId: Int?, private val profileApi: ProfileApi, private val friendsApi: FriendsApi, private val tokenDataStore: TokenDataStore) : ViewModel() {
     private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
@@ -110,22 +111,25 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
                 // Check if the target use is already a friend
                 val friends = friendsApi.getFriends(myUserId)
                 if (friends.any { it.user.id == targetUserId }) {
-                    _friendshipStatus.value = FriendshipStatus.FRIENDS
+                    _friendshipStatus.update { FriendshipStatus.FRIENDS }
                     return@launch
                 }
 
                 // Check if is there is already a pending request
                 val requests = friendsApi.getAllFriendRequests()
-                val isPending = requests.pending.any { it.user.id == targetUserId } ||
-                        requests.outstanding.any { it.user.id == targetUserId }
+                val isPending =
+                    requests.pending.any { it.user.id == targetUserId } ||
+                            requests.outstanding.any { it.user.id == targetUserId }
 
                 // Update the friendship status based on the checks above
-                _friendshipStatus.value = if (isPending) FriendshipStatus.PENDING else FriendshipStatus.REJECTED
+                _friendshipStatus.update {
+                    if (isPending) FriendshipStatus.PENDING
+                    else FriendshipStatus.REJECTED
+                }
 
             } catch (e: Exception) {
                 Log.e(this::class.simpleName, "Failed to load friendship status", e)
-                _friendshipStatus.value = FriendshipStatus.REJECTED
-            }
+                _friendshipStatus.update { FriendshipStatus.REJECTED }            }
         }
     }
 
@@ -142,8 +146,7 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
         viewModelScope.launch {
             try {
                 friendsApi.addFriend(targetUserId)
-                _friendshipStatus.value = FriendshipStatus.PENDING
-            } catch (e: Exception) {
+                _friendshipStatus.update { FriendshipStatus.PENDING }            } catch (e: Exception) {
                 Log.e(this::class.simpleName, "Failed to send friend request", e)
             }
         }
@@ -153,7 +156,7 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
         viewModelScope.launch {
             try {
                 friendsApi.deleteFriend(friendId)
-                _friendshipStatus.value = FriendshipStatus.REJECTED
+                _friendshipStatus.update { null }
             } catch (e: Exception) {
                 Log.e(this::class.simpleName, "Failed to remove friend", e)
             }

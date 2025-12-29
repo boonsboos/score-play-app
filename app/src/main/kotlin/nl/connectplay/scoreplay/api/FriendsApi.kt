@@ -19,7 +19,6 @@ class FriendsApi(
         return try {
             val res = client.get(Routes.Friends.getFriends(userId)) {
                 contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
             res.body<List<UserFriend>>()
@@ -32,7 +31,6 @@ class FriendsApi(
     suspend fun getAllFriendRequests(): FriendRequestListResponse = try {
              client.get(Routes.FriendRequest.getAllFriendRequests) {
                 contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }.body()
         } catch (e: NoTransformationFoundException) {
@@ -46,7 +44,6 @@ class FriendsApi(
 
         val res = client.post(Routes.FriendRequest.addFriend(userId)) {
             contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             setBody(mapOf("friendId" to targetUserId))
         }
@@ -70,7 +67,6 @@ class FriendsApi(
             Routes.FriendRequest.removeFriend(userId, friendId)
         ) {
             contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
         }
 
@@ -80,7 +76,6 @@ class FriendsApi(
                 tokenDataStore.clearToken()
                 throw InvalidTokenException("Invalid or expired token")
             }
-            403 -> throw Exception("Not allowed to remove friend")
             404 -> throw Exception("Friend not found")
             else -> throw Exception("Failed to delete friend (${res.status})")
         }
@@ -91,7 +86,6 @@ class FriendsApi(
 
         return client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
             contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             setBody(mapOf("accept" to accept))
         }.status == HttpStatusCode.OK
