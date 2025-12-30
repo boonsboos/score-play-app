@@ -70,35 +70,34 @@ class SessionViewModel(
         viewModelScope.launch {
             if (_games.value.isNotEmpty()) return@launch
 
-            _loading.value = true
+            _loading.update { true }
+
             try {
-                _games.value = gameApi.all()
+                val games = gameApi.all()
+                _games.update { games }
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch games", e)
             } finally {
-                _loading.value = false
+                _loading.update { false }
             }
         }
     }
 
     private fun fetchFriends() {
         viewModelScope.launch {
-            val userId = getUserId()
             if (_friends.value.isNotEmpty()) return@launch
 
-            _loading.value = true
+            val userId = getUserId() ?: return@launch
 
-            if (userId == null) {
-                _loading.value = false
-                return@launch
-            }
+            _loading.update { true }
 
             try {
-                _friends.value = friendsApi.getFriends(userId)
+                val friends = friendsApi.getFriends(userId)
+                _friends.update { friends }
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch friends", e)
             } finally {
-                _loading.value = false
+                _loading.update { false }
             }
         }
     }

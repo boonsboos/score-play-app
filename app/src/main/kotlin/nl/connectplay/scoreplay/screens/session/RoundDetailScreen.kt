@@ -12,7 +12,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,16 +25,31 @@ import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
+import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun RoundDetailScreen(
     backStack: NavBackStack<NavKey>,
     sessionId: Int,
+    sessionViewModel: SessionViewModel = koinViewModel(parameters = { parametersOf(sessionId) }),
     turn: Int,
-    sessionScoreDao: SessionScoreDao
 ) {
+    val state by sessionViewModel.state.collectAsState()
+    val sessionScoreDao: SessionScoreDao = koinInject()
+
     val rows = sessionScoreDao.observeRoundScores(sessionId, turn)
         .collectAsState(initial = emptyList()).value
+
+    // Make sure we have the active session (needed for sessionId)
+    LaunchedEffect(Unit) {
+        if (state.roomSession == null) {
+            sessionViewModel.loadActiveSessionFromDb()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

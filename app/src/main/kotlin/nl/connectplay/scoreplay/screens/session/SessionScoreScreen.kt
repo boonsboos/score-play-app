@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,13 +46,21 @@ import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
 import nl.connectplay.scoreplay.viewModels.session.SessionState
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
-    state: SessionState,
-    onEvent: (SessionEvent) -> Unit,
+    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val state by sessionViewModel.state.collectAsState()
+    val onEvent = sessionViewModel::onEvent
+
+    LaunchedEffect(Unit) {
+        sessionViewModel.loadActiveSessionFromDb()
+    }
+
     var showNewRoundDialog by remember { mutableStateOf((false)) }
 
     Log.d(
@@ -62,7 +72,7 @@ fun SessionScoreScreen(
         SpeedDialAction(
             label = "Finish",
             icon = Icons.Default.Check,
-            onClick = { /* Finish */ }
+            onClick = { /* TODO: Finish Action */ }
         ),
         SpeedDialAction(
             label = "New Round",
@@ -111,9 +121,9 @@ fun SessionScoreScreen(
                 currentScreen = Screens.SessionScore
             )
 
+            val session = state.roomSession
 
-
-            if (state.roomSession == null || state.turns.isEmpty()) {
+            if (session == null || state.turns.isEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -142,7 +152,7 @@ fun SessionScoreScreen(
                                 headlineColor = MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier.clickable {
-                                backStack.add(Screens.RoundDetail(sessionId = state.roomSession.id, turn = turn))
+                                backStack.add(Screens.RoundDetail(sessionId = session.id, turn = turn))
                             }
 
                         )

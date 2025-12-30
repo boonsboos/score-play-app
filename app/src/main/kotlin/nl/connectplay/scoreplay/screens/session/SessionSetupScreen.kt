@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,7 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.PlayerUi
@@ -49,15 +51,28 @@ import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    state: SessionState,
-    onEvent: (SessionEvent) -> Unit,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val state by sessionViewModel.state.collectAsState()
+    val onEvent = sessionViewModel::onEvent
+
+    val tokenStore: TokenDataStore = koinInject()
+    val userId by tokenStore.userId.collectAsState(null)
+
+    LaunchedEffect(userId) {
+        userId?.let {
+            sessionViewModel.onEvent(
+                SessionEvent.Initialize(it)
+            )
+        }
+    }
+
     val games by sessionViewModel.games.collectAsState()
     val friends by sessionViewModel.friends.collectAsState()
     val loading by sessionViewModel.loading.collectAsState()
@@ -356,7 +371,7 @@ fun SessionSetupScreen(
                                 if (userId != null) {
                                     onEvent(
                                         SessionEvent.AddPlayer(
-                                            userId = state.userId,
+                                            userId = userId,
                                             guestName = newPlayerName.trim()
                                         )
                                     )

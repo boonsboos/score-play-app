@@ -111,64 +111,24 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-                    val state by sessionViewModel.state.collectAsState()
-
-                    val tokenStore: TokenDataStore = koinInject()
-                    val userId by tokenStore.userId.collectAsState(null)
-
-                    LaunchedEffect(userId) {
-                        userId?.let {
-                            sessionViewModel.onEvent(
-                                SessionEvent.Initialize(it)
-                            )
-                        }
-                    }
-
                     SessionSetupScreen(
-                        backStack = backStack,
-                        state = state,
-                        onEvent = sessionViewModel::onEvent
+                        backStack = backStack
                     )
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-                    val state by sessionViewModel.state.collectAsState()
-
-                    LaunchedEffect(Unit) {
-                        sessionViewModel.loadActiveSessionFromDb()
-                    }
-
                     SessionScoreScreen(
-                        backStack = backStack,
-                        state = state,
-                        onEvent = sessionViewModel::onEvent
+                        backStack = backStack
                     )
                 }
 
                 is Screens.RoundDetail -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-                    val state by sessionViewModel.state.collectAsState()
-                    val sessionScoreDao: SessionScoreDao = koinInject()
+                    RoundDetailScreen(
+                        backStack = backStack,
+                        sessionId = key.sessionId,
+                        turn = key.turn,
+                    )
 
-                    // Make sure we have the active session (needed for sessionId)
-                    LaunchedEffect(Unit) {
-                        if (state.roomSession == null) {
-                            sessionViewModel.loadActiveSessionFromDb()
-                        }
-                    }
-
-                    val sessionId = state.roomSession?.id
-
-                    if (sessionId != null) {
-                        RoundDetailScreen(
-                            backStack = backStack,
-                            sessionId = sessionId,
-                            turn = key.turn,
-                            sessionScoreDao = sessionScoreDao
-                        )
-                    }
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {
