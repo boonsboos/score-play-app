@@ -14,7 +14,6 @@ class FriendsApi(
     private val client: HttpClient,
     private val tokenDataStore: TokenDataStore
 ) {
-
     suspend fun getFriends(userId: Int): List<UserFriend> {
         return try {
             val res = client.get(Routes.Friends.getFriends(userId)) {
@@ -29,14 +28,15 @@ class FriendsApi(
     }
 
     suspend fun getAllFriendRequests(): FriendRequestListResponse = try {
-             client.get(Routes.FriendRequest.getAllFriendRequests) {
-                contentType(ContentType.Application.Json)
-                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-            }.body()
-        } catch (e: NoTransformationFoundException) {
-            e.printStackTrace()
-            FriendRequestListResponse(emptyList(), emptyList())
-        }
+        val res: FriendRequestListResponse = client.get(Routes.FriendRequest.getAllFriendRequests) {
+            contentType(ContentType.Application.Json)
+            bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+        }.body()
+        res
+    } catch (e: NoTransformationFoundException) {
+        e.printStackTrace()
+        FriendRequestListResponse(emptyList(), emptyList())
+    }
 
     suspend fun addFriend(targetUserId: Int) {
         val userId = tokenDataStore.userId.firstOrNull()
@@ -49,13 +49,13 @@ class FriendsApi(
         }
 
         when (res.status.value) {
-            200, 201 -> Unit
             401 -> {
                 tokenDataStore.clearToken()
                 throw InvalidTokenException("Invalid or expired token")
             }
+
             409 -> throw Exception("Friend request already exists")
-            else -> throw Exception("Failed to send friend request (${res.status})")
+            else -> Unit
         }
     }
 
@@ -71,13 +71,13 @@ class FriendsApi(
         }
 
         when (res.status.value) {
-            200, 204 -> Unit
             401 -> {
                 tokenDataStore.clearToken()
                 throw InvalidTokenException("Invalid or expired token")
             }
+
             404 -> throw Exception("Friend not found")
-            else -> throw Exception("Failed to delete friend (${res.status})")
+            else -> Unit
         }
     }
 

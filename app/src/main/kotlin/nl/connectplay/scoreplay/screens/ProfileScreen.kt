@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -70,6 +71,7 @@ fun ProfileScreen(
     val profileState by profileViewModel.profileState.collectAsState()
     val sessionsState by profileViewModel.sessionsState.collectAsState()
     val gamesState by profileViewModel.gamesState.collectAsState()
+    val friendshipStatus by profileViewModel.friendshipStatus.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -95,7 +97,7 @@ fun ProfileScreen(
     LaunchedEffect(profileViewModel) {
         profileViewModel.logoutEvent.collectLatest {
             backStack.apply {
-                while (isNotEmpty()) removeLast()
+                while (isNotEmpty()) removeAt(lastIndex)
                 add(Screens.Login)
             }
         }
@@ -104,7 +106,7 @@ fun ProfileScreen(
     LaunchedEffect(profileViewModel) {
         profileViewModel.deleteAccountEvent.collectLatest {
             backStack.apply {
-                while (isNotEmpty()) removeLast()
+                while (isNotEmpty()) removeAt(lastIndex)
                 add(Screens.Login)
             }
         }
@@ -128,24 +130,20 @@ fun ProfileScreen(
             }
         }) { innerPadding ->
 
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (profileState) {
-                UiState.Loading -> LoadingSection()
-                is UiState.Error -> ErrorSection((profileState as UiState.Error))
-                is UiState.Success -> {
-                    val profile = (profileState as UiState.Success).data
-
+            stateSection(profileState) { state ->
+                val profile = state.data
+                item {
                     Spacer(modifier = Modifier.size(20.dp))
                     ProfileAvatar(url = profile.picture)
 
                     Spacer(modifier = Modifier.size(24.dp))
                     if (profile.id != userId) {
-                        val friendshipStatus by profileViewModel.friendshipStatus.collectAsState()
 
                         ScorePlayButton(
                             label = when (friendshipStatus) {
@@ -154,129 +152,131 @@ fun ProfileScreen(
                                 null, FriendshipStatus.REJECTED -> "Add Friend"
                             },
                             enabled = friendshipStatus != FriendshipStatus.PENDING,
-                            onClick = {
-                                profileViewModel.onFriendButtonClicked(profile.id)
-                            },
+                            onClick = { profileViewModel.onFriendButtonClicked(profile.id) },
                             modifier = Modifier.fillMaxWidth(0.5f)
                         )
                     }
-                    StateSection(sessionsState) { state ->
-                        val items = state.data
-                        if (items.isEmpty()) {
-                            SectionHeader("Last sessions", empty = true)
-                            Text(
-                                text = "No items found",
-                                modifier = Modifier.padding(16.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            SectionHeader(
-                                "Last ${state.data.size} sessions",
-                                onClick = { /* TODO: Navigate to all sessions */ })
-                            LazyColumn(
-                                modifier = modifier.fillMaxWidth()
+                }
+            }
+            stateSection(sessionsState) { state ->
+                val items = state.data
+                if (items.isEmpty()) {
+                    item {
+                        SectionHeader("Last sessions", empty = true)
+                        Text(
+                            text = "No items found",
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    item {
+                        SectionHeader(
+                            "Last ${state.data.size} sessions",
+                            onClick = { /* TODO: Navigate to all sessions */ })
+                    }
+                    items(items) { session ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(75.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
+                                .padding(horizontal = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            FallbackImage(
+                                url = session.endOfSessionPictureUrl, size = 75.dp
                             ) {
-                                items(items) { session ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(75.dp)
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
-                                            .padding(horizontal = 20.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Start
-                                    ) {
-                                        FallbackImage(
-                                            url = session.endOfSessionPictureUrl, size = 75.dp
-                                        ) {
-                                            Icon(
-                                                modifier = Modifier.size(75.dp),
-                                                imageVector = Icons.Outlined.Image,
-                                                contentDescription = ""
-                                            )
-                                        }
-                                        Column(
-                                            modifier = Modifier.height(75.dp),
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.Start,
-                                        ) {
-                                            Text(
-                                                text = session.game.name,
-                                                modifier = Modifier,
-                                            )
-                                            Text(
-                                                text = session.startTime.format(
-                                                    LocalDateTime.Format {
-                                                        day()
-                                                        char('-')
-                                                        monthNumber()
-                                                        char('-')
-                                                        year()
-                                                        char(' ')
-                                                        hour()
-                                                        char(':')
-                                                        minute()
-                                                    }), modifier = Modifier
-                                            )
-                                        }
-                                    }
-                                }
+                                Icon(
+                                    modifier = Modifier.size(75.dp),
+                                    imageVector = Icons.Outlined.Image,
+                                    contentDescription = ""
+                                )
+                            }
+                            Column(
+                                modifier = Modifier.height(75.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start,
+                            ) {
+                                Text(
+                                    text = session.game.name,
+                                    modifier = Modifier,
+                                )
+                                Text(
+                                    text = session.startTime.format(
+                                        LocalDateTime.Format {
+                                            day()
+                                            char('-')
+                                            monthNumber()
+                                            char('-')
+                                            year()
+                                            char(' ')
+                                            hour()
+                                            char(':')
+                                            minute()
+                                        }),
+                                    modifier = Modifier
+                                )
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.size(24.dp))
-
-                    StateSection(gamesState) { state ->
-                        val items = state.data
-                        if (items.isEmpty()) {
-                            SectionHeader("Followed games", empty = true)
-                            Text(
-                                text = "No items found",
-                                modifier = Modifier.padding(16.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            SectionHeader(
-                                "Followed Games (${state.data.size})",
-                                onClick = { /* TODO: Navigate to all games */ })
-                            LazyColumn(
-                                modifier = modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                items(items) { game ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(75.dp)
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
-                                            .padding(horizontal = 20.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Start
-                                    ) {
-                                        FallbackImage(
-                                            url = null,
-                                            size = 75.dp
-                                        ) {
-                                            Icon(
-                                                modifier = Modifier.size(75.dp),
-                                                imageVector = Icons.Outlined.Image,
-                                                contentDescription = ""
-                                            )
-                                        }
-                                        Text(
-                                            text = game.name, modifier = Modifier.padding(16.dp)
-                                        )
-                                    }
-                                    HorizontalDivider()
-                                }
-                            }
-                        }
+                }
+            }
+            item { Spacer(modifier = Modifier.size(24.dp)) }
+            stateSection(gamesState) { state ->
+                val items = state.data
+                if (items.isEmpty()) {
+                    item {
+                        SectionHeader("Followed games", empty = true)
+                        Text(
+                            text = "No items found",
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    if (profile.id == userId) {
+                } else {
+                    item {
+                        SectionHeader(
+                            "Followed Games (${state.data.size})",
+                            onClick = { /* TODO: Navigate to all games */ })
+                    }
+                    items(items) { game ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(75.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
+                                .padding(horizontal = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            FallbackImage(
+                                url = null,
+                                size = 75.dp
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(75.dp),
+                                    imageVector = Icons.Outlined.Image,
+                                    contentDescription = ""
+                                )
+                            }
+                            Text(
+                                text = game.name,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        HorizontalDivider()
+                    }
+                }
+            }
+            stateSection(profileState) { state ->
+                val profile = state.data
+                if (profile.id == userId) {
+                    item {
                         Column(
                             modifier = Modifier
+                                .padding(bottom = 12.dp)
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -293,32 +293,31 @@ fun ProfileScreen(
                                 onClick = { showDeleteDialog = true })
                         }
                     }
-
-                    if (showDeleteDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showDeleteDialog = false },
-                            title = { Text("Confirm Delete") },
-                            text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
-                            confirmButton = {
-                                Button(onClick = {
-                                    showDeleteDialog = false
-                                    profileViewModel.deleteAccount()
-                                }) { Text("Yes") }
-                            },
-                            dismissButton = {
-                                Button(onClick = { showDeleteDialog = false }) { Text("No") }
-                            }
-                        )
-                    }
                 }
+            }
 
-                else -> {
-                    // Do nothing for Idle and Initial states
+            if (showDeleteDialog) {
+                item {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text("Confirm Delete") },
+                        text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
+                        confirmButton = {
+                            Button(onClick = {
+                                showDeleteDialog = false
+                                profileViewModel.deleteAccount()
+                            }) { Text("Yes") }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showDeleteDialog = false }) { Text("No") }
+                        }
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ProfileAvatar(url: String?) {
@@ -355,7 +354,10 @@ fun ErrorSection(errorState: UiState.Error) {
 
 @Composable
 fun SectionHeader(
-    title: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}, empty: Boolean = false
+    title: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    empty: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -395,16 +397,23 @@ fun SectionHeader(
     }
 }
 
-@Composable
-fun <T> StateSection(
-    uiState: UiState<T>, content: @Composable (UiState.Success<T>) -> Unit
+private fun <T> LazyListScope.stateSection(
+    uiState: UiState<T>,
+    content: LazyListScope.(UiState.Success<T>) -> Unit
 ) {
     when (uiState) {
-        UiState.Loading -> LoadingSection()
-        is UiState.Error -> ErrorSection(uiState)
-        is UiState.Success -> content(uiState)
-        else -> {
-            // Do nothing for Idle and Initial states
+        UiState.Loading -> {
+            item { LoadingSection() }
         }
+
+        is UiState.Error -> {
+            item { ErrorSection(uiState) }
+        }
+
+        is UiState.Success -> {
+            content(uiState)
+        }
+
+        else -> Unit
     }
 }

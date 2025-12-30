@@ -18,7 +18,12 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 
-class ProfileViewModel(private val userId: Int?, private val profileApi: ProfileApi, private val friendsApi: FriendsApi, private val tokenDataStore: TokenDataStore) : ViewModel() {
+class ProfileViewModel(
+    private val userId: Int?,
+    private val profileApi: ProfileApi,
+    private val friendsApi: FriendsApi,
+    private val tokenDataStore: TokenDataStore
+) : ViewModel() {
     private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
     val profileState = _profileState.asStateFlow()
 
@@ -117,19 +122,17 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
 
                 // Check if is there is already a pending request
                 val requests = friendsApi.getAllFriendRequests()
-                val isPending =
-                    requests.pending.any { it.user.id == targetUserId } ||
-                            requests.outstanding.any { it.user.id == targetUserId }
+                val isPending = requests.outstanding.any { it.user.id == targetUserId && it.status == FriendshipStatus.PENDING }
 
                 // Update the friendship status based on the checks above
                 _friendshipStatus.update {
                     if (isPending) FriendshipStatus.PENDING
-                    else FriendshipStatus.REJECTED
+                    else null
                 }
-
             } catch (e: Exception) {
                 Log.e(this::class.simpleName, "Failed to load friendship status", e)
-                _friendshipStatus.update { FriendshipStatus.REJECTED }            }
+                _friendshipStatus.update { FriendshipStatus.REJECTED }
+            }
         }
     }
 
@@ -146,7 +149,8 @@ class ProfileViewModel(private val userId: Int?, private val profileApi: Profile
         viewModelScope.launch {
             try {
                 friendsApi.addFriend(targetUserId)
-                _friendshipStatus.update { FriendshipStatus.PENDING }            } catch (e: Exception) {
+                _friendshipStatus.update { FriendshipStatus.PENDING }
+            } catch (e: Exception) {
                 Log.e(this::class.simpleName, "Failed to send friend request", e)
             }
         }
