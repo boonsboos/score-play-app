@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.ui.components
+package nl.connectplay.scoreplay.ui.components.session
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
