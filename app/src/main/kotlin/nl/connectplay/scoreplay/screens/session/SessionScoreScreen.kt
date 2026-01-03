@@ -42,6 +42,7 @@ import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
+import nl.connectplay.scoreplay.ui.components.session.FinishSessionDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
@@ -62,6 +63,7 @@ fun SessionScoreScreen(
     }
 
     var showNewRoundDialog by remember { mutableStateOf((false)) }
+    var showFinishDialog by remember { mutableStateOf((false)) }
 
     Log.d(
         "SessionScoreScreen",
@@ -72,7 +74,7 @@ fun SessionScoreScreen(
         SpeedDialAction(
             label = "Finish",
             icon = Icons.Default.Check,
-            onClick = { /* TODO: Finish Action */ }
+            onClick = { showFinishDialog = true }
         ),
         SpeedDialAction(
             label = "New Round",
@@ -164,15 +166,26 @@ fun SessionScoreScreen(
     }
 
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
-            AddRoundDialog(
-                players = state.sessionPlayers,
-                onDismiss = { showNewRoundDialog = false },
-                onSave = { inputs ->
-                    val session = state.roomSession ?: return@AddRoundDialog
-                    onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
-                    showNewRoundDialog = false
-                }
-            )
+        AddRoundDialog(
+            players = state.sessionPlayers,
+            onDismiss = { showNewRoundDialog = false },
+            onSave = { inputs ->
+                val session = state.roomSession ?: return@AddRoundDialog
+                onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
+                showNewRoundDialog = false
+            }
+        )
+    }
 
+    if (showFinishDialog) {
+        FinishSessionDialog(
+            turn = state.turns.size,
+            onDismiss = { showFinishDialog = false },
+            onConfirm = {
+                showFinishDialog = false
+                val session = state.roomSession ?: return@FinishSessionDialog
+                // TODO: onEvent(SessionEvent.FinishSession(session.id))
+            }
+        )
     }
 }
