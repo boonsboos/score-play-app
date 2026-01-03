@@ -1,7 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +45,6 @@ import nl.connectplay.scoreplay.ui.components.session.FinishSessionDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
-import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -70,22 +68,28 @@ fun SessionScoreScreen(
         "state = $state"
     )
 
-    val actions = listOf(
-        SpeedDialAction(
-            label = "Finish",
-            icon = Icons.Default.Check,
-            onClick = { showFinishDialog = true }
-        ),
-        SpeedDialAction(
-            label = "New Round",
-            icon = Icons.Default.Add,
-            onClick = { showNewRoundDialog = true }
+    val actions = buildList {
+        if (state.turns.isNotEmpty()) {
+            add(
+                SpeedDialAction(
+                    label = "Finish",
+                    icon = Icons.Default.Check,
+                    onClick = { showFinishDialog = true }
+                )
+            )
+        }
+        add(
+            SpeedDialAction(
+                label = "New Round",
+                icon = Icons.Default.Add,
+                onClick = { showNewRoundDialog = true }
+            )
         )
-    )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
         floatingActionButton = {
             Box(
                 modifier = Modifier
@@ -183,8 +187,9 @@ fun SessionScoreScreen(
             onDismiss = { showFinishDialog = false },
             onConfirm = {
                 showFinishDialog = false
-                val session = state.roomSession ?: return@FinishSessionDialog
+                // val session = state.roomSession ?: return@FinishSessionDialog
                 // TODO: onEvent(SessionEvent.FinishSession(session.id))
+                backStack.add(Screens.SessionFinish)
             }
         )
     }

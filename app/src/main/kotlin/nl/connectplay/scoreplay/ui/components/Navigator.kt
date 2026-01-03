@@ -29,6 +29,7 @@ import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.stores.TokenDataStore
@@ -130,6 +131,12 @@ fun Navigator(modifier: Modifier = Modifier) {
                         turn = key.turn,
                     )
 
+                }
+
+                is Screens.SessionFinish -> NavEntry(key = key) {
+                    SessionFinishScreen(
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {
