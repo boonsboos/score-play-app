@@ -106,8 +106,7 @@ fun RoundDetailScreen(
                 onDismiss = { showFinishDialog = false },
                 onConfirm = {
                     showFinishDialog = false
-                    val session = state.roomSession ?: return@FinishSessionDialog
-                    // TODO: onEvent(SessionEvent.FinishSession(session.id))
+                    backStack.add(Screens.SessionFinish)
                 }
             )
         }

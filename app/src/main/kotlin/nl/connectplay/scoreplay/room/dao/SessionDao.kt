@@ -14,9 +14,9 @@ interface SessionDao {
     @Upsert
     suspend fun upsertSession(roomSession: RoomSession)
 
-    @Query("DELETE FROM sessions")
-    suspend fun deleteSession()
-
     @Query("SELECT * FROM sessions")
     suspend fun getSession(): RoomSession
+
+    @Query("DELETE FROM sessions")
+    suspend fun deleteSession()
 }

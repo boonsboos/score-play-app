@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -58,8 +60,9 @@ import org.koin.compose.koinInject
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val activity = LocalContext.current as ComponentActivity
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
@@ -83,7 +86,9 @@ fun SessionSetupScreen(
     // Related to Games
     var searchQuery by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var selectedGame by remember { mutableStateOf<Game?>(null) }
+    val selectedGame = remember(state.gameId, games) {
+        games.firstOrNull { it.id == state.gameId }
+    }
 
     // Related to Players
     var showAddPlayerDialog by remember { mutableStateOf(false) }
@@ -94,6 +99,12 @@ fun SessionSetupScreen(
     val filteredGames = remember(games, searchQuery) {
         if (searchQuery.isBlank()) games
         else games.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    }
+
+    LaunchedEffect(selectedGame?.id) {
+        if (selectedGame != null && !expanded) {
+            searchQuery = selectedGame.name
+        }
     }
 
     Scaffold(
@@ -180,20 +191,20 @@ fun SessionSetupScreen(
                                     leadingIcon = { Icon(Icons.Default.Image, null) },
                                     trailingIcon = {
                                         Checkbox(
-                                            checked = selectedGame?.id == game.id,
+                                            checked = state.gameId == game.id,
                                             onCheckedChange = { checked ->
-                                                selectedGame = if (checked) game else null
+                                                if (checked) {
+                                                    onEvent(SessionEvent.SetGame(game.id))
+                                                    searchQuery = game.name
+                                                    expanded = false
+                                                }
                                             }
                                         )
                                     },
                                     onClick = {
-                                        selectedGame = game
+                                        onEvent(SessionEvent.SetGame(game.id))
                                         searchQuery = game.name
                                         expanded = false
-
-                                        onEvent(
-                                            SessionEvent.SetGame(game.id)
-                                        )
                                     }
                                 )
                             }
@@ -220,12 +231,12 @@ fun SessionSetupScreen(
 
                     Column {
                         Text(
-                            text = selectedGame?.name ?: "",
+                            text = selectedGame.name,
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Text(
-                            text = selectedGame?.description ?: "",
+                            text = selectedGame.description,
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2
                         )

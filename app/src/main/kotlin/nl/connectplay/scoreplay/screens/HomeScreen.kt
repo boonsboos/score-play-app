@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.room.events.SessionEvent
@@ -24,8 +26,11 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     backStack: NavBackStack<NavKey>,
     onLogout: () -> Unit,
-    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val activity = LocalContext.current as ComponentActivity
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
+    val onEvent = sessionViewModel::onEvent
+
     // the scaffold makes the basic bottomnav layout
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -47,8 +52,8 @@ fun HomeScreen(
             Button(
                 modifier = Modifier.align(Alignment.Center),
                 onClick = {
-                    sessionViewModel.onEvent(SessionEvent.StartNewSession)
-                    backStack.apply { add(Screens.SessionSetup) }
+                    onEvent(SessionEvent.StartNewSession)
+                    backStack.add(Screens.SessionSetup)
                 }
             ) {
                 Text("New Session")

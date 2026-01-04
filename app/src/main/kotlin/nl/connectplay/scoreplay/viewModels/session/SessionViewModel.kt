@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.viewModels.session
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,10 +13,12 @@ import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.SessionApi
+import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.session.CreateSessionRequest
 import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
+import nl.connectplay.scoreplay.models.session.SessionPlayerDto
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -38,6 +41,8 @@ class SessionViewModel(
 
     val state = _state.asStateFlow()
 
+    private var observeTurnsJob: Job? = null
+
     private val _games = MutableStateFlow<List<Game>>(emptyList())
 
     val games: StateFlow<List<Game>> = _games
@@ -51,6 +56,26 @@ class SessionViewModel(
 
     private suspend fun getUserId(): Int? {
         return tokenDataStore.userId.firstOrNull()
+    }
+
+    private fun freshState(userId: Int): SessionState {
+        val ownerPlayer = RoomSessionPlayer(
+            userId = userId,
+            guestName = null
+        )
+
+        return SessionState(
+            status = SessionStatus.DRAFT,
+            roomSession = null,
+            gameId = null,
+            userId = userId,
+            visibility = SessionVisibility.ANONYMISED,
+            sessionPlayers = listOf(ownerPlayer),
+            scores = emptyList(),
+            turns = emptyList(),
+            winnerPlayer = null,
+            winnerScore = null
+        )
     }
 
     init {
@@ -109,7 +134,7 @@ class SessionViewModel(
     fun loadActiveSessionFromDb(computeWinner: Boolean = false) {
         viewModelScope.launch {
             val session = sessionDao.getSession()
-            val players: List<RoomSessionPlayer> = sessionPlayerDao.getSessionPlayers()
+            val players = sessionPlayerDao.getSessionPlayers()
 
             val winner = if (computeWinner) {
                 val scores = sessionScoreDao.getScoresForSession()
@@ -129,8 +154,11 @@ class SessionViewModel(
             }
 
             // Observe rounds list
-            sessionScoreDao.observeTurns(session.id).collect { turns ->
-                _state.update { it.copy(turns = turns) }
+            observeTurnsJob?.cancel()
+            observeTurnsJob = viewModelScope.launch {
+                sessionScoreDao.observeTurns(session.id).collect { turns ->
+                    _state.update { it.copy(turns = turns) }
+                }
             }
         }
     }
@@ -139,31 +167,56 @@ class SessionViewModel(
         when(event) {
             is SessionEvent.Initialize -> {
                 _state.update { current ->
+                    val userId = event.userId
 
-                    // If already initialized. Do nothing.
-                    if (current.userId != null) return@update current
+                    val hasOwnerAlready = current.sessionPlayers.any {
+                        it.userId == userId && it.guestName == null
+                    }
 
-                    val ownerPlayer = RoomSessionPlayer(
-                        userId = event.userId,
-                        guestName = null
-                    )
-
-                    current.copy(
-                        userId = event.userId,
-                        sessionPlayers = listOf(ownerPlayer)
-                    )
+                    when (current.userId) {
+                        null -> freshState(userId)
+                        userId if !hasOwnerAlready -> current.copy(
+                            sessionPlayers = listOf(
+                                RoomSessionPlayer(userId = userId, guestName = null)
+                            )
+                        )
+                        else -> current
+                    }
                 }
             }
 
             is SessionEvent.StartNewSession -> {
                 viewModelScope.launch {
+                    val userId = _state.value.userId ?: getUserId() ?: return@launch
+
+                    // Stop old observers
+                    observeTurnsJob?.cancel()
+                    observeTurnsJob = null
+
+                    // Reset UI state
+                    _state.value = freshState(userId)
+
+                    // Empty Room Database
+                    sessionScoreDao.deleteAllScores()
                     sessionPlayerDao.deleteAllPlayers()
                     sessionDao.deleteSession()
 
-                    val currentUserId = _state.value.userId
-                    _state.value = SessionState(
-                        status = SessionStatus.DRAFT,
-                        userId = currentUserId
+                    _state.value = freshState(userId)
+
+                    Log.d(
+                        "SessionVM","""
+                            |SessionState {
+                            |  status=${_state.value.status}
+                            |  roomSession=${_state.value.roomSession}
+                            |  gameId=${_state.value.gameId}
+                            |  userId=${_state.value.userId}
+                            |  visibility=${_state.value.visibility}
+                            |  sessionPlayers(${_state.value.sessionPlayers.size})=${_state.value.sessionPlayers}
+                            |  turns(${_state.value.turns.size})=${_state.value.turns}
+                            |  winnerPlayer=${_state.value.winnerPlayer}
+                            |  winnerScore=${_state.value.winnerScore}
+                            |}
+                        """.trimMargin()
                     )
                 }
             }
@@ -180,23 +233,28 @@ class SessionViewModel(
                 }
 
                 viewModelScope.launch {
-                    // 1. Save Session
                     val session = RoomSession(
                         gameId = gameId,
                         userId = userId,
                         visibility = current.visibility
                     )
 
+                    /** 1. Save Session to Room Database */
                     sessionDao.upsertSession(session)
 
-                    // 2. Save Players
+                    /** 2. Save Players to Room Database */
                     current.sessionPlayers.forEach { player ->
                         sessionPlayerDao.upsertSessionPlayer(player)
                     }
 
+                    /** 3. Read back the saved entities from Room Database */
+                    val savedSession = sessionDao.getSession()
+                    val savedPlayers = sessionPlayerDao.getSessionPlayers()
+
                     _state.update {
                         it.copy(
-                            roomSession = session.copy(),
+                            roomSession = savedSession,
+                            sessionPlayers = savedPlayers,
                             status = SessionStatus.SAVED
                         )
                     }
@@ -239,13 +297,23 @@ class SessionViewModel(
             }
 
             is SessionEvent.RemovePlayer -> {
+                /** 1. Update UI State */
                 _state.update { current ->
                     current.copy(
                         sessionPlayers = current.sessionPlayers.filterNot {
-                            it.userId == event.userId &&
-                                    it.guestName == event.guestName
+                            it.userId == event.userId && it.guestName == event.guestName
                         }
                     )
+                }
+
+                /** 2. Persist delete to Room Database */
+                viewModelScope.launch {
+                    try {
+                        sessionPlayerDao.deleteSessionPlayer(event.userId, event.guestName)
+                    } catch (e: Exception) {
+                        Log.e("SessionVM", "Failed to delete player from DB", e)
+                        loadActiveSessionFromDb()
+                    }
                 }
             }
 
@@ -281,39 +349,38 @@ class SessionViewModel(
                         val players = sessionPlayerDao.getSessionPlayers()
                         val scores = sessionScoreDao.getScoresForSession()
 
-                        // 1. Create Session on backend
-//                        val createResp = sessionApi.createSession(
-//                            CreateSessionRequest(
-//                                gameId = session.gameId,
-//                                userId = session.userId,
-//                                visibility = session.visibility.toInt()
-//                            )
-//                        )
+                        /** 1. Create Session on backend */
+                        val createResp = sessionApi.createSession(
+                            CreateSessionRequest(
+                                gameId = session.gameId,
+                                userId = session.userId,
+                                visibility = session.visibility.toInt()
+                            )
+                        )
 
-                        // Change DTO field name
-                        //val remoteSessionId = createResp.sessionId
+                        // Backend-generated session UUID (used for subsequent uploads)
+                        val remoteSessionId = createResp.sessionId
 
-                        // 2. Add all Players to backend
-                        // TODO: api call for sessionPlayers
-                        // Either in a loop or all at once.
+                        // Map local playerId -> player
+                        val playersById = players.associateBy { it.sessionPlayerId }
 
-                        // 3. Add all Scores on backend
-//                        val scorePayload: List<CreateSessionScoreRequest> = localScores.map { s ->
-//                            val lp = localPlayerById[s.sessionPlayerId]
-//                                ?: error("Local player not found for sessionPlayerId=${s.sessionPlayerId}")
-//
-//                            val remotePlayerId = remotePlayerIdByKey[PlayerKey(lp.userId, lp.guestName)]
-//                                ?: error("Remote playerId not found for player userId=${lp.userId}, guestName=${lp.guestName}")
-//
-//                            CreateSessionScoreRequest(
-//                                sessionPlayerId = remotePlayerId,
-//                                gameId = s.gameId,
-//                                score = s.score,
-//                                turn = s.turn
-//                            )
-//                        }
+                        /** 2. Add all Scores on backend */
+                        val payload: List<CreateSessionScoreRequest> = scores.map { s ->
+                            val p = playersById[s.sessionPlayerId]
+                                ?: error("No player found for sessionPlayerId=${s.sessionPlayerId}")
 
-                        // sessionApi.addScores(remoteSessionId, scorePayload)
+                            CreateSessionScoreRequest(
+                                score = s.score,
+                                turn = s.turn,
+                                sessionPlayer = SessionPlayerDto(
+                                    userId = p.userId,
+                                    guest = p.guestName
+                                )
+                            )
+                        }
+
+                        /** 3. Bulk upload scores (incl. players) */
+                        sessionApi.addScores(remoteSessionId, payload)
 
                     } catch (e: Exception) {
                         Log.e("SessionVM", "FinishSession failed", e)

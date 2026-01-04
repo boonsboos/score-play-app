@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.room.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.DeleteTable
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
@@ -37,6 +39,11 @@ interface SessionScoreDao {
 
     @Query("SELECT * FROM session_scores ORDER BY turn ASC")
     suspend fun getScoresForSession(): List<RoomSessionScore>
+
+
+    @Query("DELETE FROM session_scores")
+    suspend fun deleteAllScores()
+
 
 }
 

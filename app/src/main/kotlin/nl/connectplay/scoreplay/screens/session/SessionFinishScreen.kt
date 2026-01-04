@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,12 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.models.SessionVisibility
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
@@ -45,8 +48,10 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SessionFinishScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val activity = LocalContext.current as ComponentActivity
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
+
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
@@ -64,7 +69,7 @@ fun SessionFinishScreen(
         topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /* TODO: Upload Session to Leaderboard */ },
+                onClick = { onEvent(SessionEvent.FinishSession)},
             ) {
                 Icon(
                     imageVector = Icons.Default.Upload,

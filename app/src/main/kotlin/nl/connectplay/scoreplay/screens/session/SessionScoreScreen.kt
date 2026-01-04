@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
@@ -51,13 +53,16 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    val activity = LocalContext.current as ComponentActivity
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
     LaunchedEffect(Unit) {
-        sessionViewModel.loadActiveSessionFromDb()
+        if (state.roomSession == null) {
+            sessionViewModel.loadActiveSessionFromDb()
+        }
     }
 
     var showNewRoundDialog by remember { mutableStateOf((false)) }
@@ -187,7 +192,6 @@ fun SessionScoreScreen(
             onDismiss = { showFinishDialog = false },
             onConfirm = {
                 showFinishDialog = false
-                onEvent(SessionEvent.FinishSession)
                 backStack.add(Screens.SessionFinish)
             }
         )
