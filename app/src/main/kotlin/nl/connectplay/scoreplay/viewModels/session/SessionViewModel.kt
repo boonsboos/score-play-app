@@ -6,20 +6,29 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
+import nl.connectplay.scoreplay.room.entities.RoomSessionScore
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
     private val sessionPlayerDao: SessionPlayerDao,
-    private val gameApi: GameApi
+    private val sessionScoreDao: SessionScoreDao,
+    private val gameApi: GameApi,
+    private val friendsApi: FriendsApi,
+    private val tokenDataStore: TokenDataStore
 ): ViewModel() {
     private val _state = MutableStateFlow(SessionState())
 
@@ -29,24 +38,88 @@ class SessionViewModel(
 
     val games: StateFlow<List<Game>> = _games
 
+    private val _friends = MutableStateFlow<List<UserFriend>>(emptyList())
+
+    val friends: StateFlow<List<UserFriend>> = _friends
+
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
+    private suspend fun getUserId(): Int? {
+        return tokenDataStore.userId.firstOrNull()
+    }
+
     init {
         fetchGames()
+        fetchFriends()
+
+        viewModelScope.launch {
+            friends.collect { list ->
+                Log.d("SessionVM", "friends updated: size=${list.size} -> $list")
+            }
+        }
+
+        viewModelScope.launch {
+            games.collect { list ->
+                Log.d("SessionVM", "games updated: size=${list.size} -> $list")
+            }
+        }
     }
 
     private fun fetchGames() {
         viewModelScope.launch {
             if (_games.value.isNotEmpty()) return@launch
 
-            _loading.value = true
+            _loading.update { true }
+
             try {
-                _games.value = gameApi.all()
+                val games = gameApi.all()
+                _games.update { games }
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch games", e)
             } finally {
-                _loading.value = false
+                _loading.update { false }
+            }
+        }
+    }
+
+    private fun fetchFriends() {
+        viewModelScope.launch {
+            if (_friends.value.isNotEmpty()) return@launch
+
+            val userId = getUserId() ?: return@launch
+
+            _loading.update { true }
+
+            try {
+                val friends = friendsApi.getFriends(userId)
+                _friends.update { friends }
+            } catch (e: Exception) {
+                Log.e("SessionViewModel", "Failed to fetch friends", e)
+            } finally {
+                _loading.update { false }
+            }
+        }
+    }
+
+    fun loadActiveSessionFromDb() {
+        viewModelScope.launch {
+            val session = sessionDao.getSession()
+            val players: List<RoomSessionPlayer> = sessionPlayerDao.getSessionPlayers()
+
+            _state.update {
+                it.copy(
+                    roomSession = session,
+                    gameId = session.gameId,
+                    userId = session.userId,
+                    sessionPlayers = players,
+                    status = SessionStatus.SAVED
+                )
+            }
+
+            // Observe rounds list
+            sessionScoreDao.observeTurns(session.id).collect { turns ->
+                _state.update { it.copy(turns = turns) }
             }
         }
     }
@@ -164,8 +237,30 @@ class SessionViewModel(
                     )
                 }
             }
+
             is SessionEvent.DeleteSessionPlayer -> {
                 Log.w("SessionVM", "DeleteSessionPlayer event received but not implemented; ignoring.")
+            }
+
+            is SessionEvent.AddRound -> {
+                viewModelScope.launch {
+                    val nextTurn = (sessionScoreDao.getMaxTurn(event.sessionId) ?: 0) + 1
+
+                    val entities = event.scores.map { input ->
+                        RoomSessionScore(
+                            sessionId = event.sessionId,
+                            sessionPlayerId = input.sessionPlayerId,
+                            gameId = event.gameId,
+                            score = input.score,
+                            turn = nextTurn
+                        )
+                    }
+
+                    sessionScoreDao.insertAll(entities)
+
+                    // refresh state
+                    loadActiveSessionFromDb()
+                }
             }
         }
     }

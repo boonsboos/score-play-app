@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
+import RoundDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -9,12 +10,19 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+<<<<<<< HEAD
+=======
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
+import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.room.events.SessionEvent
+>>>>>>> 20a7ccfa70a96fcf8f0794e1259dee255c6cbdee
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileEditScreen
@@ -94,11 +102,25 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    SessionSetupScreen(backStack = backStack)
+
+                    SessionSetupScreen(
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    SessionScoreScreen(backStack = backStack)
+                    SessionScoreScreen(
+                        backStack = backStack
+                    )
+                }
+
+                is Screens.RoundDetail -> NavEntry(key = key) {
+                    RoundDetailScreen(
+                        backStack = backStack,
+                        sessionId = key.sessionId,
+                        turn = key.turn,
+                    )
+
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {
@@ -138,6 +160,13 @@ fun Navigator(modifier: Modifier = Modifier) {
                         onUserClick = { userId ->
                             backStack.add(Screens.Profile(userId = userId.toInt()))
                         }
+                    )
+                }
+
+                is Screens.Leaderboard -> NavEntry(key = key) {
+                    LeaderboardScreen(
+                        backStack = backStack,
+                        gameId = key.gameId
                     )
                 }
                 

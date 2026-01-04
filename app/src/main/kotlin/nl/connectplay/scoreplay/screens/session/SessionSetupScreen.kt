@@ -38,16 +38,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
-import nl.connectplay.scoreplay.ui.components.PlayerRow
-import nl.connectplay.scoreplay.ui.components.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.ui.components.SessionTabs
-import nl.connectplay.scoreplay.viewModels.session.SessionState
+import nl.connectplay.scoreplay.ui.components.session.PlayerRow
+import nl.connectplay.scoreplay.ui.components.session.PlayerUi
+import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -60,6 +59,7 @@ fun SessionSetupScreen(
     tokenStore: TokenDataStore = koinInject()
 ) {
     val state by sessionViewModel.state.collectAsState()
+    val onEvent = sessionViewModel::onEvent
     val userId by tokenStore.userId.collectAsState(null)
 
     LaunchedEffect(userId) {
@@ -71,6 +71,7 @@ fun SessionSetupScreen(
     }
 
     val games by sessionViewModel.games.collectAsState()
+    val friends by sessionViewModel.friends.collectAsState()
     val loading by sessionViewModel.loading.collectAsState()
 
     /** UI States */
@@ -86,15 +87,6 @@ fun SessionSetupScreen(
     var newPlayerName by remember { mutableStateOf("") }
     var selectedFriendId by remember { mutableStateOf<Int?>(null) }
 
-    /** @TODO REMOVE MOCK FRIENDS LATER */
-    val mockFriends = remember {
-        listOf(
-            PlayerUi(id = 101, name = "Alice", isCurrentUser = false),
-            PlayerUi(id = 102, name = "Bob", isCurrentUser = false),
-            PlayerUi(id = 103, name = "Charlie", isCurrentUser = false)
-        )
-    }
-
     val filteredGames = remember(games, searchQuery) {
         if (searchQuery.isBlank()) games
         else games.filter { it.name.contains(searchQuery, ignoreCase = true) }
@@ -107,14 +99,19 @@ fun SessionSetupScreen(
             FloatingActionButton(onClick = {
                 sessionViewModel.onEvent(SessionEvent.SaveSession)
                 backStack.add(Screens.SessionScore)
-            }) { Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Score Screen") }
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Score Screen"
+                )
+            }
         },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
 
             SessionTabs(
@@ -135,7 +132,7 @@ fun SessionSetupScreen(
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded},
+                onExpandedChange = { expanded = !expanded },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -333,19 +330,19 @@ fun SessionSetupScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         if (isFriendMode) {
-                            mockFriends.forEach { friend ->
+                            friends.forEach { friend ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Checkbox(
-                                        checked = selectedFriendId == friend.id,
+                                        checked = selectedFriendId == friend.user.id,
                                         onCheckedChange = {
                                             selectedFriendId =
-                                                if (it) friend.id else null
+                                                if (it) friend.user.id else null
                                         }
                                     )
-                                    Text(friend.name)
+                                    Text(friend.user.username)
                                 }
                             }
                         } else {
@@ -366,10 +363,12 @@ fun SessionSetupScreen(
                             newPlayerName.isNotBlank(),
                         onClick = {
                             if (isFriendMode) {
-                                val friend =
-                                    mockFriends.first { it.id == selectedFriendId }
-                                sessionViewModel.onEvent(
-                                    SessionEvent.AddPlayer(friend.id, friend.name)
+                                val friend = friends.first { it.user.id == selectedFriendId }
+                                onEvent(
+                                    SessionEvent.AddPlayer(
+                                        friend.user.id,
+                                        friend.user.username
+                                    )
                                 )
                             } else {
                                 val userId = state.userId

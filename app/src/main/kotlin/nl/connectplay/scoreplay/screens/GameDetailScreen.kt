@@ -123,7 +123,7 @@ fun GameDetailScreen(
                 FilledTonalButton(
                     modifier = Modifier.width(200.dp),
                     onClick = {
-                        // TODO: show leaderboard
+                        backStack.add(Screens.Leaderboard(gameId))
                     }
                 ) {
                     Icon(
