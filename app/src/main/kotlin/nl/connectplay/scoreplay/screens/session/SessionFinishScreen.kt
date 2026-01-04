@@ -51,8 +51,11 @@ fun SessionFinishScreen(
     val onEvent = sessionViewModel::onEvent
 
     LaunchedEffect(Unit) {
-        sessionViewModel.loadActiveSessionFromDb()
+        sessionViewModel.loadActiveSessionFromDb(computeWinner = true)
     }
+
+    val winnerName = state.winnerPlayer?.let { it.guestName ?: "You" }
+    val winnerScore = state.winnerScore ?: 0.0
 
     var selectedVisibility by remember { mutableStateOf(state.visibility) }
 
@@ -79,7 +82,7 @@ fun SessionFinishScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "The winner is... {{ADD NAME HERE}}",
+                text = "The winner is... $winnerName!",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineSmall
@@ -87,9 +90,10 @@ fun SessionFinishScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+
             RoundScoreRow(
-                name = "Player",
-                score = 100.0
+                name = winnerName.toString(),
+                score = winnerScore
             )
 
             Spacer(modifier = Modifier.height(24.dp))

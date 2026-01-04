@@ -21,4 +21,6 @@ data class SessionState(
     val scores: List<RoomSessionScore> = emptyList(),
     val turns: List<Int> = emptyList(),
     val visibility: SessionVisibility = SessionVisibility.ANONYMISED,
+    val winnerPlayer: RoomSessionPlayer? = null,
+    val winnerScore: Double? = null
 )

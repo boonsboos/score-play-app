@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.models.session.CreateSessionRequest
+import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -28,6 +31,7 @@ class SessionViewModel(
     private val sessionScoreDao: SessionScoreDao,
     private val gameApi: GameApi,
     private val friendsApi: FriendsApi,
+    private val sessionApi: SessionApi,
     private val tokenDataStore: TokenDataStore
 ): ViewModel() {
     private val _state = MutableStateFlow(SessionState())
@@ -102,10 +106,15 @@ class SessionViewModel(
         }
     }
 
-    fun loadActiveSessionFromDb() {
+    fun loadActiveSessionFromDb(computeWinner: Boolean = false) {
         viewModelScope.launch {
             val session = sessionDao.getSession()
             val players: List<RoomSessionPlayer> = sessionPlayerDao.getSessionPlayers()
+
+            val winner = if (computeWinner) {
+                val scores = sessionScoreDao.getScoresForSession()
+                winnerHighestTotal(players, scores)
+            } else null
 
             _state.update {
                 it.copy(
@@ -113,7 +122,9 @@ class SessionViewModel(
                     gameId = session.gameId,
                     userId = session.userId,
                     sessionPlayers = players,
-                    status = SessionStatus.SAVED
+                    status = SessionStatus.SAVED,
+                    winnerPlayer = winner?.player,
+                    winnerScore = winner?.totalScore
                 )
             }
 
@@ -260,6 +271,53 @@ class SessionViewModel(
 
                     // refresh state
                     loadActiveSessionFromDb()
+                }
+            }
+
+            SessionEvent.FinishSession -> {
+                viewModelScope.launch {
+                    try {
+                        val session = sessionDao.getSession()
+                        val players = sessionPlayerDao.getSessionPlayers()
+                        val scores = sessionScoreDao.getScoresForSession()
+
+                        // 1. Create Session on backend
+//                        val createResp = sessionApi.createSession(
+//                            CreateSessionRequest(
+//                                gameId = session.gameId,
+//                                userId = session.userId,
+//                                visibility = session.visibility.toInt()
+//                            )
+//                        )
+
+                        // Change DTO field name
+                        //val remoteSessionId = createResp.sessionId
+
+                        // 2. Add all Players to backend
+                        // TODO: api call for sessionPlayers
+                        // Either in a loop or all at once.
+
+                        // 3. Add all Scores on backend
+//                        val scorePayload: List<CreateSessionScoreRequest> = localScores.map { s ->
+//                            val lp = localPlayerById[s.sessionPlayerId]
+//                                ?: error("Local player not found for sessionPlayerId=${s.sessionPlayerId}")
+//
+//                            val remotePlayerId = remotePlayerIdByKey[PlayerKey(lp.userId, lp.guestName)]
+//                                ?: error("Remote playerId not found for player userId=${lp.userId}, guestName=${lp.guestName}")
+//
+//                            CreateSessionScoreRequest(
+//                                sessionPlayerId = remotePlayerId,
+//                                gameId = s.gameId,
+//                                score = s.score,
+//                                turn = s.turn
+//                            )
+//                        }
+
+                        // sessionApi.addScores(remoteSessionId, scorePayload)
+
+                    } catch (e: Exception) {
+                        Log.e("SessionVM", "FinishSession failed", e)
+                    }
                 }
             }
         }

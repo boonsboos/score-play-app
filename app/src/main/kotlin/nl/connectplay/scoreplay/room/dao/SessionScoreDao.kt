@@ -34,6 +34,10 @@ interface SessionScoreDao {
 
     @Query("SELECT * FROM session_scores WHERE id = :id")
     suspend fun getSessionScoreById(id: Int): RoomSessionScore
+
+    @Query("SELECT * FROM session_scores ORDER BY turn ASC")
+    suspend fun getScoresForSession(): List<RoomSessionScore>
+
 }
 
 data class RoundScoreRow(

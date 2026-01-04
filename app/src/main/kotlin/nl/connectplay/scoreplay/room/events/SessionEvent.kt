@@ -23,6 +23,7 @@ sealed interface SessionEvent {
 
     data class AddRound(val sessionId: Int, val gameId: Int, val scores: List<RoundScoreInput>) : SessionEvent
 
+    object FinishSession: SessionEvent
 }
 
 data class RoundScoreInput(

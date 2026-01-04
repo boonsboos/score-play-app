@@ -47,6 +47,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.ui.components.session.AddPlayerDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
@@ -108,8 +109,8 @@ fun SessionSetupScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
 
             SessionTabs(
@@ -130,7 +131,7 @@ fun SessionSetupScreen(
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded},
+                onExpandedChange = { expanded = !expanded },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -288,111 +289,19 @@ fun SessionSetupScreen(
 
         /** DIALOG */
         if (showAddPlayerDialog) {
-            AlertDialog(
-                onDismissRequest = { showAddPlayerDialog = false },
-                title = {
-                    Text(text = "Add player")
+            AddPlayerDialog(
+                friends = friends,
+                onDismiss = { showAddPlayerDialog = false },
+                onAddFriend = { userId, guestName ->
+                    onEvent(SessionEvent.AddPlayer(userId, guestName))
                 },
-                text = {
-                    Column {
-                        // Mode switch
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    isFriendMode = true
-                                    newPlayerName = ""
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (isFriendMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                Text("Friend")
-                            }
-
-                            TextButton(
-                                onClick = {
-                                    isFriendMode = false
-                                    selectedFriendId = null
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (!isFriendMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                Text("Guest")
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (isFriendMode) {
-                            friends.forEach { friend ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Checkbox(
-                                        checked = selectedFriendId == friend.user.id,
-                                        onCheckedChange = {
-                                            selectedFriendId =
-                                                if (it) friend.user.id else null
-                                        }
-                                    )
-                                    Text(friend.user.username)
-                                }
-                            }
-                        } else {
-                            OutlinedTextField(
-                                value = newPlayerName,
-                                onValueChange = { newPlayerName = it },
-                                label = { Text("Player name") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(
-                        enabled = if (isFriendMode)
-                            selectedFriendId != null
-                        else
-                            newPlayerName.isNotBlank(),
-                        onClick = {
-                            if (isFriendMode) {
-                                val friend =
-                                    friends.first { it.user.id == selectedFriendId }
-                                onEvent(
-                                    SessionEvent.AddPlayer(friend.user.id, friend.user.username)
-                                )
-                            } else {
-                                val userId = state.userId
-                                if (userId != null) {
-                                    onEvent(
-                                        SessionEvent.AddPlayer(
-                                            userId = userId,
-                                            guestName = newPlayerName.trim()
-                                        )
-                                    )
-                                }
-                            }
-
-                            newPlayerName = ""
-                            selectedFriendId = null
-                            showAddPlayerDialog = false
-                        }
-                    ) { Text("Add") }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showAddPlayerDialog = false }
-                    ) {
-                        Text("Cancel")
+                onAddGuest = { guestName ->
+                    val ownerUserId = state.userId
+                    if (ownerUserId != null) {
+                        onEvent(SessionEvent.AddPlayer(userId = ownerUserId, guestName = guestName))
                     }
                 }
             )
         }
-
     }
 }

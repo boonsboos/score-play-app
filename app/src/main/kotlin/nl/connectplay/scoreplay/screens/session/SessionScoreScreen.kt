@@ -187,8 +187,7 @@ fun SessionScoreScreen(
             onDismiss = { showFinishDialog = false },
             onConfirm = {
                 showFinishDialog = false
-                // val session = state.roomSession ?: return@FinishSessionDialog
-                // TODO: onEvent(SessionEvent.FinishSession(session.id))
+                onEvent(SessionEvent.FinishSession)
                 backStack.add(Screens.SessionFinish)
             }
         )
