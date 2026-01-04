@@ -10,12 +10,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-<<<<<<< HEAD
-=======
-import nl.connectplay.scoreplay.room.dao.SessionScoreDao
-import nl.connectplay.scoreplay.models.user.UserProfile
-import nl.connectplay.scoreplay.room.events.SessionEvent
->>>>>>> 20a7ccfa70a96fcf8f0794e1259dee255c6cbdee
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen

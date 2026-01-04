@@ -73,7 +73,7 @@ class ProfileApi(
 
     suspend fun getRecentGames(userId: Int): List<Game> =
         try {
-            val res = client.get(Routes.Users.followedGames(userId)) {
+            val res = client.get(Routes.Users.recent(userId)) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")

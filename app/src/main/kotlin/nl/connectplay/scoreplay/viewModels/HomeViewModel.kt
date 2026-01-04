@@ -52,12 +52,12 @@ class HomeViewModel(
 
     private fun loadRecentGames(userId: Int) {
         viewModelScope.launch {
-            _followedState.value = UiState.Loading
+            _recentState.value = UiState.Loading
             try {
-                val result = profileApi.getRecentGames(userId, true)
-                _followedState.value = UiState.Success(result)
+                val result = profileApi.getRecentGames(userId)
+                _recentState.value = UiState.Success(result)
             } catch (e: Exception) {
-                _followedState.value = UiState.Error(e.message ?: "Unknown error", e)
+                _recentState.value = UiState.Error(e.message ?: "Unknown error", e)
             }
         }
     }
