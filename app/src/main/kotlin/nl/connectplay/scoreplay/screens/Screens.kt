@@ -28,6 +28,9 @@ object Screens {
     data object SessionScore : NavKey
 
     @Serializable
+    data class RoundDetail(val sessionId: Int, val turn: Int) : NavKey
+
+    @Serializable
     data class GameDetail(val gameId: Int) : NavKey
 
     @Serializable
@@ -41,6 +44,9 @@ object Screens {
 
     @Serializable
     data class Profile(val userId: Int? = null) : NavKey
+
+    @Serializable
+    data class Leaderboard(val gameId: Int) : NavKey
 
     @Serializable
     data class EditProfile(val currentUser: UserProfile) : NavKey

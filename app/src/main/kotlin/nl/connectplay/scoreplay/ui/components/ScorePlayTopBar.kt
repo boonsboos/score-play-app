@@ -56,7 +56,7 @@ fun ScorePlayTopBar(
 
     CenterAlignedTopAppBar(
         title = {
-            Text(title, textAlign = TextAlign.Center)
+            if(!searching) Text(title, textAlign = TextAlign.Center)
         },
         navigationIcon = {
             // todo: open search bar

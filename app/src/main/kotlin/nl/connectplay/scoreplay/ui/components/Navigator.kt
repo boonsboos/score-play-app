@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
+import RoundDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -10,6 +11,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
@@ -18,6 +20,7 @@ import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
 import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
 import nl.connectplay.scoreplay.screens.ProfileEditScreen
@@ -109,31 +112,24 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    val sessionViewModel: SessionViewModel = koinViewModel()
-                    val state by sessionViewModel.state.collectAsState()
-
-                    val tokenStore: TokenDataStore = koinInject()
-                    val userId by tokenStore.userId.collectAsState(null)
-
-                    LaunchedEffect(userId) {
-                        userId?.let {
-                            sessionViewModel.onEvent(
-                                SessionEvent.Initialize(it)
-                            )
-                        }
-                    }
-
                     SessionSetupScreen(
-                        backStack = backStack,
-                        state = state,
-                        onEvent = sessionViewModel::onEvent
+                        backStack = backStack
                     )
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
                     SessionScoreScreen(
-                        backStack = backStack,
+                        backStack = backStack
                     )
+                }
+
+                is Screens.RoundDetail -> NavEntry(key = key) {
+                    RoundDetailScreen(
+                        backStack = backStack,
+                        sessionId = key.sessionId,
+                        turn = key.turn,
+                    )
+
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {
@@ -167,10 +163,22 @@ fun Navigator(modifier: Modifier = Modifier) {
                         // pass query string from nav key to screen
                         initialQuery = key.query,
                         searchViewModel = koinViewModel(),
-                        onUserClick = { backStack.add(Screens.Profile(userId = it)) }
+                        onGameClick = { gameId ->
+                            backStack.add(Screens.GameDetail(gameId = gameId.toInt()))
+                        },
+                        onUserClick = { userId ->
+                            backStack.add(Screens.Profile(userId = userId.toInt()))
+                        }
                     )
                 }
 
+                is Screens.Leaderboard -> NavEntry(key = key) {
+                    LeaderboardScreen(
+                        backStack = backStack,
+                        gameId = key.gameId
+                    )
+                }
+                
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }

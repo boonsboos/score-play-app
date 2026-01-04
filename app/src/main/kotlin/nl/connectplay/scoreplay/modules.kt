@@ -6,6 +6,7 @@ import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.LeaderboardApi
 import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.api.NotificationApi
 import nl.connectplay.scoreplay.api.ProfileApi
@@ -14,6 +15,7 @@ import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.Database
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
@@ -31,10 +33,12 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
     viewModelOf(::ExampleDetailViewModel)
+
     // RegisterViewModel with AuthAPI
     viewModelOf(::RegisterViewModel)
     viewModelOf(::GamesListViewModel)
@@ -62,6 +66,7 @@ val viewModelsModule = module {
         )
     }
     viewModelOf(::GameDetailViewModel)
+    viewModelOf(::LeaderboardViewModel)
 }
 
 // Koin module to provide networking / API dependencies
@@ -80,6 +85,7 @@ val apiModule = module {
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
+    singleOf(::LeaderboardApi)
 }
 
 // Koin module for app storage (DataStore)
@@ -105,4 +111,9 @@ val databaseModule = module {
     single<SessionPlayerDao> {
         get<Database>().sessionPlayerDao
     }
+
+    single<SessionScoreDao> {
+        get<Database>().sessionScoreDao
+    }
+
 }

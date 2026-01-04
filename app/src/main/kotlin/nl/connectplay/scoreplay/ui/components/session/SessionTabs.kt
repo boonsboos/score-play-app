@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.ui.components
+package nl.connectplay.scoreplay.ui.components.session
 
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow

@@ -21,4 +21,11 @@ sealed interface SessionEvent {
 
     data class DeleteSessionPlayer(val roomSessionPlayer: RoomSessionPlayer): SessionEvent
 
+    data class AddRound(val sessionId: Int, val gameId: Int, val scores: List<RoundScoreInput>) : SessionEvent
+
 }
+
+data class RoundScoreInput(
+    val sessionPlayerId: Int,
+    val score: Double,
+)
