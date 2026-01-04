@@ -14,11 +14,11 @@ import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.SessionApi
 import nl.connectplay.scoreplay.models.SessionVisibility
+import nl.connectplay.scoreplay.models.dto.score.SessionPlayerDto
 import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.session.CreateSessionRequest
 import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
-import nl.connectplay.scoreplay.models.session.SessionPlayerDto
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -358,13 +358,14 @@ class SessionViewModel(
                             )
                         )
 
-                        // Backend-generated session UUID (used for subsequent uploads)
-                        val remoteSessionId = createResp.sessionId
+                        // Backend-generated session UUID as string (used for score upload)
+                        val remoteSessionId: String = createResp
+                        Log.d("Session Created on Backend", "SessionID: $remoteSessionId")
 
                         // Map local playerId -> player
                         val playersById = players.associateBy { it.sessionPlayerId }
 
-                        /** 2. Add all Scores on backend */
+                        /** 2. Add all Scores in one list in preparation for api call */
                         val payload: List<CreateSessionScoreRequest> = scores.map { s ->
                             val p = playersById[s.sessionPlayerId]
                                 ?: error("No player found for sessionPlayerId=${s.sessionPlayerId}")
@@ -379,8 +380,16 @@ class SessionViewModel(
                             )
                         }
 
-                        /** 3. Bulk upload scores (incl. players) */
+                        /** 3. Upload scores in bulk (incl. players) */
                         sessionApi.addScores(remoteSessionId, payload)
+                        Log.d("SessionVM", "addScores OK -> uploaded=${payload.size}")
+
+                        /**
+                         * TODO: FIX Upload of Scores
+                         *
+                         * Error: addScores failed: 403  Session not yet finished
+                         * Score&PlayApi -> scoreplay/services/ScoreServiceImpl.kt at line 49
+                         */
 
                     } catch (e: Exception) {
                         Log.e("SessionVM", "FinishSession failed", e)

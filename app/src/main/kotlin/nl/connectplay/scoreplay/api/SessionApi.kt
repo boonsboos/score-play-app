@@ -1,15 +1,23 @@
 package nl.connectplay.scoreplay.api
 
+import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.expectSuccess
+import io.ktor.client.request.accept
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import nl.connectplay.scoreplay.models.session.SessionPlayerDto
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.first
+import nl.connectplay.scoreplay.models.dto.score.SessionPlayerDto
 import nl.connectplay.scoreplay.models.session.CreateSessionRequest
 import nl.connectplay.scoreplay.models.session.CreateSessionResponse
 import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
+import nl.connectplay.scoreplay.stores.TokenDataStore
 
 /**
  * Session is for all session API-calls
@@ -17,25 +25,37 @@ import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
  *
  * @property client The HttpClient used to send requests to the server
  */
-class SessionApi(private val client: HttpClient) {
-    suspend fun createSession(payload: CreateSessionRequest): CreateSessionResponse {
-        return client.post(Routes.Sessions.root) {
+class SessionApi(private val client: HttpClient, private val tokenDataStore: TokenDataStore) {
+    suspend fun createSession(payload: CreateSessionRequest): String {
+        val resp =  client.post(Routes.Sessions.root) {
             contentType(ContentType.Application.Json)   // let the server know we will send JSON
+            bearerAuth(tokenDataStore.token.first() ?: "")
             setBody(payload)
-        }.body()
-    }
+        }
 
-    suspend fun addPlayers(sessionId: String, payload: SessionPlayerDto): SessionPlayerDto {
-        return client.post(Routes.Sessions.Players.all(sessionId)) {
-            contentType(ContentType.Application.Json)
-            setBody(payload)
-        }.body()
+        val raw = resp.bodyAsText()
+        Log.d("SessionApi", "createSession -> ${resp.status}: $raw")
+
+        if (!resp.status.isSuccess()) {
+            throw RuntimeException("createSession failed: ${resp.status} $raw")
+        }
+
+        val sessionId = resp.bodyAsText().trim().removeSurrounding("\"")
+        return sessionId
     }
 
     suspend fun addScores(sessionId: String, payload: List<CreateSessionScoreRequest>) {
-        return client.post(Routes.Sessions.Scores.all(sessionId)) {
+        val resp = client.post(Routes.Sessions.Scores.all(sessionId)) {
             contentType(ContentType.Application.Json)
+            bearerAuth(tokenDataStore.token.first() ?: "")
             setBody(payload)
-        }.body()
+        }
+
+        val raw = resp.bodyAsText()
+        Log.d("SessionApi", "addScores -> ${resp.status}: $raw")
+
+        if (!resp.status.isSuccess()) {
+            throw RuntimeException("addScores failed: ${resp.status} $raw")
+        }
     }
 }
