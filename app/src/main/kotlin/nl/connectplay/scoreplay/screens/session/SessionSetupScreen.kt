@@ -48,6 +48,7 @@ import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -57,6 +58,7 @@ import org.koin.compose.koinInject
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
     val state by sessionViewModel.state.collectAsState()
@@ -102,14 +104,19 @@ fun SessionSetupScreen(
             FloatingActionButton(onClick = {
                 onEvent(SessionEvent.SaveSession)
                 backStack.add(Screens.SessionScore)
-            }) { Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "Score Screen") }
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Score Screen"
+                )
+            }
         },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
 
             SessionTabs(
@@ -130,7 +137,7 @@ fun SessionSetupScreen(
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded},
+                onExpandedChange = { expanded = !expanded },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

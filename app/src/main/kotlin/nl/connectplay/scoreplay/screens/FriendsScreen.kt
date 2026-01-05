@@ -30,11 +30,13 @@ import nl.connectplay.scoreplay.viewModels.FriendViewModel
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FriendsScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     friendViewModel: FriendViewModel = koinViewModel()
 ) {
     val uiState by friendViewModel.uiState.collectAsState()
@@ -49,7 +51,7 @@ fun FriendsScreen(
 
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack) },
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
@@ -72,6 +74,7 @@ fun FriendsScreen(
                         Text("Loading…")
                     }
                 }
+
                 else -> {
                     FriendList(
                         friendRequests = uiState.friendRequests,

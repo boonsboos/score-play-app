@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +24,7 @@ import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -34,6 +34,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun RoundDetailScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     sessionId: Int,
     sessionViewModel: SessionViewModel = koinViewModel(parameters = { parametersOf(sessionId) }),
     turn: Int,
@@ -81,10 +82,12 @@ fun RoundDetailScreen(
             }
         },
 
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             rows.forEach { row ->

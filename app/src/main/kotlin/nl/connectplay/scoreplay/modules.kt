@@ -34,6 +34,7 @@ import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -53,7 +54,6 @@ val viewModelsModule = module {
             tokenDataStore = get()
         )
     }
-
     viewModelOf(::SearchViewModel)
     viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
@@ -66,6 +66,7 @@ val viewModelsModule = module {
     }
     viewModelOf(::GameDetailViewModel)
     viewModelOf(::LeaderboardViewModel)
+    viewModelOf(::NotificationBadgeViewModel)
 }
 
 // Koin module to provide networking / API dependencies
@@ -96,10 +97,10 @@ val databaseModule = module {
 
     single {
         Room.databaseBuilder(
-                get(),
-                Database::class.java,
-                "scoreplay.db"
-            ).fallbackToDestructiveMigration(true)
+            get(),
+            Database::class.java,
+            "scoreplay.db"
+        ).fallbackToDestructiveMigration(true)
             .build()
     }
 

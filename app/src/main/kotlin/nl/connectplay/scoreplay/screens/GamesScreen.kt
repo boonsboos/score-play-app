@@ -27,6 +27,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ErrorMessage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private const val GAMES_SCREEN_LOGTAG = "GamesScreen"
@@ -34,6 +35,7 @@ private const val GAMES_SCREEN_LOGTAG = "GamesScreen"
 @Composable
 fun GamesScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     gameListViewModel: GamesListViewModel = koinViewModel()
 ) {
     val gamesList by gameListViewModel.gamesSet.collectAsStateWithLifecycle()
@@ -54,7 +56,7 @@ fun GamesScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Games", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

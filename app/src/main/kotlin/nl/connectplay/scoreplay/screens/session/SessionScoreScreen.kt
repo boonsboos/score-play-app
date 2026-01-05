@@ -45,6 +45,7 @@ import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -52,6 +53,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
     val state by sessionViewModel.state.collectAsState()
@@ -109,7 +111,7 @@ fun SessionScoreScreen(
                 )
             }
         },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -146,13 +148,23 @@ fun SessionScoreScreen(
                     items(state.turns) { turn ->
                         ListItem(
                             headlineContent = { Text("Round $turn") },
-                            trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight,
+                                    contentDescription = null
+                                )
+                            },
                             colors = ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
                                 headlineColor = MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier.clickable {
-                                backStack.add(Screens.RoundDetail(sessionId = session.id, turn = turn))
+                                backStack.add(
+                                    Screens.RoundDetail(
+                                        sessionId = session.id,
+                                        turn = turn
+                                    )
+                                )
                             }
 
                         )
@@ -164,15 +176,21 @@ fun SessionScoreScreen(
     }
 
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
-            AddRoundDialog(
-                players = state.sessionPlayers,
-                onDismiss = { showNewRoundDialog = false },
-                onSave = { inputs ->
-                    val session = state.roomSession ?: return@AddRoundDialog
-                    onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
-                    showNewRoundDialog = false
-                }
-            )
+        AddRoundDialog(
+            players = state.sessionPlayers,
+            onDismiss = { showNewRoundDialog = false },
+            onSave = { inputs ->
+                val session = state.roomSession ?: return@AddRoundDialog
+                onEvent(
+                    SessionEvent.AddRound(
+                        sessionId = session.id,
+                        gameId = session.gameId,
+                        scores = inputs
+                    )
+                )
+                showNewRoundDialog = false
+            }
+        )
 
     }
 }

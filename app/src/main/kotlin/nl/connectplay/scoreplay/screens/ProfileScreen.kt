@@ -51,6 +51,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import nl.connectplay.scoreplay.viewModels.profile.UiState
 import org.koin.androidx.compose.koinViewModel
@@ -60,6 +61,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ProfileScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     targetUserId: Int?,
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = koinViewModel(parameters = { parametersOf(targetUserId) }),
@@ -112,7 +114,7 @@ fun ProfileScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title, backStack) },
-        bottomBar = { BottomNavBar(backStack) },
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) },
         floatingActionButton = {
             if (profileState is UiState.Success) {
                 val profile = (profileState as UiState.Success).data

@@ -49,6 +49,7 @@ import nl.connectplay.scoreplay.ui.components.ExpandableText
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -57,6 +58,7 @@ import org.koin.core.parameter.parametersOf
 fun GameDetailScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     modifier: Modifier = Modifier,
     gameDetail: GameDetailViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
@@ -64,7 +66,7 @@ fun GameDetailScreen(
     val loading by gameDetail.loadingState.collectAsState()
 
     val carouselState = rememberCarouselState { state?.pictures?.size ?: 0 }
-    val snackBarState = remember { SnackbarHostState()  }
+    val snackBarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     if (loading) {
@@ -83,7 +85,7 @@ fun GameDetailScreen(
             SnackbarHost(hostState = snackBarState)
         },
         topBar = { ScorePlayTopBar(title = state?.name ?: "Name unknown", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -174,9 +176,11 @@ fun GameDetailScreen(
                 thickness = 1.dp
             )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
                 Column {
                     Text(text = "Description", style = MaterialTheme.typography.headlineMedium)
                     ExpandableText(state?.description ?: "No description found")

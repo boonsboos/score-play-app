@@ -58,7 +58,7 @@ object Routes {
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
-//    object Games {
+    //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
 //
@@ -104,9 +104,9 @@ object Routes {
         fun followedGames(userId: Int) = "$root/$userId/followed"
     }
 
-    //
     object Notifications {
         const val root = "/notifications"
+        const val live = "$root/live" // SSE endpoint for live notifications
         fun byId(notificationId: String) = "$root/$notificationId"
     }
 }

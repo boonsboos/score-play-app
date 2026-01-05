@@ -32,6 +32,7 @@ import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.stores.TokenDataStore
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -40,9 +41,17 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
+    val notificationBadgeViewModel = koinViewModel<NotificationBadgeViewModel>()
     val tokenState by mainViewModel.tokenState.collectAsState()
 
+
     if (!tokenState.isLoaded) return
+
+    LaunchedEffect(tokenState.token) {
+        tokenState.token?.let { token ->
+            notificationBadgeViewModel.startSse(token)
+        }
+    }
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
@@ -85,6 +94,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(
                         backStack,
+                        notificationBadgeViewModel,
                         onLogout = {
                             mainViewModel.logout()
                             backStack.apply {
@@ -96,36 +106,37 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Profile -> NavEntry(key = key) {
-                    ProfileScreen(backStack = backStack, targetUserId = key.userId)
+                    ProfileScreen(
+                        backStack,
+                        notificationBadgeViewModel,
+                        targetUserId = key.userId
+                    )
                 }
 
                 is Screens.EditProfile -> NavEntry(key = key) {
-                    ProfileEditScreen(backStack = backStack, currentUser = key.currentUser)
+                    ProfileEditScreen(backStack, currentUser = key.currentUser)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
-                    FriendsScreen(backStack)
+                    FriendsScreen(backStack, notificationBadgeViewModel)
                 }
 
                 is Screens.Games -> NavEntry(key = key) {
-                    GamesScreen(backStack)
+                    GamesScreen(backStack, notificationBadgeViewModel)
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    SessionSetupScreen(
-                        backStack = backStack
-                    )
+                    SessionSetupScreen(backStack, notificationBadgeViewModel)
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    SessionScoreScreen(
-                        backStack = backStack
-                    )
+                    SessionScoreScreen(backStack, notificationBadgeViewModel)
                 }
 
                 is Screens.RoundDetail -> NavEntry(key = key) {
                     RoundDetailScreen(
-                        backStack = backStack,
+                        backStack,
+                        notificationBadgeViewModel,
                         sessionId = key.sessionId,
                         turn = key.turn,
                     )
@@ -135,12 +146,16 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.GameDetail -> NavEntry(key = key) {
                     GameDetailScreen(
                         gameId = key.gameId,
-                        backStack = backStack
+                        backStack,
+                        notificationBadgeViewModel
                     )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack = backStack)
+                    NotificationsScreen(
+                        backStack,
+                        notificationBadgeViewModel,
+                    )
                 }
 
                 is Screens.Login -> NavEntry(key = key) {
@@ -159,7 +174,8 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Search -> NavEntry(key = key) {
                     SearchScreen(
-                        backStack = backStack,
+                        backStack,
+                        notificationBadgeViewModel,
                         // pass query string from nav key to screen
                         initialQuery = key.query,
                         searchViewModel = koinViewModel(),
@@ -174,11 +190,12 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Leaderboard -> NavEntry(key = key) {
                     LeaderboardScreen(
-                        backStack = backStack,
-                        gameId = key.gameId
+                        gameId = key.gameId,
+                        backStack,
+                        notificationBadgeViewModel
                     )
                 }
-                
+
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }

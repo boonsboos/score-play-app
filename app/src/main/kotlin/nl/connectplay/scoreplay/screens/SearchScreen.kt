@@ -20,11 +20,13 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.SearchListItem
 import nl.connectplay.scoreplay.ui.components.FilterButton
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
 fun SearchScreen(
     backStack: NavBackStack<NavKey>, // used for navigation history
+    badgeViewModel: NotificationBadgeViewModel,
     modifier: Modifier = Modifier,
     initialQuery: String? = null, // first search string that the screen gets
     searchViewModel: SearchViewModel,
@@ -48,7 +50,7 @@ fun SearchScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Search", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack) }
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

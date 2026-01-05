@@ -61,6 +61,7 @@ import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import nl.connectplay.scoreplay.utilities.formatted
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import kotlin.time.ExperimentalTime
 
 /**
@@ -73,6 +74,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun NotificationsScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     notificationViewModel: NotificationListViewModel = koinViewModel(),
 ) {
     val notifications by notificationViewModel.state.collectAsState()
@@ -85,6 +87,10 @@ fun NotificationsScreen(
     val selectedNotification =
         remember { mutableStateOf<NotificationUi?>(null) } // holds the selected notification
 
+    // clears the badge if the user is on NotificationsScreen, so the user doesnt see the badge
+    LaunchedEffect(Unit) {
+        badgeViewModel.clearBadge()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(), // the screen is filled entire size
@@ -95,7 +101,7 @@ fun NotificationsScreen(
             )
         }, // added the composable topbar
         // added the composable bottombar
-        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
@@ -262,10 +268,11 @@ fun NotificationRow(
         headlineContent = headlineContent,
         supportingContent = supportingContent,
         colors = ListItemDefaults.colors()
-            .copy(containerColor = if (read)
-                MaterialTheme.colorScheme.surfaceContainerLowest
-            else
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            .copy(
+                containerColor = if (read)
+                    MaterialTheme.colorScheme.surfaceContainerLowest
+                else
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             ),
         modifier = Modifier
             .fillMaxWidth()
@@ -347,10 +354,13 @@ fun HighscoreNotificationItem(
         read = read,
         onClick = onClick,
         headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
-        leadingContent = { Icon(
-            imageVector = Icons.Filled.EmojiEvents,
-            contentDescription = null,
-            modifier = Modifier.size(50.dp)) },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.EmojiEvents,
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        },
         supportingContent = {
             if (userDto != null) {
                 Text("${userDto.username} got a score of ${event.score.score}!")

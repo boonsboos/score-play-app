@@ -17,12 +17,14 @@ import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
     backStack: NavBackStack<NavKey>,
+    badgeViewModel: NotificationBadgeViewModel,
     onLogout: () -> Unit,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
@@ -31,7 +33,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Home", backStack = backStack) },
         // bottombar uses the backStack on witch screen we are
-        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
+        bottomBar = { BottomNavBar(backStack, badgeViewModel) }) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
