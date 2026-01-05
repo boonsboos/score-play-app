@@ -2,9 +2,6 @@ package nl.connectplay.scoreplay.api
 
 import android.util.Log
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.expectSuccess
-import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -13,10 +10,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.first
-import nl.connectplay.scoreplay.models.dto.score.SessionPlayerDto
-import nl.connectplay.scoreplay.models.session.CreateSessionRequest
-import nl.connectplay.scoreplay.models.session.CreateSessionResponse
-import nl.connectplay.scoreplay.models.session.CreateSessionScoreRequest
+import nl.connectplay.scoreplay.models.dto.CreateSessionDto
+import nl.connectplay.scoreplay.models.dto.CreateScoreDto
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
 /**
@@ -26,7 +21,7 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
  * @property client The HttpClient used to send requests to the server
  */
 class SessionApi(private val client: HttpClient, private val tokenDataStore: TokenDataStore) {
-    suspend fun createSession(payload: CreateSessionRequest): String {
+    suspend fun createSession(payload: CreateSessionDto): String {
         val resp =  client.post(Routes.Sessions.root) {
             contentType(ContentType.Application.Json)   // let the server know we will send JSON
             bearerAuth(tokenDataStore.token.first() ?: "")
@@ -44,7 +39,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
         return sessionId
     }
 
-    suspend fun addScores(sessionId: String, payload: List<CreateSessionScoreRequest>) {
+    suspend fun addScores(sessionId: String, payload: List<CreateScoreDto>) {
         val resp = client.post(Routes.Sessions.Scores.all(sessionId)) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.first() ?: "")

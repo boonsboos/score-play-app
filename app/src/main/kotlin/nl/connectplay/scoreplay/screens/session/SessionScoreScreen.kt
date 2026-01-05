@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.screens.session
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,8 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.FloatingActionButton
@@ -54,25 +53,25 @@ import org.koin.androidx.compose.koinViewModel
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
 ) {
+    // Share the same SessionViewModel across session screens by scoping it to the Activity.
     val activity = LocalContext.current as ComponentActivity
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
+
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
+    // Load persisted session snapshot when entering this screen (only if not already in state).
     LaunchedEffect(Unit) {
         if (state.roomSession == null) {
             sessionViewModel.loadActiveSessionFromDb()
         }
     }
 
+    // Screen-local UI state for dialogs.
     var showNewRoundDialog by remember { mutableStateOf((false)) }
     var showFinishDialog by remember { mutableStateOf((false)) }
 
-    Log.d(
-        "SessionScoreScreen",
-        "state = $state"
-    )
-
+    // SpeedDial actions: show "Finish" only when at least one round exists.
     val actions = buildList {
         if (state.turns.isNotEmpty()) {
             add(
@@ -108,7 +107,7 @@ fun SessionScoreScreen(
                         .padding(start = 32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Setup Screen"
                     )
                 }
@@ -134,6 +133,7 @@ fun SessionScoreScreen(
 
             val session = state.roomSession
 
+            // Empty state if there's no session yet or no rounds recorded.
             if (session == null || state.turns.isEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -153,6 +153,7 @@ fun SessionScoreScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
+                // List rounds; tapping navigates to round detail for that turn.
                 LazyColumn {
                     items(state.turns) { turn ->
                         ListItem(
@@ -165,7 +166,6 @@ fun SessionScoreScreen(
                             modifier = Modifier.clickable {
                                 backStack.add(Screens.RoundDetail(sessionId = session.id, turn = turn))
                             }
-
                         )
                     }
                 }
@@ -174,6 +174,7 @@ fun SessionScoreScreen(
         }
     }
 
+    // Add round dialog: only show when we have players available.
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
         AddRoundDialog(
             players = state.sessionPlayers,
@@ -186,6 +187,7 @@ fun SessionScoreScreen(
         )
     }
 
+    // Finish confirmation; navigates to finish screen (winner/visibility/upload).
     if (showFinishDialog) {
         FinishSessionDialog(
             turn = state.turns.size,

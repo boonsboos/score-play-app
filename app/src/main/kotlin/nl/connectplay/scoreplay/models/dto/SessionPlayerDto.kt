@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.models.dto.score
+package nl.connectplay.scoreplay.models.dto
 
 import kotlinx.serialization.Serializable
 

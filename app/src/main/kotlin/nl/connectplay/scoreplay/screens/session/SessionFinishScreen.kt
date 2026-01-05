@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -49,12 +48,14 @@ import org.koin.androidx.compose.koinViewModel
 fun SessionFinishScreen(
     backStack: NavBackStack<NavKey>,
 ) {
+    // Use the Activity as the ViewModelStoreOwner so this VM instance is shared across session screens.
     val activity = LocalContext.current as ComponentActivity
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
 
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
+    // Load the persisted session snapshot once when the screen enters, including winner calculation.
     LaunchedEffect(Unit) {
         sessionViewModel.loadActiveSessionFromDb(computeWinner = true)
     }
@@ -62,7 +63,7 @@ fun SessionFinishScreen(
     val winnerName = state.winnerPlayer?.let { it.guestName ?: "You" }
     val winnerScore = state.winnerScore ?: 0.0
 
-    var selectedVisibility by remember { mutableStateOf(state.visibility) }
+    var selectedVisibility by remember(state.visibility) { mutableStateOf(state.visibility) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -111,11 +112,15 @@ fun SessionFinishScreen(
 
             Spacer(Modifier.height(8.dp))
 
+            // Visibility selection updates both local UI state and persists to Room via the event.
             SingleChoiceSegmentedButtonRow(modifier = Modifier) {
                 SessionVisibility.entries.forEachIndexed { index, option ->
                     SegmentedButton(
                         selected = selectedVisibility == option,
-                        onClick = { selectedVisibility = option },
+                        onClick = {
+                            selectedVisibility = option
+                            onEvent(SessionEvent.UpdateVisibility(option))
+                        },
                         shape = SegmentedButtonDefaults.itemShape(
                             index = index,
                             count = SessionVisibility.entries.size
