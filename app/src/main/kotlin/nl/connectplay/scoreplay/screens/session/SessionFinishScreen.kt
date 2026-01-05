@@ -19,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -55,9 +57,19 @@ fun SessionFinishScreen(
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
     // Load the persisted session snapshot once when the screen enters, including winner calculation.
     LaunchedEffect(Unit) {
         sessionViewModel.loadActiveSessionFromDb(computeWinner = true)
+    }
+
+    // Collect one-off snackbar events
+    LaunchedEffect(Unit) {
+        sessionViewModel.snackbar.collect { msg ->
+            snackbarHostState.showSnackbar(msg)
+        }
     }
 
     val winnerName = state.winnerPlayer?.let { it.guestName ?: "You" }
@@ -67,6 +79,7 @@ fun SessionFinishScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(

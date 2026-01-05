@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
@@ -54,6 +56,10 @@ class SessionViewModel(
     // NOTE: Shared loading flag for multiple startup fetches; may toggle twice during init.
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
+
+    // Snackbar for success message
+    private val _snackbar = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val snackbar = _snackbar.asSharedFlow()
 
     private suspend fun getUserId(): Int? {
         return tokenDataStore.userId.firstOrNull()
@@ -367,7 +373,6 @@ class SessionViewModel(
 
                         // If createResp is a DTO: use createResp.sessionId. If it already is a String, rename createResp -> remoteSessionId.
                         val remoteSessionId: String = createResp
-                        Log.d("Session Created on Backend", "SessionID: $remoteSessionId")
 
                         /**
                          * Room scores reference players by local sessionPlayerId.
@@ -403,6 +408,8 @@ class SessionViewModel(
                          * Likely requires marking the backend session as finished before accepting scores,
                          * or using the correct endpoint/flow for creating + finishing + uploading.
                          */
+
+                        _snackbar.tryEmit("Session Uploaded Successfully!")
 
                     } catch (e: Exception) {
                         Log.e("SessionVM", "FinishSession failed", e)
