@@ -20,12 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.models.session.PlayerUi
 
-data class PlayerUi(
-    val id: Int,
-    val name: String,
-    val isCurrentUser: Boolean = false
-)
 
 @Composable
 fun PlayerRow(
