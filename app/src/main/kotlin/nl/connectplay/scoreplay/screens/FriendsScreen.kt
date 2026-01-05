@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +32,7 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import org.koin.androidx.compose.koinViewModel
+import nl.connectplay.scoreplay.ui.components.LoadingSection
 
 @Composable
 fun FriendsScreen(
@@ -60,23 +62,14 @@ fun FriendsScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        LinearProgressIndicator()
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Loading…")
-                    }
+                    LoadingSection()
                 }
                 else -> {
                     FriendList(
                         friendRequests = uiState.friendRequests,
                         friends = uiState.friends,
-                        viewModel = friendViewModel
+                        viewModel = friendViewModel,
+                        backStack = backStack
                     )
                 }
             }
@@ -88,7 +81,8 @@ fun FriendsScreen(
 fun FriendList(
     friendRequests: FriendRequestListResponse,
     friends: List<UserFriend>,
-    viewModel: FriendViewModel
+    viewModel: FriendViewModel,
+    backStack: NavBackStack<NavKey>
 ) {
     val listState = rememberLazyListState()
 
@@ -112,7 +106,8 @@ fun FriendList(
                 PendingFriendRequestRow(
                     friend = request,
                     onAccept = { viewModel.approveRequest(request.user.id) },
-                    onDecline = { viewModel.declineRequest(request.user.id) }
+                    onDecline = { viewModel.declineRequest(request.user.id) },
+                    backStack = backStack
                 )
             }
         }
@@ -128,7 +123,10 @@ fun FriendList(
             }
 
             items(friendRequests.outstanding) { request ->
-                OutstandingFriendRequestRow(request)
+                OutstandingFriendRequestRow(
+                    request,
+                    backStack = backStack
+                )
             }
         }
 
@@ -143,7 +141,10 @@ fun FriendList(
             }
 
             items(friends) { friend ->
-                FriendRow(friend)
+                FriendRow(
+                    friend,
+                    backStack =  backStack
+                )
             }
         } else {
             item {
@@ -158,7 +159,7 @@ fun FriendList(
 }
 
 @Composable
-fun FriendRow(friend: UserFriend) {
+fun FriendRow(friend: UserFriend, backStack: NavBackStack<NavKey>) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
@@ -170,6 +171,7 @@ fun FriendRow(friend: UserFriend) {
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable { backStack.add(Screens.Profile(friend.user.id)) },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -192,7 +194,8 @@ fun FriendRow(friend: UserFriend) {
 fun PendingFriendRequestRow(
     friend: UserFriend,
     onAccept: () -> Unit,
-    onDecline: () -> Unit
+    onDecline: () -> Unit,
+    backStack: NavBackStack<NavKey>
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -205,6 +208,7 @@ fun PendingFriendRequestRow(
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable { backStack.add(Screens.Profile(friend.user.id)) }
     ) {
         Row(
             modifier = Modifier
@@ -268,7 +272,7 @@ fun PendingFriendRequestRow(
 }
 
 @Composable
-fun OutstandingFriendRequestRow(request: UserFriend) {
+fun OutstandingFriendRequestRow(request: UserFriend, backStack: NavBackStack<NavKey>) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
@@ -280,6 +284,8 @@ fun OutstandingFriendRequestRow(request: UserFriend) {
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable { backStack.add(Screens.Profile(request.user.id)) }
+
     ) {
         Row(
             modifier = Modifier
