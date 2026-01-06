@@ -79,7 +79,10 @@ object Routes {
 //
     object Sessions {
         const val root = "/sessions"
-        //fun byId(sessionId: String) = "/sessions/$sessionId"
+
+        fun deleteSession(sessionId: String) = "/sessions/$sessionId"
+
+        fun loadSessionById(targetId: Int, sessionId: String) = "/users/$targetId/sessions/$sessionId"
 
 //        object Players {
 //            fun all(sessionId: String) = "/sessions/$sessionId/players"

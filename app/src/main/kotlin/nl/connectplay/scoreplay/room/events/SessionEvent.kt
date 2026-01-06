@@ -1,7 +1,6 @@
 package nl.connectplay.scoreplay.room.events
 
 import nl.connectplay.scoreplay.models.SessionVisibility
-import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
 sealed interface SessionEvent {

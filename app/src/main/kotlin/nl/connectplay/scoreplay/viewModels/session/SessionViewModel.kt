@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
+import nl.connectplay.scoreplay.api.SessionApi
+import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.models.session.Session
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -27,6 +30,7 @@ class SessionViewModel(
     private val sessionPlayerDao: SessionPlayerDao,
     private val sessionScoreDao: SessionScoreDao,
     private val gameApi: GameApi,
+    private val sessionApi: SessionApi,
     private val friendsApi: FriendsApi,
     private val tokenDataStore: TokenDataStore
 ): ViewModel() {
@@ -45,8 +49,10 @@ class SessionViewModel(
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
+
     private suspend fun getUserId(): Int? {
         return tokenDataStore.userId.firstOrNull()
+
     }
 
     init {
@@ -134,7 +140,7 @@ class SessionViewModel(
 
                     val ownerPlayer = RoomSessionPlayer(
                         userId = event.userId,
-                        guestName = null
+                        guestName = null,
                     )
 
                     current.copy(
@@ -152,7 +158,15 @@ class SessionViewModel(
                     val currentUserId = _state.value.userId
                     _state.value = SessionState(
                         status = SessionStatus.DRAFT,
-                        userId = currentUserId
+                        userId = currentUserId,
+                        session = null,
+                        roomSession = null,
+                        sessionPlayers = emptyList(),
+                        scores = emptyList(),
+                        turns = emptyList(),
+                        sessionId = null,
+                        gameId = null,
+                        visibility = SessionVisibility.ANONYMISED
                     )
                 }
             }
@@ -220,7 +234,7 @@ class SessionViewModel(
                         current.copy(
                             sessionPlayers = current.sessionPlayers + RoomSessionPlayer(
                                 userId = event.userId,
-                                guestName = event.guestName
+                                guestName = event.guestName,
                             )
                         )
                     }
@@ -261,6 +275,55 @@ class SessionViewModel(
                     // refresh state
                     loadActiveSessionFromDb()
                 }
+            }
+        }
+    }
+
+    fun loadSessionById(targetId: Int, sessionId: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val session: Session = sessionApi.byId(targetId, sessionId)
+
+                _state.update { current ->
+                    current.copy(
+                        session = session,
+                        sessionId = session.sessionId,
+                        gameId = session.game.id,
+                        userId = session.hostId,
+                        sessionPlayers = emptyList(),
+                        status = SessionStatus.SAVED,
+                        visibility = session.visibility
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("SessionVM", "Failed to load session by id=$sessionId for user=$targetId", e)
+                _state.update { it.copy(status = SessionStatus.ERROR) }
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun deleteSession() {
+        viewModelScope.launch {
+            val sessionId = _state.value.sessionId
+            if (sessionId.isNullOrEmpty()) {
+                Log.w("SessionVM", "No session to delete")
+                return@launch
+            }
+
+            try {
+                sessionApi.deleteSession(sessionId)
+
+                _state.value = SessionState(
+                    status = SessionStatus.DRAFT,
+                    userId = _state.value.userId
+                )
+                Log.d("SessionVM", "Session deleted")
+            } catch (e: Exception) {
+                Log.e("SessionVM", "Failed to delete session $sessionId", e)
             }
         }
     }

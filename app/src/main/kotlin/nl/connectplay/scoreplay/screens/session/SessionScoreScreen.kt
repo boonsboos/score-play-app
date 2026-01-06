@@ -1,7 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,6 @@ import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
-import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 

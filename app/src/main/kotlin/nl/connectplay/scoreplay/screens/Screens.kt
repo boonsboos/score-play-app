@@ -31,6 +31,9 @@ object Screens {
     data class RoundDetail(val sessionId: Int, val turn: Int) : NavKey
 
     @Serializable
+    data class SessionDetail(val sessionId: String, val targetId: Int) : NavKey
+
+    @Serializable
     data class GameDetail(val gameId: Int) : NavKey
 
     @Serializable
