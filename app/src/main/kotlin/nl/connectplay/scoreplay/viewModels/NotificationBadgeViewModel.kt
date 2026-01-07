@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +15,15 @@ import io.ktor.sse.ServerSentEvent
 import kotlinx.serialization.json.Json
 import nl.connectplay.scoreplay.api.Routes
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
+import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
+import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
+import nl.connectplay.scoreplay.ui.notifications.NotificationBuilder
 
-
-class NotificationBadgeViewModel(private val httpClient: HttpClient) : ViewModel() {
+class NotificationBadgeViewModel(
+    private val httpClient: HttpClient,
+    private val appContext: Context
+) : ViewModel() {
     private val _hasUnreadNotifications = MutableStateFlow(false)
     val hasUnreadNotifications = _hasUnreadNotifications.asStateFlow()
 
@@ -38,8 +45,9 @@ class NotificationBadgeViewModel(private val httpClient: HttpClient) : ViewModel
                 }
 
                 session.incoming.collect { processSseEvent(it) }
+
             } catch (e: Exception) {
-                Log.w("SSE", "SSE session encountered an error ${e.message}", e)
+                Log.e("SSE", "SSE session encountered an error ${e.message}", e)
             }
         }
     }
@@ -54,24 +62,46 @@ class NotificationBadgeViewModel(private val httpClient: HttpClient) : ViewModel
             // further processing
             processEvent(eventModel)
 
-            showBadge() // notify the user they have a notification, in the app itself
         } catch (e: Exception) {
             Log.e("SSE", "Failed to decode event: ${e.message}", e)
         }
     }
 
     private suspend fun processEvent(event: BaseEvent) {
-        TODO("Show push notification")
+        Log.d("SSE_NOTIFY", "processEvent called with ${event::class.simpleName}")
+        when (event) {
+            is FriendRequestEvent -> {
+                val title = "New Friendsrequest"
+                val message = "${event.from.username} has send you a friendrequest!"
+                // shows the notification for the friend request event
+                NotificationBuilder.showNotification(appContext, title, message)
+            }
+
+            is FriendRequestReplyEvent -> {
+                val title = "Reaction of friendsrequest"
+                val message =
+                    // because there are two options there must be a check to check if the friend request was accepted or not
+                    if (event.accepts) {
+                        "${event.respondingUser.username} has accepted your friendrequest"
+                    } else {
+                        "${event.respondingUser.username} has declined your friendrequest"
+                    }
+                NotificationBuilder.showNotification(appContext, title, message)
+            }
+
+            is HighscoreEvent -> {
+                val title = "Nieuwe highscore on game ${event.game.name}"
+                val message = if (event.score.sessionPlayer.guest != null) {
+                    "${event.score.sessionPlayer.guest} has a score of: ${event.score.score}!"
+                } else {
+                    "${event.score.sessionPlayer.userId} has a score of: ${event.score.score}!"
+                }
+                NotificationBuilder.showNotification(appContext, title, message)
+            }
+        }
     }
 
-    fun showBadge() {
-        _hasUnreadNotifications.value =
-            true // update the state to check if there is at least one unread notification
+    fun setHasUnread(hasUnread: Boolean) {
+        _hasUnreadNotifications.value = hasUnread
     }
-
-    fun clearBadge() {
-        _hasUnreadNotifications.value =
-            false // resets the badge state so if the user has seen the notifications
-    }
-
 }

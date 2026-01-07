@@ -41,9 +41,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
-    val notificationBadgeViewModel = koinViewModel<NotificationBadgeViewModel>()
+    val notificationBadgeViewModel = koinInject<NotificationBadgeViewModel>()
     val tokenState by mainViewModel.tokenState.collectAsState()
-
 
     if (!tokenState.isLoaded) return
 

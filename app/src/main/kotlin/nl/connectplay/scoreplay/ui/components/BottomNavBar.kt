@@ -86,7 +86,6 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>, badgeViewModel: NotificationBa
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = "Notifications"
                     )
-
                     // badge will be removed when client is on notificationscreen
                     if (hasUnreadNotifications && currentScreen != Screens.Notifications) {
                         Box(
