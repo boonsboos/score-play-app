@@ -8,7 +8,7 @@ package nl.connectplay.scoreplay.models.search
  */
 sealed class SearchResult {
     data class UserResult(
-        val userId: String,
+        val userId: Int,
         val username: String,
         val pictureUrl: String? = null
     ) : SearchResult()
