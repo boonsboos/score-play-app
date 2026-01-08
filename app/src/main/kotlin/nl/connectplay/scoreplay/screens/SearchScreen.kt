@@ -20,7 +20,6 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.SearchListItem
 import nl.connectplay.scoreplay.ui.components.FilterButton
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
