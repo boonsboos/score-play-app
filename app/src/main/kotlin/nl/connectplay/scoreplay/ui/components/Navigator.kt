@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.ui.components
 
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+@RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()

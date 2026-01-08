@@ -1,5 +1,7 @@
 package nl.connectplay.scoreplay.screens.home
 
+import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
@@ -39,10 +42,10 @@ import nl.connectplay.scoreplay.viewModels.UiState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun HomeScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel(),
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
     val followedGames by homeViewModel.followedState.collectAsStateWithLifecycle()
@@ -58,6 +61,10 @@ fun HomeScreen(
             }
         }
     }
+
+    val activity = LocalContext.current as? ComponentActivity ?: return
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
+    val onEvent = sessionViewModel::onEvent
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -82,7 +89,7 @@ fun HomeScreen(
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
-                        sessionViewModel.onEvent(SessionEvent.StartNewSession)
+                        onEvent(SessionEvent.StartNewSession)
                         backStack.add(Screens.SessionSetup)
                     }
                 ) {
