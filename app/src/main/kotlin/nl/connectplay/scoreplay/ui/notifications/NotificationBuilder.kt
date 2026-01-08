@@ -26,7 +26,7 @@ object NotificationBuilder {
                 .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: change the Icon to Notification Icon
                 .setContentTitle(title)
                 .setContentText(message)
-                // set the importance level so the notifcations will be shown as normal alert
+                // set the importance level so the notifications will be shown as normal alert
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 // removes notifications when the user clicks on it
                 .setAutoCancel(true)
