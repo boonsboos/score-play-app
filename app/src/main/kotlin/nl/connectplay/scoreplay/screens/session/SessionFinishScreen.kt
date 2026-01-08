@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,12 +47,13 @@ import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun SessionFinishScreen(
     backStack: NavBackStack<NavKey>,
 ) {
     // Use the Activity as the ViewModelStoreOwner so this VM instance is shared across session screens.
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalContext.current as? ComponentActivity ?: return
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
 
     val state by sessionViewModel.state.collectAsState()

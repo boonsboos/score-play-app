@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -22,12 +23,13 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun HomeScreen(
     backStack: NavBackStack<NavKey>,
     onLogout: () -> Unit,
 ) {
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalContext.current as? ComponentActivity ?: return
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
     val onEvent = sessionViewModel::onEvent
 

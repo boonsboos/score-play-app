@@ -381,16 +381,23 @@ class SessionViewModel(
                         val playersById = players.associateBy { it.sessionPlayerId }
 
                         /** 2. Build bulk payload of all persisted turns for upload. */
-                        val payload: List<CreateScoreDto> = scores.map { s ->
-                            val p = playersById[s.sessionPlayerId]
-                                ?: error("No player found for sessionPlayerId=${s.sessionPlayerId}")
+                        val payload: List<CreateScoreDto> = scores.map { score ->
+                            val player = playersById[score.sessionPlayerId]
+
+                            if (player == null) {
+                                Log.e(
+                                    "FinishSession",
+                                    "Skipping score: no player for sessionPlayerId=${score.sessionPlayerId}, scoreId=${score.id}"
+                                )
+                                return@launch
+                            }
 
                             CreateScoreDto(
-                                score = s.score,
-                                turn = s.turn,
+                                score = score.score,
+                                turn = score.turn,
                                 sessionPlayer = SessionPlayerDto(
-                                    userId = p.userId,
-                                    guest = p.guestName
+                                    userId = player.userId,
+                                    guest = player.guestName
                                 )
                             )
                         }

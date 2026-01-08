@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,12 +50,13 @@ import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
 ) {
     // Share the same SessionViewModel across session screens by scoping it to the Activity.
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalContext.current as? ComponentActivity ?: return
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
 
     val state by sessionViewModel.state.collectAsState()

@@ -59,7 +59,7 @@ fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
 ) {
     // Use the Activity as ViewModelStoreOwner so the same SessionViewModel instance is shared across session screens.
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalContext.current as? ComponentActivity ?: return
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
 
     // Collect UI state (recomposes on changes).
