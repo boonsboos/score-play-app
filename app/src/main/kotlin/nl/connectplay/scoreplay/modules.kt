@@ -35,6 +35,7 @@ import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionDetailViewModel
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.android.ext.koin.androidContext
 
@@ -74,6 +75,7 @@ val viewModelsModule = module {
     viewModelOf(::GameDetailViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::LeaderboardViewModel)
+    viewModelOf(::SessionDetailViewModel)
 }
 
 // Koin module to provide networking / API dependencies

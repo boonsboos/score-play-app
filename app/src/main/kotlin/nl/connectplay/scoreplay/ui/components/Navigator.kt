@@ -30,6 +30,7 @@ import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
 import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
+import nl.connectplay.scoreplay.screens.session.SessionDetailScreen
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -136,6 +137,14 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.SessionFinish -> NavEntry(key = key) {
                     SessionFinishScreen(
                         backStack = backStack
+                    )
+                }
+
+                is Screens.SessionDetail -> NavEntry(key = key) {
+                    SessionDetailScreen(
+                        backStack = backStack,
+                        sessionId = key.sessionId,
+                        targetId = key.targetId,
                     )
                 }
 
