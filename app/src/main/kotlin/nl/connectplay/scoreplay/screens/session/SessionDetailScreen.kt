@@ -1,8 +1,6 @@
 package nl.connectplay.scoreplay.screens.session
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
@@ -17,7 +15,7 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionDetailViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -25,17 +23,18 @@ fun SessionDetailScreen(
     backStack: NavBackStack<NavKey>,
     sessionId: String,
     targetId: Int,
-    sessionViewModel: SessionViewModel = koinViewModel()
+    sessionViewModel: SessionDetailViewModel = koinViewModel()
 ) {
 
     LaunchedEffect(sessionId) {
-        sessionViewModel.loadSessionById(targetId, sessionId)
+        sessionViewModel.loadSession(targetId, sessionId)
     }
 
     val state by sessionViewModel.state.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val game = state.session?.game
+    val session = state.session
 
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Session Detail", backStack = backStack) }
@@ -69,41 +68,11 @@ fun SessionDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Column {
-                Text(
-                    "Session ID: ${state.sessionId ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    "Game: ${game?.name ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    "Owner ID: ${state.userId ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    "Visibility: ${state.visibility}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text("Session ID: ${session?.sessionId ?: "N/A"}")
+                Text("Game: ${game?.name ?: "N/A"}")
+                Text("Host ID: ${session?.hostId ?: "N/A"}")
+                Text("Visibility: ${session?.visibility ?: "N/A"}")
                 Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            Text("Players", style = MaterialTheme.typography.titleMedium)
-            if (state.sessionPlayers.isEmpty()) {
-                Text("No players found", style = MaterialTheme.typography.bodyMedium)
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(state.sessionPlayers) { player ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(player.guestName ?: "User ${player.userId}")
-                        }
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

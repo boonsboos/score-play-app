@@ -31,9 +31,9 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
         }.body()
     }
 
-    suspend fun byId(targetId: Int, sessionId: String): Session {
+    suspend fun loadSessionById(userId: Int, sessionId: String): Session {
         try {
-            val res = client.get(Routes.Sessions.loadSessionById(targetId, sessionId)) {
+            val res = client.get(Routes.Sessions.byUserAndSessionId(userId, sessionId)) {
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
@@ -56,9 +56,9 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
         }
     }
 
-    suspend fun deleteSession(sessionId: String) {
+    suspend fun deleteSessionById(sessionId: String) {
         try {
-            val res = client.delete(Routes.Sessions.deleteSession(sessionId)) {
+            val res = client.delete(Routes.Sessions.byId(sessionId)) {
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
