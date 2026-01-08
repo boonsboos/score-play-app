@@ -49,10 +49,13 @@ object Screens {
     data class Profile(val userId: Int? = null) : NavKey
 
     @Serializable
-    data class Leaderboard(val gameId: Int) : NavKey
+    data class EditProfile(val currentUser: UserProfile) : NavKey
 
     @Serializable
-    data class EditProfile(val currentUser: UserProfile) : NavKey
+    data class FollowedGames(val userId: Int?=null) : NavKey
+
+    @Serializable
+    data class Leaderboard(val gameId: Int) : NavKey
 
     @Serializable
     data class ExampleDetail(val id: Int) : NavKey
