@@ -8,8 +8,6 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import io.ktor.client.plugins.sse.SSE
-import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration.Companion.seconds
 
 object Http {
     val client = HttpClient(OkHttp) {
