@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.screens.session
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,16 +38,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.PlayerUi
-import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
-import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -57,12 +55,11 @@ import org.koin.compose.koinInject
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel()
+    sessionViewModel: SessionViewModel = koinViewModel(),
+    tokenStore: TokenDataStore = koinInject()
 ) {
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
-
-    val tokenStore: TokenDataStore = koinInject()
     val userId by tokenStore.userId.collectAsState(null)
 
     LaunchedEffect(userId) {
@@ -100,7 +97,7 @@ fun SessionSetupScreen(
         topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                onEvent(SessionEvent.SaveSession)
+                sessionViewModel.onEvent(SessionEvent.SaveSession)
                 backStack.add(Screens.SessionScore)
             }) {
                 Icon(
@@ -195,7 +192,7 @@ fun SessionSetupScreen(
                                         searchQuery = game.name
                                         expanded = false
 
-                                        onEvent(
+                                        sessionViewModel.onEvent(
                                             SessionEvent.SetGame(game.id)
                                         )
                                     }
@@ -279,7 +276,7 @@ fun SessionSetupScreen(
                     ),
                     onRemove = {
                         if (!isOwner) {
-                            onEvent(
+                            sessionViewModel.onEvent(
                                 SessionEvent.RemovePlayer(
                                     userId = player.userId,
                                     guestName = player.guestName
@@ -366,15 +363,17 @@ fun SessionSetupScreen(
                             newPlayerName.isNotBlank(),
                         onClick = {
                             if (isFriendMode) {
-                                val friend =
-                                    friends.first { it.user.id == selectedFriendId }
+                                val friend = friends.first { it.user.id == selectedFriendId }
                                 onEvent(
-                                    SessionEvent.AddPlayer(friend.user.id, friend.user.username)
+                                    SessionEvent.AddPlayer(
+                                        friend.user.id,
+                                        friend.user.username
+                                    )
                                 )
                             } else {
                                 val userId = state.userId
                                 if (userId != null) {
-                                    onEvent(
+                                    sessionViewModel.onEvent(
                                         SessionEvent.AddPlayer(
                                             userId = userId,
                                             guestName = newPlayerName.trim()

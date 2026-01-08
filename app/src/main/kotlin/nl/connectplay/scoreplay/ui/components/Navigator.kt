@@ -4,7 +4,6 @@ import RoundDetailScreen
 import android.Manifest
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,7 +17,7 @@ import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
-import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.home.HomeScreen
 import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
@@ -32,10 +31,8 @@ import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
-@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
@@ -89,16 +86,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Home -> NavEntry(key = key) {
-                    HomeScreen(
-                        backStack,
-                        onLogout = {
-                            mainViewModel.logout()
-                            backStack.apply {
-                                while (isNotEmpty()) removeLast()
-                                add(Screens.Login)
-                            }
-                        }
-                    )
+                    HomeScreen(backStack)
                 }
 
                 is Screens.Profile -> NavEntry(key = key) {
