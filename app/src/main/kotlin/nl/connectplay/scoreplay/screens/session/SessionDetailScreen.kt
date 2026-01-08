@@ -125,7 +125,7 @@ fun SessionDetailScreen(
                             contentDescription = "Delete",
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(32.dp)
                                 .clickable { showDeleteDialog = true }
                                 .padding(4.dp)
                         )
@@ -135,7 +135,7 @@ fun SessionDetailScreen(
 
             if (scores.isNullOrEmpty()) {
                 item {
-                    Text("No scores not found")
+                    Text("No scores found")
                 }
             } else {
                 val rounds = scores
