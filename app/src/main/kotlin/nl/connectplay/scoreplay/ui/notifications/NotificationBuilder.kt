@@ -23,7 +23,7 @@ object NotificationBuilder {
                 // the channel determines the sound, importance and visibility
                 NotificationChannelProvider.CHANNEL_ID
             )
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO() change the Icon to Notification Icon
+                .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: change the Icon to Notification Icon
                 .setContentTitle(title)
                 .setContentText(message)
                 // set the importance level so the notifcations will be shown as normal alert
