@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.ui.components
 
-import RoundDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel

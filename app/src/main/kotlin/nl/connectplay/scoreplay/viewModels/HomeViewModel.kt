@@ -37,12 +37,7 @@ class HomeViewModel(
     private fun observeUserId() {
         userId
             .onEach { id ->
-                if (id == null) {
-                    _followedState.value = UiState.Error(
-                        "Invalid or expired token",
-                        InvalidTokenException("Invalid or expired token")
-                    )
-                } else {
+                if (id != null) {
                     loadRecentGames(id)
                     loadFollowedGames(id)
                 }

@@ -73,30 +73,31 @@ class ProfileApi(
 
     suspend fun getRecentGames(userId: Int): List<Game> =
         try {
-            val res = client.get(Routes.Users.recent(userId)) {
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-            }
-
-            when (res.status.value) {
-                204 -> {
-                    emptyList()
-                }
-
-                401 -> {
-                    tokenDataStore.clearToken()
-                    throw InvalidTokenException("Invalid or expired token")
-                }
-
-                502 -> {
-                    throw Exception("Bad Gateway")
-                }
-
-                else -> {
-                    res.body()
-                }
-            }
+//            val res = client.get(Routes.Users.recent(userId)) {
+//                contentType(ContentType.Application.Json)
+//                accept(ContentType.Application.Json)
+//                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+//            }
+//
+//            when (res.status.value) {
+//                204 -> {
+//                    emptyList()
+//                }
+//
+//                401 -> {
+//                    tokenDataStore.clearToken()
+//                    throw InvalidTokenException("Invalid or expired token")
+//                }
+//
+//                502 -> {
+//                    throw Exception("Bad Gateway")
+//                }
+//
+//                else -> {
+//                    res.body()
+//                }
+//            }
+            listOf()
         } catch (e: NoTransformationFoundException) {
             e.printStackTrace()
             throw Exception("Failed to fetch followed games", e)

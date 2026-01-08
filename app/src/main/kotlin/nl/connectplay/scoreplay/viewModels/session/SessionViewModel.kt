@@ -50,35 +50,21 @@ class SessionViewModel(
     }
 
     init {
+        _loading.update { true }
         fetchGames()
         fetchFriends()
-
-        viewModelScope.launch {
-            friends.collect { list ->
-                Log.d("SessionVM", "friends updated: size=${list.size} -> $list")
-            }
-        }
-
-        viewModelScope.launch {
-            games.collect { list ->
-                Log.d("SessionVM", "games updated: size=${list.size} -> $list")
-            }
-        }
+        _loading.update { false }
     }
 
     private fun fetchGames() {
         viewModelScope.launch {
             if (_games.value.isNotEmpty()) return@launch
 
-            _loading.update { true }
-
             try {
                 val games = gameApi.all()
                 _games.update { games }
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch games", e)
-            } finally {
-                _loading.update { false }
             }
         }
     }
@@ -89,15 +75,11 @@ class SessionViewModel(
 
             val userId = getUserId() ?: return@launch
 
-            _loading.update { true }
-
             try {
                 val friends = friendsApi.getFriends(userId)
                 _friends.update { friends }
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Failed to fetch friends", e)
-            } finally {
-                _loading.update { false }
             }
         }
     }
