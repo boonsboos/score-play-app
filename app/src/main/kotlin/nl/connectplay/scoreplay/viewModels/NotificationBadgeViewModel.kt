@@ -30,7 +30,7 @@ class NotificationBadgeViewModel(
     val hasUnreadNotifications =
         _hasUnreadNotifications.asStateFlow() // with the asStateFlow() you create a read-only
 
-    // this will ignore the fields that ar note defined in our data models
+    // this will ignore the fields that are not defined in our data models
     private val json = Json {
         ignoreUnknownKeys = true
     }
