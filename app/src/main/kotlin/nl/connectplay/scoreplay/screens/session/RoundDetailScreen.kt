@@ -16,6 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,8 +28,8 @@ import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.ui.components.session.FinishSessionDialog
 import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
-import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -52,6 +55,8 @@ fun RoundDetailScreen(
         }
     }
 
+    var showFinishDialog by remember { mutableStateOf((false)) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Round $turn", backStack = backStack) },
@@ -74,7 +79,7 @@ fun RoundDetailScreen(
                 }
 
                 FloatingActionButton(
-                    onClick = { /* finish */ },
+                    onClick = { showFinishDialog = true },
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
                     Icon(Icons.Default.Check, contentDescription = "Finish")
@@ -96,6 +101,17 @@ fun RoundDetailScreen(
                     score = row.score
                 )
             }
+        }
+
+        if (showFinishDialog) {
+            FinishSessionDialog(
+                turn = state.turns.size,
+                onDismiss = { showFinishDialog = false },
+                onConfirm = {
+                    showFinishDialog = false
+                    backStack.add(Screens.SessionFinish)
+                }
+            )
         }
     }
 }

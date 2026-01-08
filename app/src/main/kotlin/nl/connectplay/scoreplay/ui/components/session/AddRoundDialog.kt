@@ -13,9 +13,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.models.session.RoundScoreInput
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
-import nl.connectplay.scoreplay.room.entities.RoomSessionScore
-import nl.connectplay.scoreplay.room.events.RoundScoreInput
 
 @Composable
 fun AddRoundDialog(

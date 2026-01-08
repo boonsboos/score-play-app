@@ -1,7 +1,7 @@
 package nl.connectplay.scoreplay.screens.session
 
-import android.util.Log
-import androidx.compose.foundation.background
+import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.FloatingActionButton
@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
@@ -42,48 +43,59 @@ import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
+import nl.connectplay.scoreplay.ui.components.session.FinishSessionDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
-import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
-    sessionViewModel: SessionViewModel = koinViewModel()
 ) {
+    // Share the same SessionViewModel across session screens by scoping it to the Activity.
+    val activity = LocalContext.current as? ComponentActivity ?: return
+    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
+
     val state by sessionViewModel.state.collectAsState()
     val onEvent = sessionViewModel::onEvent
 
+    // Load persisted session snapshot when entering this screen (only if not already in state).
     LaunchedEffect(Unit) {
-        sessionViewModel.loadActiveSessionFromDb()
+        if (state.roomSession == null) {
+            sessionViewModel.loadActiveSessionFromDb()
+        }
     }
 
+    // Screen-local UI state for dialogs.
     var showNewRoundDialog by remember { mutableStateOf((false)) }
+    var showFinishDialog by remember { mutableStateOf((false)) }
 
-    Log.d(
-        "SessionScoreScreen",
-        "state = $state"
-    )
-
-    val actions = listOf(
-        SpeedDialAction(
-            label = "Finish",
-            icon = Icons.Default.Check,
-            onClick = { /* TODO: Finish Action */ }
-        ),
-        SpeedDialAction(
-            label = "New Round",
-            icon = Icons.Default.Add,
-            onClick = { showNewRoundDialog = true }
+    // SpeedDial actions: show "Finish" only when at least one round exists.
+    val actions = buildList {
+        if (state.turns.isNotEmpty()) {
+            add(
+                SpeedDialAction(
+                    label = "Finish",
+                    icon = Icons.Default.Check,
+                    onClick = { showFinishDialog = true }
+                )
+            )
+        }
+        add(
+            SpeedDialAction(
+                label = "New Round",
+                icon = Icons.Default.Add,
+                onClick = { showNewRoundDialog = true }
+            )
         )
-    )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
         floatingActionButton = {
             Box(
                 modifier = Modifier
@@ -97,7 +109,7 @@ fun SessionScoreScreen(
                         .padding(start = 32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Setup Screen"
                     )
                 }
@@ -123,6 +135,7 @@ fun SessionScoreScreen(
 
             val session = state.roomSession
 
+            // Empty state if there's no session yet or no rounds recorded.
             if (session == null || state.turns.isEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -142,6 +155,7 @@ fun SessionScoreScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
+                // List rounds; tapping navigates to round detail for that turn.
                 LazyColumn {
                     items(state.turns) { turn ->
                         ListItem(
@@ -164,7 +178,6 @@ fun SessionScoreScreen(
                                     )
                                 )
                             }
-
                         )
                     }
                 }
@@ -173,22 +186,28 @@ fun SessionScoreScreen(
         }
     }
 
+    // Add round dialog: only show when we have players available.
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
         AddRoundDialog(
             players = state.sessionPlayers,
             onDismiss = { showNewRoundDialog = false },
             onSave = { inputs ->
                 val session = state.roomSession ?: return@AddRoundDialog
-                onEvent(
-                    SessionEvent.AddRound(
-                        sessionId = session.id,
-                        gameId = session.gameId,
-                        scores = inputs
-                    )
-                )
+                onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
                 showNewRoundDialog = false
             }
         )
+    }
 
+    // Finish confirmation; navigates to finish screen (winner/visibility/upload).
+    if (showFinishDialog) {
+        FinishSessionDialog(
+            turn = state.turns.size,
+            onDismiss = { showFinishDialog = false },
+            onConfirm = {
+                showFinishDialog = false
+                backStack.add(Screens.SessionFinish)
+            }
+        )
     }
 }

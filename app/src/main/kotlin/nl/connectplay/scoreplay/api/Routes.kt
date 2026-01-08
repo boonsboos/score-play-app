@@ -62,38 +62,19 @@ object Routes {
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
-    //    object Games {
-//        const val root = "/games"
-//        fun byId(gameId: String) = "/games/$gameId"
-//
-//        object Pictures {
-//            fun all(gameId: String) = "/games/$gameId/pictures"
-//            fun byId(gameId: String, pictureId: String) = "/games/$gameId/pictures/$pictureId"
-//        }
-//
-//        object Followers {
-//            fun all(gameId: String) = "/games/$gameId/followers"
-//            fun byUser(gameId: String, userId: String) = "/games/$gameId/followers/$userId"
-//        }
-//
-//        object Sessions {
-//            fun all(gameId: String) = "/games/$gameId/sessions"
-//        }
-//    }
-//
     object Sessions {
         const val root = "/sessions"
-        //fun byId(sessionId: String) = "/sessions/$sessionId"
+        fun byId(sessionId: String) = "$root/$sessionId"
 
-//        object Players {
-//            fun all(sessionId: String) = "/sessions/$sessionId/players"
-//            fun byId(sessionId: String, playerId: String) = "/sessions/$sessionId/players/$playerId"
-//        }
-//
-//        object Scores {
-//            fun all(sessionId: String) = "/sessions/$sessionId/scores"
-//            fun byId(sessionId: String, scoreId: String) = "/sessions/$sessionId/scores/$scoreId"
-//        }
+        object Players {
+            fun all(sessionId: String) = "$root/$sessionId/players"
+            fun byId(sessionId: String, playerId: String) = "$root/$sessionId/players/$playerId"
+        }
+
+        object Scores {
+            fun all(sessionId: String) = "$root/$sessionId/scores"
+            fun byId(sessionId: String, scoreId: String) = "$root/$sessionId/scores/$scoreId"
+        }
     }
 
     object Users {

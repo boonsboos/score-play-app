@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,6 +26,7 @@ import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
+import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
@@ -33,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+@RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
@@ -123,6 +126,12 @@ fun Navigator(modifier: Modifier = Modifier) {
                         turn = key.turn,
                     )
 
+                }
+
+                is Screens.SessionFinish -> NavEntry(key = key) {
+                    SessionFinishScreen(
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.GameDetail -> NavEntry(key = key) {

@@ -88,7 +88,7 @@ val apiModule = module {
     single { AuthApi(get()) }
     singleOf(::GameApi)
     single { NotificationApi(get(), get()) }
-    single { SessionApi(get()) }
+    single { SessionApi(get(), get()) }
     single { SearchApi(get()) }
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
