@@ -27,6 +27,7 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
+
 class ProfileApi(
     val client: HttpClient, private val tokenDataStore: TokenDataStore
 ) {
@@ -71,37 +72,35 @@ class ProfileApi(
         throw Exception("Failed to fetch last sessions", e)
     }
 
-    suspend fun getRecentGames(userId: Int): List<Game> =
-        try {
-//            val res = client.get(Routes.Users.recent(userId)) {
-//                contentType(ContentType.Application.Json)
-//                accept(ContentType.Application.Json)
-//                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
-//            }
-//
-//            when (res.status.value) {
-//                204 -> {
-//                    emptyList()
-//                }
-//
-//                401 -> {
-//                    tokenDataStore.clearToken()
-//                    throw InvalidTokenException("Invalid or expired token")
-//                }
-//
-//                502 -> {
-//                    throw Exception("Bad Gateway")
-//                }
-//
-//                else -> {
-//                    res.body()
-//                }
-//            }
-            listOf()
-        } catch (e: NoTransformationFoundException) {
-            e.printStackTrace()
-            throw Exception("Failed to fetch followed games", e)
+    suspend fun getRecentGames(): List<Game> = try {
+        val res = client.get(Routes.Users.recent) {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
         }
+
+        when (res.status.value) {
+            204 -> {
+                emptyList()
+            }
+
+            401 -> {
+                tokenDataStore.clearToken()
+                throw InvalidTokenException("Invalid or expired token")
+            }
+
+            502 -> {
+                throw Exception("Bad Gateway")
+            }
+
+            else -> {
+                res.body()
+            }
+        }
+    } catch (e: NoTransformationFoundException) {
+        e.printStackTrace()
+        throw Exception("Failed to fetch recent games", e)
+    }
 
     suspend fun getFollowedGames(userId: Int, withPodium: Boolean = false): List<FollowedGame> =
         try {

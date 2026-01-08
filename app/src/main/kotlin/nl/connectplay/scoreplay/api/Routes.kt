@@ -89,7 +89,7 @@ object Routes {
 
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
-        fun recent(userId: Int) = "$root/$userId/games"
+        const val recent = "$root/me/recent"
         fun followedGames(userId: Int, withPodium: Boolean) = "$root/$userId/followed" +
                 if (withPodium) "?withPodium" else ""
     }
