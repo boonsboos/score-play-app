@@ -43,7 +43,6 @@ private const val Bronze = 0xFFCE8946
 fun LeaderboardScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier,
     leaderboardViewModel: LeaderboardViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
     val listState = rememberLazyListState()
@@ -61,14 +60,20 @@ fun LeaderboardScreen(
         topBar = { ScorePlayTopBar(title = "Leaderboard", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        LazyColumn(state = listState, modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+        LazyColumn(
+            state = listState, modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             itemsIndexed(items = scores) { index, score ->
-                val iconColor = Color( when(index) {
-                    0 -> Gold
-                    1 -> Silver
-                    2 -> Bronze
-                    else -> 0xFF000000
-                })
+                val iconColor = Color(
+                    when (index) {
+                        0 -> Gold
+                        1 -> Silver
+                        2 -> Bronze
+                        else -> 0xFF000000
+                    }
+                )
 
                 ListItem(
                     leadingContent = {
@@ -83,19 +88,22 @@ fun LeaderboardScreen(
                             )
                         } else {
                             Text(
-                                text = "#${index+1}",
+                                text = "#${index + 1}",
                                 modifier = requiredSpaceModifier,
                                 textAlign = TextAlign.Center
                             )
                         }
                     },
                     headlineContent = {
-                        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(score.playerName)
                             Text(score.score.toString())
                         }
                     },
-                    overlineContent = { Text(score.achievedAt.formattedDate())},
+                    overlineContent = { Text(score.achievedAt.formattedDate()) },
                     modifier = Modifier
                         .fillMaxWidth(),
                 )

@@ -35,6 +35,8 @@ import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
 import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
+import org.koin.android.ext.koin.androidContext
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -44,7 +46,12 @@ val viewModelsModule = module {
     viewModelOf(::RegisterViewModel)
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
-    viewModelOf(::MainViewModel)
+    viewModel {
+        MainViewModel(
+            tokenDataStore = get(),
+            notificationListViewModel = get()
+        )
+    }
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
@@ -54,8 +61,6 @@ val viewModelsModule = module {
             tokenDataStore = get()
         )
     }
-
-    viewModelOf(::SearchViewModel)
     viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
@@ -88,6 +93,7 @@ val apiModule = module {
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
     singleOf(::LeaderboardApi)
+    single { NotificationBadgeViewModel(get(), androidContext()) }
 }
 
 // Koin module for app storage (DataStore)

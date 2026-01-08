@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.stores.TokenDataStore
+import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 
-class MainViewModel(private val tokenDataStore: TokenDataStore) : ViewModel() {
+class MainViewModel(
+    private val tokenDataStore: TokenDataStore,
+    private val notificationListViewModel: NotificationListViewModel
+) : ViewModel() {
 
     init {
         loadToken() // load the token as soon the viewModel starts
@@ -27,6 +31,10 @@ class MainViewModel(private val tokenDataStore: TokenDataStore) : ViewModel() {
                         token = storedToken,
                         isLoaded = true
                     )
+                }
+
+                if (storedToken != null) {
+                    notificationListViewModel.loadNotifications()
                 }
             }
         }

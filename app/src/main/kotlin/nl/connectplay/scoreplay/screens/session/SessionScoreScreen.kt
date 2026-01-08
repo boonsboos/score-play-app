@@ -146,13 +146,23 @@ fun SessionScoreScreen(
                     items(state.turns) { turn ->
                         ListItem(
                             headlineContent = { Text("Round $turn") },
-                            trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight,
+                                    contentDescription = null
+                                )
+                            },
                             colors = ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
                                 headlineColor = MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier.clickable {
-                                backStack.add(Screens.RoundDetail(sessionId = session.id, turn = turn))
+                                backStack.add(
+                                    Screens.RoundDetail(
+                                        sessionId = session.id,
+                                        turn = turn
+                                    )
+                                )
                             }
 
                         )
@@ -164,15 +174,21 @@ fun SessionScoreScreen(
     }
 
     if (showNewRoundDialog && state.sessionPlayers.isNotEmpty()) {
-            AddRoundDialog(
-                players = state.sessionPlayers,
-                onDismiss = { showNewRoundDialog = false },
-                onSave = { inputs ->
-                    val session = state.roomSession ?: return@AddRoundDialog
-                    onEvent(SessionEvent.AddRound(sessionId = session.id, gameId = session.gameId, scores = inputs))
-                    showNewRoundDialog = false
-                }
-            )
+        AddRoundDialog(
+            players = state.sessionPlayers,
+            onDismiss = { showNewRoundDialog = false },
+            onSave = { inputs ->
+                val session = state.roomSession ?: return@AddRoundDialog
+                onEvent(
+                    SessionEvent.AddRound(
+                        sessionId = session.id,
+                        gameId = session.gameId,
+                        scores = inputs
+                    )
+                )
+                showNewRoundDialog = false
+            }
+        )
 
     }
 }
