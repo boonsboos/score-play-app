@@ -101,7 +101,7 @@ class NotificationBadgeViewModel(
             }
 
             is HighscoreEvent -> {
-                val title = "Nieuwe highscore on game ${event.game.name}"
+                val title = "New highscore on game ${event.game.name}"
                 val message =
                     // a guest player or a user can have a highscore
                     if (event.score.sessionPlayer.guest != null) {
