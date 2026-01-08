@@ -58,8 +58,6 @@ import org.koin.core.parameter.parametersOf
 fun GameDetailScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
-    modifier: Modifier = Modifier,
     gameDetail: GameDetailViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
     val state by gameDetail.gameState.collectAsState()
@@ -85,7 +83,7 @@ fun GameDetailScreen(
             SnackbarHost(hostState = snackBarState)
         },
         topBar = { ScorePlayTopBar(title = state?.name ?: "Name unknown", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -15,22 +16,27 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun BottomNavBar(backStack: NavBackStack<NavKey>, badgeViewModel: NotificationBadgeViewModel) {
+fun BottomNavBar(backStack: NavBackStack<NavKey>) {
     // with the lastOrnull we get the lates screen that were on
     val currentScreen = backStack.lastOrNull()
-    val hasUnreadNotifications by badgeViewModel.hasUnreadNotifications.collectAsState()
-
+    val badgeViewModel: NotificationBadgeViewModel = koinViewModel()
+    val hasUnreadNotifications by badgeViewModel.hasUnreadNotifications.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        Log.d("BADGE_UI", "instance=${badgeViewModel.hashCode()}")
+    }
     NavigationBar {
         NavigationBarItem(
             selected = currentScreen == Screens.Home,

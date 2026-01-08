@@ -38,7 +38,6 @@ import nl.connectplay.scoreplay.ui.components.LoadingSection
 @Composable
 fun FriendsScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     friendViewModel: FriendViewModel = koinViewModel()
 ) {
     val uiState by friendViewModel.uiState.collectAsState()
@@ -53,7 +52,7 @@ fun FriendsScreen(
 
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) },
+        bottomBar = { BottomNavBar(backStack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
@@ -146,7 +145,7 @@ fun FriendList(
             items(friends) { friend ->
                 FriendRow(
                     friend,
-                    backStack =  backStack
+                    backStack = backStack
                 )
             }
         } else {

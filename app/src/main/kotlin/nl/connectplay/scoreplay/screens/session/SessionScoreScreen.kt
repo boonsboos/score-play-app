@@ -53,7 +53,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SessionScoreScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
     val state by sessionViewModel.state.collectAsState()
@@ -111,7 +110,7 @@ fun SessionScoreScreen(
                 )
             }
         },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

@@ -1,21 +1,26 @@
 package nl.connectplay.scoreplay.ui.notifications
 
+import android.Manifest
 import android.content.Context
-import android.app.NotificationManager
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import nl.connectplay.scoreplay.R
 
 object NotificationBuilder {
-    fun showNotification(context: Context, title: String, message: String) {
-        val notificationManager = NotificationManagerCompat.from(context)
+    // only use this function if the app has notifications permissions
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    fun showNotification(appContext: Context, title: String, message: String) {
+        val notificationManager = NotificationManagerCompat.from(appContext)
 
         // checks if the app allowed to send notifications
         if (!notificationManager.areNotificationsEnabled()) return
 
+        // build the actual notifications
         val notification =
             NotificationCompat.Builder(
-                context,
+                appContext,
+                // the channel determines the sound, importens and visibility
                 NotificationChannelProvider.CHANNEL_ID
             )
                 .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO() change the Icon to Notification Icon

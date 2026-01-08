@@ -1,7 +1,9 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.Manifest
 import android.content.Context
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,34 +27,43 @@ class NotificationBadgeViewModel(
     private val appContext: Context
 ) : ViewModel() {
     private val _hasUnreadNotifications = MutableStateFlow(false)
-    val hasUnreadNotifications = _hasUnreadNotifications.asStateFlow()
+    val hasUnreadNotifications =
+        _hasUnreadNotifications.asStateFlow() // with the asStateFlow() you create a read-only
 
+    // this will ignore the fields that ar note defined in our data models
     private val json = Json {
         ignoreUnknownKeys = true
     }
 
+    init {
+        Log.d("BADGE_VM", "instance=${hashCode()}")
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    // the app will listen as long as it is active
     fun startSse(token: String) {
         viewModelScope.launch {
             Log.d("SSE", "Starting SSE session")
             try {
                 val session = httpClient.sseSession(
                     urlString = Routes.Notifications.live,
-                    reconnectionTime = 15.seconds
+                    reconnectionTime = 15.seconds // try to reconnect after 15sec if connection gets lost
                 ) {
+                    // we add the header so the backend knows who is listening
                     headers {
                         append("Authorization", "Bearer $token")
                     }
                 }
-
+                // for each incoming server event call the processSseEvent function
                 session.incoming.collect { processSseEvent(it) }
-
             } catch (e: Exception) {
                 Log.e("SSE", "SSE session encountered an error ${e.message}", e)
             }
         }
     }
 
-    private suspend fun processSseEvent(sseEvent: ServerSentEvent) {
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun processSseEvent(sseEvent: ServerSentEvent) {
         Log.d("SSE", "Received event from server ${sseEvent.data}")
 
         try {
@@ -67,8 +78,8 @@ class NotificationBadgeViewModel(
         }
     }
 
-    private suspend fun processEvent(event: BaseEvent) {
-        Log.d("SSE_NOTIFY", "processEvent called with ${event::class.simpleName}")
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun processEvent(event: BaseEvent) {
         when (event) {
             is FriendRequestEvent -> {
                 val title = "New Friendsrequest"
@@ -91,17 +102,20 @@ class NotificationBadgeViewModel(
 
             is HighscoreEvent -> {
                 val title = "Nieuwe highscore on game ${event.game.name}"
-                val message = if (event.score.sessionPlayer.guest != null) {
-                    "${event.score.sessionPlayer.guest} has a score of: ${event.score.score}!"
-                } else {
-                    "${event.score.sessionPlayer.userId} has a score of: ${event.score.score}!"
-                }
+                val message =
+                    // a guest player or a user can have a highscore
+                    if (event.score.sessionPlayer.guest != null) {
+                        "${event.score.sessionPlayer.guest} has a score of: ${event.score.score}!"
+                    } else {
+                        "${event.score.sessionPlayer.userId} has a score of: ${event.score.score}!"
+                    }
                 NotificationBuilder.showNotification(appContext, title, message)
             }
         }
     }
 
     fun setHasUnread(hasUnread: Boolean) {
+        Log.d("Notifications", "$hasUnread")
         _hasUnreadNotifications.value = hasUnread
     }
 }

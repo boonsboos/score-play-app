@@ -35,7 +35,6 @@ private const val GAMES_SCREEN_LOGTAG = "GamesScreen"
 @Composable
 fun GamesScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     gameListViewModel: GamesListViewModel = koinViewModel()
 ) {
     val gamesList by gameListViewModel.gamesSet.collectAsStateWithLifecycle()
@@ -56,7 +55,7 @@ fun GamesScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Games", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

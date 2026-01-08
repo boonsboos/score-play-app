@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 
 // this object is responsible for creating and registering the notification channel on the android device
+// the object wil be create only once for the global app
 object NotificationChannelProvider {
     const val CHANNEL_ID =
         "scoreplay_notifications" // unique id for this notification channel
@@ -13,21 +14,19 @@ object NotificationChannelProvider {
     private const val CHANNEL_DESCRIPTION = "Notifications about FriendRequest and Highscores"
 
     fun create(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // get the androids notification system, this is required to register the notification channels before showing notifications
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // get the androids notification system, this is required to register the notification channels before showing notifications
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val notificationChannel =
-                NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT
-                )
-            notificationChannel.description =
-                CHANNEL_DESCRIPTION // The description is visible to the user in the system settings
+        val notificationChannel =
+            NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+        notificationChannel.description =
+            CHANNEL_DESCRIPTION // The description is visible to the user in the system settings
 
-            notificationManager.createNotificationChannel(notificationChannel) // makes the notification channel available for notifications
-        }
+        notificationManager.createNotificationChannel(notificationChannel) // makes the notification channel available for notifications
     }
 }

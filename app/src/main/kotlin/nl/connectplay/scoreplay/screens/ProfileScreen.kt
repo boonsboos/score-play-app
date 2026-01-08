@@ -63,7 +63,6 @@ import nl.connectplay.scoreplay.ui.components.LoadingSection
 @Composable
 fun ProfileScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     targetUserId: Int?,
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = koinViewModel(parameters = { parametersOf(targetUserId) }),
@@ -117,7 +116,7 @@ fun ProfileScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title, backStack) },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) },
+        bottomBar = { BottomNavBar(backStack) },
         floatingActionButton = {
             if (profileState is UiState.Success) {
                 val profile = (profileState as UiState.Success).data

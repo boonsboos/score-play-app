@@ -58,7 +58,6 @@ import org.koin.compose.koinInject
 @Composable
 fun SessionSetupScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
     val state by sessionViewModel.state.collectAsState()
@@ -111,7 +110,7 @@ fun SessionSetupScreen(
                 )
             }
         },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

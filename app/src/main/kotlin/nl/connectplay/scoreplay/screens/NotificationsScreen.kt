@@ -68,7 +68,6 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun NotificationsScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     notificationViewModel: NotificationListViewModel = koinViewModel(),
 ) {
     val notifications by notificationViewModel.state.collectAsState()
@@ -90,7 +89,7 @@ fun NotificationsScreen(
             )
         }, // added the composable topbar
         // added the composable bottombar
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }) { innerPadding ->
+        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {

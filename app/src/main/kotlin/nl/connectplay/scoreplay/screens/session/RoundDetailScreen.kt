@@ -34,7 +34,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun RoundDetailScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     sessionId: Int,
     sessionViewModel: SessionViewModel = koinViewModel(parameters = { parametersOf(sessionId) }),
     turn: Int,
@@ -82,7 +81,7 @@ fun RoundDetailScreen(
             }
         },
 
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

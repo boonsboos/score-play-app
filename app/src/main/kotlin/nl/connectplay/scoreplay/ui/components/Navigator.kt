@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.ui.components
 
 import RoundDetailScreen
+import android.Manifest
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,9 +13,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import nl.connectplay.scoreplay.room.dao.SessionScoreDao
-import nl.connectplay.scoreplay.models.user.UserProfile
-import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
@@ -27,17 +26,16 @@ import nl.connectplay.scoreplay.screens.ProfileEditScreen
 import nl.connectplay.scoreplay.screens.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
-import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
@@ -93,7 +91,6 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(
                         backStack,
-                        notificationBadgeViewModel,
                         onLogout = {
                             mainViewModel.logout()
                             backStack.apply {
@@ -107,7 +104,6 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Profile -> NavEntry(key = key) {
                     ProfileScreen(
                         backStack,
-                        notificationBadgeViewModel,
                         targetUserId = key.userId
                     )
                 }
@@ -117,25 +113,24 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
-                    FriendsScreen(backStack, notificationBadgeViewModel)
+                    FriendsScreen(backStack)
                 }
 
                 is Screens.Games -> NavEntry(key = key) {
-                    GamesScreen(backStack, notificationBadgeViewModel)
+                    GamesScreen(backStack)
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    SessionSetupScreen(backStack, notificationBadgeViewModel)
+                    SessionSetupScreen(backStack)
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    SessionScoreScreen(backStack, notificationBadgeViewModel)
+                    SessionScoreScreen(backStack)
                 }
 
                 is Screens.RoundDetail -> NavEntry(key = key) {
                     RoundDetailScreen(
                         backStack,
-                        notificationBadgeViewModel,
                         sessionId = key.sessionId,
                         turn = key.turn,
                     )
@@ -145,15 +140,13 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.GameDetail -> NavEntry(key = key) {
                     GameDetailScreen(
                         gameId = key.gameId,
-                        backStack,
-                        notificationBadgeViewModel
+                        backStack
                     )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
                     NotificationsScreen(
-                        backStack,
-                        notificationBadgeViewModel,
+                        backStack
                     )
                 }
 
@@ -174,7 +167,6 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Search -> NavEntry(key = key) {
                     SearchScreen(
                         backStack,
-                        notificationBadgeViewModel,
                         // pass query string from nav key to screen
                         initialQuery = key.query,
                         searchViewModel = koinViewModel(),
@@ -190,8 +182,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.Leaderboard -> NavEntry(key = key) {
                     LeaderboardScreen(
                         gameId = key.gameId,
-                        backStack,
-                        notificationBadgeViewModel
+                        backStack
                     )
                 }
 

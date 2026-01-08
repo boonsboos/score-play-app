@@ -44,8 +44,6 @@ private const val Bronze = 0xFFCE8946
 fun LeaderboardScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
-    modifier: Modifier = Modifier,
     leaderboardViewModel: LeaderboardViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
     val listState = rememberLazyListState()
@@ -61,11 +59,13 @@ fun LeaderboardScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Leaderboard", backStack = backStack) },
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }
+        bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        LazyColumn(state = listState, modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()) {
+        LazyColumn(
+            state = listState, modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             itemsIndexed(items = scores) { index, score ->
                 val iconColor = Color(
                     when (index) {

@@ -51,7 +51,6 @@ val viewModelsModule = module {
             notificationListViewModel = get()
         )
     }
-    viewModel { NotificationBadgeViewModel(get(), androidContext()) }
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
@@ -92,6 +91,7 @@ val apiModule = module {
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
     singleOf(::LeaderboardApi)
+    single { NotificationBadgeViewModel(get(), androidContext()) }
 }
 
 // Koin module for app storage (DataStore)

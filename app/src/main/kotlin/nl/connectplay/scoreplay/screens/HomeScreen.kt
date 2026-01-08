@@ -24,7 +24,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     backStack: NavBackStack<NavKey>,
-    badgeViewModel: NotificationBadgeViewModel,
     onLogout: () -> Unit,
     sessionViewModel: SessionViewModel = koinViewModel()
 ) {
@@ -33,7 +32,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "Home", backStack = backStack) },
         // bottombar uses the backStack on witch screen we are
-        bottomBar = { BottomNavBar(backStack, badgeViewModel) }) { innerPadding ->
+        bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
