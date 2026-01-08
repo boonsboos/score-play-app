@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.viewModels.UiState
 
 class ProfileEditViewModel(
     private val currentUser: UserProfile, private val profileApi: ProfileApi
@@ -43,8 +44,8 @@ class ProfileEditViewModel(
         _pendingImageUri.value = newPicture
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun isValidEmail(email: String?): Boolean {
+        return if (email != null)Patterns.EMAIL_ADDRESS.matcher(email).matches() else false
     }
 
     fun onSaveProfile(context: Context) {

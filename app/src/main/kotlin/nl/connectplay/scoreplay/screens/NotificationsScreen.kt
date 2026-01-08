@@ -79,7 +79,6 @@ fun NotificationsScreen(
     val selectedNotification =
         remember { mutableStateOf<NotificationUi?>(null) } // holds the selected notification
 
-
     Scaffold(
         modifier = Modifier.fillMaxSize(), // the screen is filled entire size
         topBar = {
@@ -256,10 +255,11 @@ fun NotificationRow(
         headlineContent = headlineContent,
         supportingContent = supportingContent,
         colors = ListItemDefaults.colors()
-            .copy(containerColor = if (read)
-                MaterialTheme.colorScheme.surfaceContainerLowest
-            else
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            .copy(
+                containerColor = if (read)
+                    MaterialTheme.colorScheme.surfaceContainerLowest
+                else
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             ),
         modifier = Modifier
             .fillMaxWidth()
@@ -341,10 +341,13 @@ fun HighscoreNotificationItem(
         read = read,
         onClick = onClick,
         headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
-        leadingContent = { Icon(
-            imageVector = Icons.Filled.EmojiEvents,
-            contentDescription = null,
-            modifier = Modifier.size(50.dp)) },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.EmojiEvents,
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        },
         supportingContent = {
             if (userDto != null) {
                 Text("${userDto.username} got a score of ${event.score.score}!")

@@ -55,28 +55,13 @@ object Routes {
     object FriendRequest {
         const val getAllFriendRequests = "/users/me/friendrequests"
 
+        fun addFriend(userId: Int) = "/users/$userId/friends"
+
+        fun removeFriend(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
+
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
-//    object Games {
-//        const val root = "/games"
-//        fun byId(gameId: String) = "/games/$gameId"
-//
-//        object Pictures {
-//            fun all(gameId: String) = "/games/$gameId/pictures"
-//            fun byId(gameId: String, pictureId: String) = "/games/$gameId/pictures/$pictureId"
-//        }
-//
-//        object Followers {
-//            fun all(gameId: String) = "/games/$gameId/followers"
-//            fun byUser(gameId: String, userId: String) = "/games/$gameId/followers/$userId"
-//        }
-//
-//        object Sessions {
-//            fun all(gameId: String) = "/games/$gameId/sessions"
-//        }
-//    }
-//
     object Sessions {
         const val root = "/sessions"
 
@@ -84,15 +69,15 @@ object Routes {
 
         fun byUserAndSessionId(userId: Int, sessionId: String) = "/users/$userId/sessions/$sessionId"
 
-//        object Players {
-//            fun all(sessionId: String) = "/sessions/$sessionId/players"
-//            fun byId(sessionId: String, playerId: String) = "/sessions/$sessionId/players/$playerId"
-//        }
-//
-//        object Scores {
-//            fun all(sessionId: String) = "/sessions/$sessionId/scores"
-//            fun byId(sessionId: String, scoreId: String) = "/sessions/$sessionId/scores/$scoreId"
-//        }
+        object Players {
+            fun all(sessionId: String) = "$root/$sessionId/players"
+            fun byId(sessionId: String, playerId: String) = "$root/$sessionId/players/$playerId"
+        }
+
+        object Scores {
+            fun all(sessionId: String) = "$root/$sessionId/scores"
+            fun byId(sessionId: String, scoreId: String) = "$root/$sessionId/scores/$scoreId"
+        }
     }
 
     object Users {
@@ -104,12 +89,14 @@ object Routes {
 
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
-        fun followedGames(userId: Int) = "$root/$userId/followed"
+        fun recent(userId: Int) = "$root/$userId/games"
+        fun followedGames(userId: Int, withPodium: Boolean) = "$root/$userId/followed" +
+                if (withPodium) "?withPodium" else ""
     }
 
-    //
     object Notifications {
         const val root = "/notifications"
+        const val live = "$root/live" // SSE endpoint for live notifications
         fun byId(notificationId: String) = "$root/$notificationId"
     }
 }

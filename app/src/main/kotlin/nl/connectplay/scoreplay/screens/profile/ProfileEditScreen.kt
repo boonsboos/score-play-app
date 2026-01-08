@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.screens
+package nl.connectplay.scoreplay.screens.profile
 
 import android.Manifest
 import android.content.Context
@@ -48,12 +48,13 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayInputField
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
-import nl.connectplay.scoreplay.viewModels.profile.UiState
+import nl.connectplay.scoreplay.viewModels.UiState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.io.File

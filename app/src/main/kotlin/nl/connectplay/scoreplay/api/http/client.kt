@@ -2,10 +2,12 @@ package nl.connectplay.scoreplay.api.http
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import io.ktor.client.plugins.sse.SSE
 
 object Http {
     val client = HttpClient(OkHttp) {
@@ -26,6 +28,13 @@ object Http {
                 }
             )
         }
+
+
+        /**
+         * Install the SSE Plugin so the client can open SSE-events
+         */
+        install(SSE)
+
         /**
          * defaultRequest sets the base URL for all requests.
          * In your API calls you only use relative paths (e.g. "/example"),
@@ -33,6 +42,11 @@ object Http {
          */
         defaultRequest {
             url("https://api.connect-en-play.nl")  // BASE URL
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 20_000 // 20 seconds
+            socketTimeoutMillis = 20_000 // 20 seconds
         }
     }
 }

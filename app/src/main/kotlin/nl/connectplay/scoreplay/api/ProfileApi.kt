@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.io.asSource
 import kotlinx.io.buffered
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
+import nl.connectplay.scoreplay.models.game.FollowedGame
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
@@ -70,30 +71,68 @@ class ProfileApi(
         throw Exception("Failed to fetch last sessions", e)
     }
 
-    suspend fun getFollowedGames(userId: Int): List<Game> = try {
-        val res = client.get(Routes.Users.followedGames(userId)) {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+    suspend fun getRecentGames(userId: Int): List<Game> =
+        try {
+//            val res = client.get(Routes.Users.recent(userId)) {
+//                contentType(ContentType.Application.Json)
+//                accept(ContentType.Application.Json)
+//                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
+//            }
+//
+//            when (res.status.value) {
+//                204 -> {
+//                    emptyList()
+//                }
+//
+//                401 -> {
+//                    tokenDataStore.clearToken()
+//                    throw InvalidTokenException("Invalid or expired token")
+//                }
+//
+//                502 -> {
+//                    throw Exception("Bad Gateway")
+//                }
+//
+//                else -> {
+//                    res.body()
+//                }
+//            }
+            listOf()
+        } catch (e: NoTransformationFoundException) {
+            e.printStackTrace()
+            throw Exception("Failed to fetch followed games", e)
         }
 
-        when (res.status.value) {
-            204 -> {
-                emptyList()
+    suspend fun getFollowedGames(userId: Int, withPodium: Boolean = false): List<FollowedGame> =
+        try {
+            val res = client.get(Routes.Users.followedGames(userId, withPodium)) {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
 
-            502 -> {
-                throw Exception("Bad Gateway")
-            }
+            when (res.status.value) {
+                204 -> {
+                    emptyList()
+                }
 
-            else -> {
-                res.body()
+                401 -> {
+                    tokenDataStore.clearToken()
+                    throw InvalidTokenException("Invalid or expired token")
+                }
+
+                502 -> {
+                    throw Exception("Bad Gateway")
+                }
+
+                else -> {
+                    res.body()
+                }
             }
+        } catch (e: NoTransformationFoundException) {
+            e.printStackTrace()
+            throw Exception("Failed to fetch followed games", e)
         }
-    } catch (e: NoTransformationFoundException) {
-        e.printStackTrace()
-        throw Exception("Failed to fetch followed games", e)
-    }
 
     suspend fun deleteAccount() {
         try {
@@ -129,7 +168,7 @@ class ProfileApi(
         }
     }
 
-    suspend fun updateProfile(username: String, email: String): UserProfile = try {
+    suspend fun updateProfile(username: String, email: String?): UserProfile = try {
         val res = client.patch(Routes.Users.me) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)

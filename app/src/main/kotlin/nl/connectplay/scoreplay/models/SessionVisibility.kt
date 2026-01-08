@@ -13,6 +13,13 @@ enum class SessionVisibility {
         PUBLIC -> 3
     }
 
+    fun toLabel() = when (this) {
+        PRIVATE -> "Private"
+        FRIENDS_ONLY -> "Friends Only"
+        ANONYMISED -> "Anonymised"
+        PUBLIC -> "Public"
+    }
+
     fun isPublic() = this == PUBLIC || this == ANONYMISED
 
     companion object {

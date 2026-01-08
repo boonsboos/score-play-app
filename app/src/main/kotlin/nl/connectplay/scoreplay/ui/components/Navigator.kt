@@ -1,7 +1,8 @@
 package nl.connectplay.scoreplay.ui.components
 
-import RoundDetailScreen
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -10,33 +11,49 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.room.dao.SessionScoreDao
+import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
-import nl.connectplay.scoreplay.screens.HomeScreen
+import nl.connectplay.scoreplay.screens.home.HomeScreen
 import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
-import nl.connectplay.scoreplay.screens.ProfileEditScreen
-import nl.connectplay.scoreplay.screens.ProfileScreen
+import nl.connectplay.scoreplay.screens.profile.ProfileEditScreen
+import nl.connectplay.scoreplay.screens.profile.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
-import nl.connectplay.scoreplay.screens.session.SessionDetailScreen
+import nl.connectplay.scoreplay.screens.profile.FollowedGamesScreen
+import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
+import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+@RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
 @Composable
 fun Navigator(modifier: Modifier = Modifier) {
     val mainViewModel = koinViewModel<MainViewModel>()
+    val notificationBadgeViewModel = koinInject<NotificationBadgeViewModel>()
     val tokenState by mainViewModel.tokenState.collectAsState()
 
     if (!tokenState.isLoaded) return
+
+    LaunchedEffect(tokenState.token) {
+        tokenState.token?.let { token ->
+            notificationBadgeViewModel.startSse(token)
+        }
+    }
 
     val start = if (tokenState.token != null) Screens.Home else Screens.Login
 
@@ -77,24 +94,22 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.Home -> NavEntry(key = key) {
-                    HomeScreen(
-                        backStack,
-                        onLogout = {
-                            mainViewModel.logout()
-                            backStack.apply {
-                                while (isNotEmpty()) removeLast()
-                                add(Screens.Login)
-                            }
-                        }
-                    )
+                    HomeScreen(backStack)
                 }
 
                 is Screens.Profile -> NavEntry(key = key) {
-                    ProfileScreen(backStack = backStack, targetUserId = key.userId)
+                    ProfileScreen(
+                        backStack,
+                        targetUserId = key.userId
+                    )
                 }
 
                 is Screens.EditProfile -> NavEntry(key = key) {
-                    ProfileEditScreen(backStack = backStack, currentUser = key.currentUser)
+                    ProfileEditScreen(backStack, currentUser = key.currentUser)
+                }
+
+                is Screens.FollowedGames -> NavEntry(key = key) {
+                    FollowedGamesScreen(backStack, targetUserId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
@@ -106,24 +121,26 @@ fun Navigator(modifier: Modifier = Modifier) {
                 }
 
                 is Screens.SessionSetup -> NavEntry(key = key) {
-                    SessionSetupScreen(
-                        backStack = backStack
-                    )
+                    SessionSetupScreen(backStack)
                 }
 
                 is Screens.SessionScore -> NavEntry(key = key) {
-                    SessionScoreScreen(
-                        backStack = backStack
-                    )
+                    SessionScoreScreen(backStack)
                 }
 
                 is Screens.RoundDetail -> NavEntry(key = key) {
                     RoundDetailScreen(
-                        backStack = backStack,
+                        backStack,
                         sessionId = key.sessionId,
                         turn = key.turn,
                     )
 
+                }
+
+                is Screens.SessionFinish -> NavEntry(key = key) {
+                    SessionFinishScreen(
+                        backStack = backStack
+                    )
                 }
 
                 is Screens.SessionDetail -> NavEntry(key = key) {
@@ -137,12 +154,14 @@ fun Navigator(modifier: Modifier = Modifier) {
                 is Screens.GameDetail -> NavEntry(key = key) {
                     GameDetailScreen(
                         gameId = key.gameId,
-                        backStack = backStack
+                        backStack
                     )
                 }
 
                 is Screens.Notifications -> NavEntry(key = key) {
-                    NotificationsScreen(backStack = backStack)
+                    NotificationsScreen(
+                        backStack
+                    )
                 }
 
                 is Screens.Login -> NavEntry(key = key) {
@@ -161,7 +180,7 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Search -> NavEntry(key = key) {
                     SearchScreen(
-                        backStack = backStack,
+                        backStack,
                         // pass query string from nav key to screen
                         initialQuery = key.query,
                         searchViewModel = koinViewModel(),
@@ -176,11 +195,11 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.Leaderboard -> NavEntry(key = key) {
                     LeaderboardScreen(
-                        backStack = backStack,
-                        gameId = key.gameId
+                        gameId = key.gameId,
+                        backStack
                     )
                 }
-                
+
                 // Handle unknown destinations
                 else -> error("Unknown destination: $key")
             }
