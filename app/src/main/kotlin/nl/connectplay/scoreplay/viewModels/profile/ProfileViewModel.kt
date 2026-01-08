@@ -5,22 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import nl.connectplay.scoreplay.api.ProfileApi
-import nl.connectplay.scoreplay.exceptions.InvalidTokenException
-import nl.connectplay.scoreplay.models.game.FollowedGame
 import nl.connectplay.scoreplay.api.FriendsApi
+import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.models.friends.FriendshipStatus
-import nl.connectplay.scoreplay.models.game.Game
+import nl.connectplay.scoreplay.models.game.FollowedGame
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.UiState
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.update
 
 class ProfileViewModel(
     private val userId: Int?,
