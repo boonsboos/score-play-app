@@ -11,9 +11,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import nl.connectplay.scoreplay.room.dao.SessionScoreDao
-import nl.connectplay.scoreplay.models.user.UserProfile
-import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.ExampleDetailScreen
 import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
@@ -27,13 +24,13 @@ import nl.connectplay.scoreplay.screens.profile.ProfileEditScreen
 import nl.connectplay.scoreplay.screens.profile.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.screens.profile.FollowedGamesScreen
 import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
 import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
+import nl.connectplay.scoreplay.screens.session.SessionDetailScreen
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel

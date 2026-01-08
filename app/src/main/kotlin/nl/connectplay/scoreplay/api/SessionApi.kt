@@ -2,7 +2,11 @@ package nl.connectplay.scoreplay.api
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -10,8 +14,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.dto.CreateSessionDto
 import nl.connectplay.scoreplay.models.dto.CreateScoreDto
+import nl.connectplay.scoreplay.models.session.Session
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
 /**
