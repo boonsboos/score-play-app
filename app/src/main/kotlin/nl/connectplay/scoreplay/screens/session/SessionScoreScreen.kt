@@ -45,7 +45,6 @@ import nl.connectplay.scoreplay.ui.components.session.AddRoundDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.ui.components.session.SpeedDial
 import nl.connectplay.scoreplay.ui.components.session.SpeedDialAction
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
