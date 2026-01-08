@@ -1,3 +1,5 @@
+package nl.connectplay.scoreplay.screens.session
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
