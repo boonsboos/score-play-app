@@ -48,7 +48,6 @@ import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.PlayerUi
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
