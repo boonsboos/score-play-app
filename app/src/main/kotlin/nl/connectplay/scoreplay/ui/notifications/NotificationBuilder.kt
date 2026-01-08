@@ -20,7 +20,7 @@ object NotificationBuilder {
         val notification =
             NotificationCompat.Builder(
                 appContext,
-                // the channel determines the sound, importens and visibility
+                // the channel determines the sound, importance and visibility
                 NotificationChannelProvider.CHANNEL_ID
             )
                 .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO() change the Icon to Notification Icon
