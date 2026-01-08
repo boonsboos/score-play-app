@@ -82,20 +82,20 @@ class NotificationBadgeViewModel(
     private fun processEvent(event: BaseEvent) {
         when (event) {
             is FriendRequestEvent -> {
-                val title = "New Friendsrequest"
-                val message = "${event.from.username} has sent you a friendrequest!"
+                val title = "New Friend Request"
+                val message = "${event.from.username} has send you a friend request!"
                 // shows the notification for the friend request event
                 NotificationBuilder.showNotification(appContext, title, message)
             }
 
             is FriendRequestReplyEvent -> {
-                val title = "Reaction of friendsrequest"
+                val title = "Reaction to Friend Request"
                 val message =
                     // because there are two options there must be a check to check if the friend request was accepted or not
                     if (event.accepts) {
-                        "${event.respondingUser.username} has accepted your friendrequest"
+                        "${event.respondingUser.username} has accepted your friend request"
                     } else {
-                        "${event.respondingUser.username} has declined your friendrequest"
+                        "${event.respondingUser.username} has declined your friend request"
                     }
                 NotificationBuilder.showNotification(appContext, title, message)
             }
