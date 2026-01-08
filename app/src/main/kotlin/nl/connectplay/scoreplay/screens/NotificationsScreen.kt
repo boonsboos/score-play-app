@@ -55,7 +55,6 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import nl.connectplay.scoreplay.utilities.formatted
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import kotlin.time.ExperimentalTime
 
 /**
