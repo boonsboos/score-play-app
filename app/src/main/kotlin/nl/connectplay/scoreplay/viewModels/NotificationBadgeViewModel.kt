@@ -83,7 +83,7 @@ class NotificationBadgeViewModel(
         when (event) {
             is FriendRequestEvent -> {
                 val title = "New Friendsrequest"
-                val message = "${event.from.username} has send you a friendrequest!"
+                val message = "${event.from.username} has sent you a friendrequest!"
                 // shows the notification for the friend request event
                 NotificationBuilder.showNotification(appContext, title, message)
             }
