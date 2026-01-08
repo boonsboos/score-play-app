@@ -17,12 +17,12 @@ class SessionDetailViewModel(
     private val _state = MutableStateFlow(SessionDetailState())
     val state = _state.asStateFlow()
 
-    fun loadSession(userId: Int, sessionId: String) {
+    fun handleFetch(userId: Int, sessionId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val session: Session = sessionApi.loadSessionById(userId, sessionId)
+                val session: Session = sessionApi.single(userId, sessionId)
 
                 _state.update {
                     it.copy(
@@ -42,7 +42,7 @@ class SessionDetailViewModel(
         }
     }
 
-    fun deleteSession() {
+    fun handleDelete() {
         val sessionId = state.value.session?.sessionId
         if (sessionId.isNullOrEmpty()) {
             Log.w("SessionDetailVM", "No session to delete")
@@ -53,7 +53,7 @@ class SessionDetailViewModel(
             _state.update { it.copy(isLoading = true) }
 
             try {
-                sessionApi.deleteSessionById(sessionId)
+                sessionApi.delete(sessionId)
 
                 _state.update { SessionDetailState() }
 

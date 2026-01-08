@@ -24,17 +24,41 @@ fun SessionDetailScreen(
     sessionId: String,
     targetId: Int,
     sessionViewModel: SessionDetailViewModel = koinViewModel()
-) {
+    ) {
 
     LaunchedEffect(sessionId) {
-        sessionViewModel.loadSession(targetId, sessionId)
+        sessionViewModel.handleFetch(targetId, sessionId)
     }
 
     val state by sessionViewModel.state.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val game = state.session?.game
+    if (state.isLoading) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            LinearProgressIndicator()
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Loading…")
+        }
+        return
+    }
+
     val session = state.session
+    if (session == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Session not found")
+        }
+        return
+    }
+    val game = session.game
 
     Scaffold(
         topBar = { ScorePlayTopBar(title = "Session Detail", backStack = backStack) }
@@ -53,7 +77,7 @@ fun SessionDetailScreen(
                 contentAlignment = Alignment.Center
             ) {
                 FallbackImage(
-                    url = game?.pictures?.firstOrNull(),
+                    url = game.pictures.firstOrNull(),
                     size = 200.dp,
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -68,10 +92,10 @@ fun SessionDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Column {
-                Text("Session ID: ${session?.sessionId ?: "N/A"}")
-                Text("Game: ${game?.name ?: "N/A"}")
-                Text("Host ID: ${session?.hostId ?: "N/A"}")
-                Text("Visibility: ${session?.visibility ?: "N/A"}")
+                Text("Session ID: ${session.sessionId}")
+                Text("Game: ${game.name}")
+                Text("Host ID: ${session.hostId}")
+                Text("Visibility: ${session.visibility}")
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -96,7 +120,7 @@ fun SessionDetailScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            sessionViewModel.deleteSession()
+                            sessionViewModel.handleDelete()
                             showDeleteDialog = false
                             backStack.apply {
                                 if (isNotEmpty()) removeLast()
