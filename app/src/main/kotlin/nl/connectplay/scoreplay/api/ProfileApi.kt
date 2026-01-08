@@ -26,7 +26,7 @@ import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
-import kotlin.collections.emptyList
+
 
 class ProfileApi(
     val client: HttpClient, private val tokenDataStore: TokenDataStore
@@ -99,7 +99,7 @@ class ProfileApi(
         }
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
-        throw Exception("Failed to fetch followed games", e)
+        throw Exception("Failed to fetch recent games", e)
     }
 
     suspend fun getFollowedGames(userId: Int, withPodium: Boolean = false): List<FollowedGame> =

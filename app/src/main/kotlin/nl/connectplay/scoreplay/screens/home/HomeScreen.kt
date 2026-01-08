@@ -228,7 +228,7 @@ fun RecentGamesItem(game: Game, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = game.name,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
