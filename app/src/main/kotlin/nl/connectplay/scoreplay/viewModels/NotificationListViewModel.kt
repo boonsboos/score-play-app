@@ -21,7 +21,12 @@ import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEv
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.models.user.UserProfile
 
-class NotificationListViewModel(private val notificationApi: NotificationApi, private val profileApi: ProfileApi) : ViewModel() {
+class NotificationListViewModel(
+    private val notificationApi: NotificationApi,
+    private val profileApi: ProfileApi,
+    private val badgeViewModel: NotificationBadgeViewModel
+) : ViewModel() {
+
     // the currently visible notifications for the UI
     private val _state = MutableStateFlow<List<NotificationUi>>(emptyList())
     val state = _state.asStateFlow()
@@ -35,14 +40,14 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
 
     // store all notifications before filtering
     private val _allNotifications = MutableStateFlow<List<NotificationUi>>(emptyList())
+    val allNotifications = _allNotifications.asStateFlow()
 
-    // holdes t he filterstate
+    // holdes the filterstate
     private val _filter = MutableStateFlow(NotificationFilter.ALL)
     val filter = _filter.asStateFlow()
 
     private val _requiredUsers = MutableStateFlow<Map<Int, UserProfile>>(emptyMap())
     val highscoreEventUsers = _requiredUsers.asStateFlow()
-
 
     // JSON parser to convert backend content into JSON objects
     private val json = Json {
@@ -51,6 +56,11 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
 
     init {
         loadNotifications()
+    }
+
+    private fun syncBadge() {
+        val hasUnread = _allNotifications.value.any { !it.read }
+        badgeViewModel.setHasUnread(hasUnread)
     }
 
     fun loadNotifications() {
@@ -82,6 +92,7 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
                     }.reversed() // show newest first
                 }
 
+                syncBadge()
                 applyFilter()
 
                 val foundRequiredUsers = async {
@@ -149,6 +160,9 @@ class NotificationListViewModel(private val notificationApi: NotificationApi, pr
                         else item
                     }
                 }
+
+                syncBadge()
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.value = "Failed to update notification"

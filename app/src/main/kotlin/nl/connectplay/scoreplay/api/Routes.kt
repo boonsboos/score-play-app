@@ -110,9 +110,9 @@ object Routes {
                 if (withPodium) "?withPodium" else ""
     }
 
-    //
     object Notifications {
         const val root = "/notifications"
+        const val live = "$root/live" // SSE endpoint for live notifications
         fun byId(notificationId: String) = "$root/$notificationId"
     }
 }

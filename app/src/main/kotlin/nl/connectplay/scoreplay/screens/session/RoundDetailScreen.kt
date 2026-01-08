@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,7 +83,9 @@ fun RoundDetailScreen(
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             rows.forEach { row ->

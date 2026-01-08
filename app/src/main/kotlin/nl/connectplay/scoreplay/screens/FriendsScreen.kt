@@ -64,6 +64,7 @@ fun FriendsScreen(
                 uiState.isLoading -> {
                     LoadingSection()
                 }
+
                 else -> {
                     FriendList(
                         friendRequests = uiState.friendRequests,
@@ -143,7 +144,7 @@ fun FriendList(
             items(friends) { friend ->
                 FriendRow(
                     friend,
-                    backStack =  backStack
+                    backStack = backStack
                 )
             }
         } else {
