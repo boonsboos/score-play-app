@@ -38,24 +38,25 @@ class HomeViewModel(
         userId
             .onEach { id ->
                 if (id != null) {
-                    loadRecentGames(id)
+                    loadRecentGames()
                     loadFollowedGames(id)
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    private fun loadRecentGames(userId: Int) {
+    private fun loadRecentGames() {
         viewModelScope.launch {
             _recentState.value = UiState.Loading
             try {
-                val result = profileApi.getRecentGames(userId)
+                val result = profileApi.getRecentGames()
                 _recentState.value = UiState.Success(result)
             } catch (e: Exception) {
                 _recentState.value = UiState.Error(e.message ?: "Unknown error", e)
             }
         }
     }
+
     private fun loadFollowedGames(userId: Int) {
         viewModelScope.launch {
             _followedState.value = UiState.Loading
