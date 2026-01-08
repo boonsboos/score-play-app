@@ -11,7 +11,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 @Composable
 fun NotificationPermission() {
     val notificationPermissionState =
-        // remember the notification permission: granted, denied or not not asked
+        // remember the notification permission: granted, denied or not yet asked
         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
 
     // this launchedEffect will be executed only once
