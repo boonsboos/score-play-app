@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.SessionApi
+import nl.connectplay.scoreplay.models.dto.ScoreDto
 import nl.connectplay.scoreplay.models.session.Session
 
 class SessionDetailViewModel(
@@ -23,11 +24,13 @@ class SessionDetailViewModel(
 
             try {
                 val session: Session = sessionApi.single(userId, sessionId)
+                val scores: List<ScoreDto> = sessionApi.allScores(sessionId)
 
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        session = session
+                        session = session,
+                        scores = scores
                     )
                 }
             } catch (e: Exception) {

@@ -76,7 +76,6 @@ object Routes {
 
         object Scores {
             fun all(sessionId: String) = "$root/$sessionId/scores"
-            fun byId(sessionId: String, scoreId: String) = "$root/$sessionId/scores/$scoreId"
         }
     }
 

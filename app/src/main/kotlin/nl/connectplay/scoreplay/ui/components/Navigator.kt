@@ -144,7 +144,8 @@ fun Navigator(modifier: Modifier = Modifier) {
                     SessionDetailScreen(
                         backStack = backStack,
                         sessionId = key.sessionId,
-                        targetId = key.targetId,
+                        userId = key.userId,
+                        ownerName = key.ownerName
                     )
                 }
 

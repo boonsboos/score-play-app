@@ -2,11 +2,13 @@ package nl.connectplay.scoreplay.api
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.dto.CreateSessionDto
 import nl.connectplay.scoreplay.models.dto.CreateScoreDto
+import nl.connectplay.scoreplay.models.dto.ScoreDto
 import nl.connectplay.scoreplay.models.session.Session
 import nl.connectplay.scoreplay.stores.TokenDataStore
 
@@ -58,6 +61,19 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
         if (!resp.status.isSuccess()) {
             throw RuntimeException("addScores failed: ${resp.status} $raw")
+        }
+    }
+
+    suspend fun allScores(sessionId: String): List<ScoreDto> {
+        return try {
+            client.get(Routes.Sessions.Scores.all(sessionId)) {
+                contentType(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.first() ?: "")
+            }.body()
+
+        } catch (_: NoTransformationFoundException) {
+            Log.d("ScoresApiCall", "The scores are NOT given!")
+            listOf()
         }
     }
 
