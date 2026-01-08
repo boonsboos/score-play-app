@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.screens
+package nl.connectplay.scoreplay.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,6 +47,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.friends.FriendshipStatus
+import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
@@ -239,7 +240,7 @@ fun ProfileScreen(
                     item {
                         SectionHeader(
                             "Followed Games (${state.data.size})",
-                            onClick = { /* TODO: Navigate to all games */ })
+                            onClick = { backStack.add(Screens.FollowedGames((profileState as UiState.Success).data.id)) })
                     }
                     items(items) { game ->
                         Row(

@@ -19,11 +19,12 @@ import nl.connectplay.scoreplay.screens.home.HomeScreen
 import nl.connectplay.scoreplay.screens.LeaderboardScreen
 import nl.connectplay.scoreplay.screens.LoginScreen
 import nl.connectplay.scoreplay.screens.NotificationsScreen
-import nl.connectplay.scoreplay.screens.ProfileEditScreen
-import nl.connectplay.scoreplay.screens.ProfileScreen
+import nl.connectplay.scoreplay.screens.profile.ProfileEditScreen
+import nl.connectplay.scoreplay.screens.profile.ProfileScreen
 import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.screens.SearchScreen
+import nl.connectplay.scoreplay.screens.profile.FollowedGamesScreen
 import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
 import nl.connectplay.scoreplay.screens.session.SessionSetupScreen
@@ -98,6 +99,10 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.EditProfile -> NavEntry(key = key) {
                     ProfileEditScreen(backStack, currentUser = key.currentUser)
+                }
+
+                is Screens.FollowedGames -> NavEntry(key = key) {
+                    FollowedGamesScreen(backStack, targetUserId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
