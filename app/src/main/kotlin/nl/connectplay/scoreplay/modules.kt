@@ -33,6 +33,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
 
 // Koin module to provide ViewModels
@@ -66,6 +67,7 @@ val viewModelsModule = module {
         )
     }
     viewModelOf(::GameDetailViewModel)
+    viewModelOf(::HomeViewModel)
     viewModelOf(::LeaderboardViewModel)
 }
 
@@ -97,10 +99,10 @@ val databaseModule = module {
 
     single {
         Room.databaseBuilder(
-                get(),
-                Database::class.java,
-                "scoreplay.db"
-            ).fallbackToDestructiveMigration(true)
+            get(),
+            Database::class.java,
+            "scoreplay.db"
+        ).fallbackToDestructiveMigration(true)
             .build()
     }
 

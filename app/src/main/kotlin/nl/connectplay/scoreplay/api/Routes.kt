@@ -62,7 +62,7 @@ object Routes {
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
-//    object Games {
+    //    object Games {
 //        const val root = "/games"
 //        fun byId(gameId: String) = "/games/$gameId"
 //
@@ -105,7 +105,9 @@ object Routes {
 
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
-        fun followedGames(userId: Int) = "$root/$userId/followed"
+        fun recent(userId: Int) = "$root/$userId/games"
+        fun followedGames(userId: Int, withPodium: Boolean) = "$root/$userId/followed" +
+                if (withPodium) "?withPodium" else ""
     }
 
     //

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.models.user.UserProfile
+import nl.connectplay.scoreplay.viewModels.UiState
 
 class ProfileEditViewModel(
     private val currentUser: UserProfile, private val profileApi: ProfileApi
