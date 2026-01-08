@@ -44,8 +44,8 @@ class ProfileEditViewModel(
         _pendingImageUri.value = newPicture
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private fun isValidEmail(email: String?): Boolean {
+        return if (email != null)Patterns.EMAIL_ADDRESS.matcher(email).matches() else false
     }
 
     fun onSaveProfile(context: Context) {

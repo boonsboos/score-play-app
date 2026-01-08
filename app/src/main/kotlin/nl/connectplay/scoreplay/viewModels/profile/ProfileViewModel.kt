@@ -12,15 +12,20 @@ import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.game.FollowedGame
+import nl.connectplay.scoreplay.api.FriendsApi
+import nl.connectplay.scoreplay.models.friends.FriendshipStatus
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.models.user.UserSession
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.viewModels.UiState
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 
 class ProfileViewModel(
     private val userId: Int?,
     private val profileApi: ProfileApi,
+    private val friendsApi: FriendsApi,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
     private val _profileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
@@ -31,6 +36,9 @@ class ProfileViewModel(
 
     private val _gamesState = MutableStateFlow<UiState<List<FollowedGame>>>(UiState.Idle)
     val gamesState = _gamesState.asStateFlow()
+
+    private val _friendshipStatus = MutableStateFlow<FriendshipStatus?>(null)
+    val friendshipStatus = _friendshipStatus.asStateFlow()
 
     private val _logoutEvent = MutableSharedFlow<Unit>()
     val logoutEvent = _logoutEvent.asSharedFlow()
@@ -50,6 +58,11 @@ class ProfileViewModel(
             loadLastSessions(profile.id)
             loadFollowedGames(profile.id)
 
+            // Load Friendship Status when it's not your userId
+            val myUserId = tokenDataStore.userId.firstOrNull()
+            if (profile.id != myUserId) {
+                loadFriendshipStatus(profile.id)
+            }
             profile
         }
     }
@@ -99,4 +112,62 @@ class ProfileViewModel(
         }
     }
 
+    fun loadFriendshipStatus(targetUserId: Int) {
+        viewModelScope.launch {
+            try {
+                val myUserId = tokenDataStore.userId.firstOrNull() ?: return@launch
+
+                // Check if the target use is already a friend
+                val friends = friendsApi.getFriends(myUserId)
+                if (friends.any { it.user.id == targetUserId }) {
+                    _friendshipStatus.update { FriendshipStatus.FRIENDS }
+                    return@launch
+                }
+
+                // Check if is there is already a pending request
+                val requests = friendsApi.getAllFriendRequests()
+                val isPending = requests.outstanding.any { it.user.id == targetUserId && it.status == FriendshipStatus.PENDING }
+
+                // Update the friendship status based on the checks above
+                _friendshipStatus.update {
+                    if (isPending) FriendshipStatus.PENDING
+                    else null
+                }
+            } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Failed to load friendship status", e)
+                _friendshipStatus.update { FriendshipStatus.REJECTED }
+            }
+        }
+    }
+
+    fun onFriendButtonClicked(targetUserId: Int) {
+        when (_friendshipStatus.value) {
+            FriendshipStatus.FRIENDS -> removeFriend(targetUserId)
+            FriendshipStatus.REJECTED, null -> sendFriendRequest(targetUserId)
+            FriendshipStatus.PENDING -> Unit
+            else -> Unit
+        }
+    }
+
+    private fun sendFriendRequest(targetUserId: Int) {
+        viewModelScope.launch {
+            try {
+                friendsApi.addFriend(targetUserId)
+                _friendshipStatus.update { FriendshipStatus.PENDING }
+            } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Failed to send friend request", e)
+            }
+        }
+    }
+
+    private fun removeFriend(friendId: Int) {
+        viewModelScope.launch {
+            try {
+                friendsApi.deleteFriend(friendId)
+                _friendshipStatus.update { null }
+            } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Failed to remove friend", e)
+            }
+        }
+    }
 }

@@ -62,7 +62,8 @@ val viewModelsModule = module {
         ProfileViewModel(
             userId = userId,
             profileApi = get(),
-            tokenDataStore = get()
+            tokenDataStore = get(),
+            friendsApi = get()
         )
     }
     viewModelOf(::GameDetailViewModel)
