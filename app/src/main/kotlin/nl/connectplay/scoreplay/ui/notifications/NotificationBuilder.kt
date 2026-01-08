@@ -1,0 +1,42 @@
+package nl.connectplay.scoreplay.ui.notifications
+
+import android.Manifest
+import android.content.Context
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import nl.connectplay.scoreplay.R
+
+object NotificationBuilder {
+    // only use this function if the app has notifications permissions
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    fun showNotification(appContext: Context, title: String, message: String) {
+        val notificationManager = NotificationManagerCompat.from(appContext)
+
+        // checks if the app allowed to send notifications
+        if (!notificationManager.areNotificationsEnabled()) return
+
+        // build the actual notifications
+        val notification =
+            NotificationCompat.Builder(
+                appContext,
+                // the channel determines the sound, importance and visibility
+                NotificationChannelProvider.CHANNEL_ID
+            )
+                .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: change the Icon to Notification Icon
+                .setContentTitle(title)
+                .setContentText(message)
+                // set the importance level so the notifications will be shown as normal alert
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // removes notifications when the user clicks on it
+                .setAutoCancel(true)
+
+        // triggers the notification to be shown to the user (notify)
+        // this unique notification id is required so multiple notifications can exist at the same time (System.currentTimeMillis().toInt())
+        notificationManager.notify(
+            System.currentTimeMillis().toInt(),
+            notification.build()
+        )
+
+    }
+}

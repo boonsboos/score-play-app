@@ -57,14 +57,13 @@ import org.koin.core.parameter.parametersOf
 fun GameDetailScreen(
     gameId: Int,
     backStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier,
     gameDetail: GameDetailViewModel = koinViewModel(parameters = { parametersOf(gameId) })
 ) {
     val state by gameDetail.gameState.collectAsState()
     val loading by gameDetail.loadingState.collectAsState()
 
     val carouselState = rememberCarouselState { state?.pictures?.size ?: 0 }
-    val snackBarState = remember { SnackbarHostState()  }
+    val snackBarState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     if (loading) {
@@ -174,9 +173,11 @@ fun GameDetailScreen(
                 thickness = 1.dp
             )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
                 Column {
                     Text(text = "Description", style = MaterialTheme.typography.headlineMedium)
                     ExpandableText(state?.description ?: "No description found")

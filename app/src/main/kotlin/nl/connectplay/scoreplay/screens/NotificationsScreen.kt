@@ -45,11 +45,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.format.char
-import kotlinx.datetime.toLocalDateTime
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
 import nl.connectplay.scoreplay.models.notifications.NotificationUi
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
@@ -57,7 +52,6 @@ import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
 import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.models.user.UserProfile
-import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
 import nl.connectplay.scoreplay.utilities.formatted
@@ -84,7 +78,6 @@ fun NotificationsScreen(
     val filterScrollState = rememberScrollState()
     val selectedNotification =
         remember { mutableStateOf<NotificationUi?>(null) } // holds the selected notification
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(), // the screen is filled entire size
@@ -262,10 +255,11 @@ fun NotificationRow(
         headlineContent = headlineContent,
         supportingContent = supportingContent,
         colors = ListItemDefaults.colors()
-            .copy(containerColor = if (read)
-                MaterialTheme.colorScheme.surfaceContainerLowest
-            else
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            .copy(
+                containerColor = if (read)
+                    MaterialTheme.colorScheme.surfaceContainerLowest
+                else
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             ),
         modifier = Modifier
             .fillMaxWidth()
@@ -347,10 +341,13 @@ fun HighscoreNotificationItem(
         read = read,
         onClick = onClick,
         headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
-        leadingContent = { Icon(
-            imageVector = Icons.Filled.EmojiEvents,
-            contentDescription = null,
-            modifier = Modifier.size(50.dp)) },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.EmojiEvents,
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        },
         supportingContent = {
             if (userDto != null) {
                 Text("${userDto.username} got a score of ${event.score.score}!")

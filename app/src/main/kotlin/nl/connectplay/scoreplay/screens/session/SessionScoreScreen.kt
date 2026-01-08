@@ -160,13 +160,23 @@ fun SessionScoreScreen(
                     items(state.turns) { turn ->
                         ListItem(
                             headlineContent = { Text("Round $turn") },
-                            trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Default.ChevronRight,
+                                    contentDescription = null
+                                )
+                            },
                             colors = ListItemDefaults.colors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
                                 headlineColor = MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier.clickable {
-                                backStack.add(Screens.RoundDetail(sessionId = session.id, turn = turn))
+                                backStack.add(
+                                    Screens.RoundDetail(
+                                        sessionId = session.id,
+                                        turn = turn
+                                    )
+                                )
                             }
                         )
                     }

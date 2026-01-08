@@ -33,7 +33,10 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
+import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
+import org.koin.android.ext.koin.androidContext
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -43,7 +46,12 @@ val viewModelsModule = module {
     viewModelOf(::RegisterViewModel)
     viewModelOf(::GamesListViewModel)
     viewModelOf(::LoginViewModel)
-    viewModelOf(::MainViewModel)
+    viewModel {
+        MainViewModel(
+            tokenDataStore = get(),
+            notificationListViewModel = get()
+        )
+    }
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
@@ -53,18 +61,18 @@ val viewModelsModule = module {
             tokenDataStore = get()
         )
     }
-
-    viewModelOf(::SearchViewModel)
     viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
         ProfileViewModel(
             userId = userId,
             profileApi = get(),
-            tokenDataStore = get()
+            tokenDataStore = get(),
+            friendsApi = get()
         )
     }
     viewModelOf(::GameDetailViewModel)
+    viewModelOf(::HomeViewModel)
     viewModelOf(::LeaderboardViewModel)
 }
 
@@ -85,6 +93,7 @@ val apiModule = module {
     single { ProfileApi(get(), get()) }
     single { FriendsApi(get(), get()) }
     singleOf(::LeaderboardApi)
+    single { NotificationBadgeViewModel(get(), androidContext()) }
 }
 
 // Koin module for app storage (DataStore)
@@ -96,10 +105,10 @@ val databaseModule = module {
 
     single {
         Room.databaseBuilder(
-                get(),
-                Database::class.java,
-                "scoreplay.db"
-            ).fallbackToDestructiveMigration(true)
+            get(),
+            Database::class.java,
+            "scoreplay.db"
+        ).fallbackToDestructiveMigration(true)
             .build()
     }
 

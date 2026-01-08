@@ -55,6 +55,10 @@ object Routes {
     object FriendRequest {
         const val getAllFriendRequests = "/users/me/friendrequests"
 
+        fun addFriend(userId: Int) = "/users/$userId/friends"
+
+        fun removeFriend(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
+
         fun handleFriendRequest(userId: Int, friendId: Int) = "/users/$userId/friends/$friendId"
     }
 
@@ -82,11 +86,14 @@ object Routes {
 
         fun byId(userId: Int) = "$root/$userId"
         fun sessions(userId: Int) = "$root/$userId/sessions"
-        fun followedGames(userId: Int) = "$root/$userId/followed"
+        fun recent(userId: Int) = "$root/$userId/games"
+        fun followedGames(userId: Int, withPodium: Boolean) = "$root/$userId/followed" +
+                if (withPodium) "?withPodium" else ""
     }
 
     object Notifications {
         const val root = "/notifications"
+        const val live = "$root/live" // SSE endpoint for live notifications
         fun byId(notificationId: String) = "$root/$notificationId"
     }
 }
