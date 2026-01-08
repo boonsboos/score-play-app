@@ -49,7 +49,6 @@ import nl.connectplay.scoreplay.ui.components.ExpandableText
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
