@@ -32,7 +32,6 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.utilities.formattedDate
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
