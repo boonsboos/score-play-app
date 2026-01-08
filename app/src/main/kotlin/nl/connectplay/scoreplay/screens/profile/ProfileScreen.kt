@@ -248,7 +248,10 @@ fun ProfileScreen(
                                 .fillMaxWidth()
                                 .height(75.dp)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
-                                .padding(horizontal = 20.dp),
+                                .padding(horizontal = 20.dp)
+                                .clickable {
+                                    backStack.add(Screens.GameDetail(game.id))
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
