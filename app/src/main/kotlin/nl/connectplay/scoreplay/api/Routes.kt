@@ -67,6 +67,8 @@ object Routes {
 
         fun byId(sessionId: String) = "$root/$sessionId"
 
+        fun picture(sessionId: String) = byId(sessionId) + "/picture"
+
         fun byUserAndSessionId(userId: Int, sessionId: String) = "/users/$userId/sessions/$sessionId"
 
         object Players {

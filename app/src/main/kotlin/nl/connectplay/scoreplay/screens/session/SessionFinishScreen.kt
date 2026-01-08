@@ -1,7 +1,9 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -42,8 +45,11 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.FallbackImage
+import nl.connectplay.scoreplay.ui.components.PhotoPickerSheet
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.RoundScoreRow
+import nl.connectplay.scoreplay.viewModels.session.SessionEndImageState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -61,6 +67,9 @@ fun SessionFinishScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val context = LocalContext.current
+    var showImagePicker by remember { mutableStateOf(false) }
+    val imageUri by sessionViewModel.sessionEndImage.collectAsState()
 
     // Load the persisted session snapshot once when the screen enters, including winner calculation.
     LaunchedEffect(Unit) {
@@ -165,7 +174,7 @@ fun SessionFinishScreen(
                 )
 
                 TextButton(
-                    onClick = { /* TODO: pick image */ },
+                    onClick = { showImagePicker = true },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Icon(Icons.Default.Upload, contentDescription = null)
@@ -174,12 +183,28 @@ fun SessionFinishScreen(
                 }
             }
 
+            if (showImagePicker) {
+                PhotoPickerSheet(
+                    onDismissRequest = { showImagePicker = false },
+                    onPictureTaken = { imageUri ->
+                        sessionViewModel.addImage(SessionEndImageState(imageUri, context))
+                    }
+                )
+            }
+
             Spacer(Modifier.height(4.dp))
 
             Text(
                 text = "Upload a picture of the table at the end of the game.",
                 style = MaterialTheme.typography.labelMedium
             )
+
+            if (imageUri != null) {
+                FallbackImage(
+                    url = imageUri!!.image,
+                    size = 300.dp,
+                ) {}
+            }
         }
     }
 }

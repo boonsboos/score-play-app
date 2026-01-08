@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,6 +51,7 @@ import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.FallbackImage
+import nl.connectplay.scoreplay.ui.components.PhotoPickerSheet
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayInputField
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
@@ -80,41 +82,6 @@ fun ProfileEditScreen(
     val emailState by profileEditViewModel.email.collectAsState()
     val pendingImage by profileEditViewModel.pendingImageUri.collectAsState()
     val pictureUrl by profileEditViewModel.pictureUrl.collectAsState()
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
-
-    fun createCameraUri() {
-        val file = createImageFile(context)
-        cameraUri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
-    }
-
-    val takePhotoLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success && cameraUri != null) {
-            profileEditViewModel.onPictureChanged(cameraUri!!)
-        }
-    }
-
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            profileEditViewModel.onPictureChanged(it)
-        }
-    }
-
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            createCameraUri()
-            cameraUri?.let { takePhotoLauncher.launch(it) }
-        } else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-    }
 
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) backStack.removeAt(backStack.lastIndex)
@@ -231,59 +198,13 @@ fun ProfileEditScreen(
             )
         }
         if (showPicker) {
-            ModalBottomSheet(
-                onDismissRequest = { showPicker = false }
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = "Change profile picture",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        ScorePlayButton(
-                            label = "Take photo",
-                            onClick = {
-                                showPicker = false
-                                when (
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.CAMERA
-                                    )
-                                ) {
-                                    PackageManager.PERMISSION_GRANTED -> {
-                                        createCameraUri()
-                                        cameraUri?.let { takePhotoLauncher.launch(it) }
-                                    }
-
-                                    else ->
-                                        requestPermissionLauncher.launch(
-                                            Manifest.permission.CAMERA
-                                        )
-                                }
-                            }
-                        )
-
-                        ScorePlayButton(
-                            label = "Choose from gallery",
-                            onClick = {
-                                showPicker = false
-                                pickImageLauncher.launch("image/*")
-                            }
-                        )
-                    }
+            PhotoPickerSheet(
+                onDismissRequest = { showPicker = false },
+                onPictureTaken = {
+                    Log.d(it::class.simpleName, "Picture $it")
+                    profileEditViewModel.onPictureChanged(it)
                 }
-            }
+            )
         }
     }
-}
-
-fun createImageFile(context: Context): File {
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
 }

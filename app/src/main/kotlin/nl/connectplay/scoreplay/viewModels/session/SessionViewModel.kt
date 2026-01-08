@@ -21,6 +21,7 @@ import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.dto.CreateSessionDto
 import nl.connectplay.scoreplay.models.dto.CreateScoreDto
+import nl.connectplay.scoreplay.models.dto.UpdateSessionDto
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.room.dao.SessionDao
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
@@ -29,6 +30,8 @@ import nl.connectplay.scoreplay.room.entities.RoomSession
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 import nl.connectplay.scoreplay.room.entities.RoomSessionScore
 import nl.connectplay.scoreplay.stores.TokenDataStore
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class SessionViewModel(
     private val sessionDao: SessionDao,
@@ -60,6 +63,9 @@ class SessionViewModel(
     // Snackbar for success message
     private val _snackbar = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val snackbar = _snackbar.asSharedFlow()
+
+    private val _sessionEndImage = MutableStateFlow<SessionEndImageState?>(null)
+    val sessionEndImage = _sessionEndImage.asStateFlow()
 
     private suspend fun getUserId(): Int? {
         return tokenDataStore.userId.firstOrNull()
@@ -355,18 +361,18 @@ class SessionViewModel(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun handleFinishSession() {
+        Log.d("FinishSession", "Called!")
+
         viewModelScope.launch {
             try {
                 val session = sessionDao.getSession()
-                val players = sessionPlayerDao.getSessionPlayers()
-                val scores = sessionScoreDao.getScoresForSession()
 
                 /** 1) Create a session on the backend and obtain the backend session identifier (UUID/String). */
                 val createResp = sessionApi.createSession(
                     CreateSessionDto(
                         gameId = session.gameId,
-                        userId = session.userId,
                         visibility = session.visibility.toInt()
                     )
                 )
@@ -374,47 +380,28 @@ class SessionViewModel(
                 // If createResp is a DTO: use createResp.sessionId. If it already is a String, rename createResp -> remoteSessionId.
                 val remoteSessionId: String = createResp
 
-                /**
-                 * Room scores reference players by local sessionPlayerId.
-                 * Backend expects player identity by (userId, guestName), so we map local IDs back to player info.
-                 */
-                val playersById = players.associateBy { it.sessionPlayerId }
-
-                /** 2. Build bulk payload of all persisted turns for upload. */
-                val payload: List<CreateScoreDto> = scores.map { score ->
-                    val player = playersById[score.sessionPlayerId]
-
-                    if (player == null) {
-                        Log.e(
-                            "FinishSession",
-                            "Skipping score: no player for sessionPlayerId=${score.sessionPlayerId}, scoreId=${score.id}"
-                        )
-                        return@launch
-                    }
-
-                    CreateScoreDto(
-                        score = score.score,
-                        turn = score.turn,
-                        sessionPlayer = SessionPlayerDto(
-                            userId = player.userId,
-                            guest = player.guestName
-                        )
-                    )
-                }
+                /** 2) Build bulk payload of all persisted turns for upload. */
+                val scores = prepareScores()
 
                 /** 3) Upload all scores in one call. */
-                sessionApi.addScores(remoteSessionId, payload)
-                Log.d("SessionVM", "addScores OK -> uploaded=${payload.size}")
+                sessionApi.addScores(remoteSessionId, scores)
+                Log.d("SessionVM", "addScores OK -> uploaded=${scores.size}")
 
-                /**
-                 * Known issue:
-                 * Backend currently rejects score upload with 403 "Session not yet finished".
-                 *
-                 * @Jonas
-                 *
-                 * Likely requires marking the backend session as finished before accepting scores,
-                 * or using the correct endpoint/flow for creating + finishing + uploading.
-                 */
+                // 4) Set the end time
+                sessionApi.update(remoteSessionId, updateSessionDto = UpdateSessionDto(endTime = Clock.System.now().toString()))
+
+                // 5) optionally upload the picture
+                // do it in a different coroutine because it takes longer
+                launch {
+                    val sessionEndImage = _sessionEndImage.value ?: return@launch
+
+                    sessionApi.addEndPicture(
+                        sessionId = remoteSessionId,
+                        dataInputStream = sessionEndImage.context.contentResolver?.openInputStream(
+                            sessionEndImage.image
+                        )!!
+                    )
+                }
 
                 _snackbar.tryEmit("Session Uploaded Successfully!")
 
@@ -422,5 +409,47 @@ class SessionViewModel(
                 Log.e("SessionVM", "FinishSession failed", e)
             }
         }
+    }
+
+    suspend fun prepareScores(): List<CreateScoreDto> {
+
+        val players = sessionPlayerDao.getSessionPlayers()
+        val scores = sessionScoreDao.getScoresForSession()
+        /**
+         * Room scores reference players by local sessionPlayerId.
+         * Backend expects player identity by (userId, guestName), so we map local IDs back to player info.
+         */
+        val playersById = players.associateBy { it.sessionPlayerId }
+
+        Log.d("prepareScores", "${scores.size}")
+
+        val payload: MutableList<CreateScoreDto> = mutableListOf()
+        for (score in scores) {
+            val player = playersById[score.sessionPlayerId]
+
+            if (player == null) {
+                Log.e(
+                    "FinishSession",
+                    "Skipping score: no player for sessionPlayerId=${score.sessionPlayerId}, scoreId=${score.id}"
+                )
+                continue
+            }
+
+            payload.add(
+                CreateScoreDto(
+                    score = score.score,
+                    turn = score.turn,
+                    sessionPlayer = SessionPlayerDto(
+                        userId = player.userId,
+                        guest = player.guestName
+                    )
+                )
+            )
+        }
+        return payload
+    }
+
+    fun addImage(sessionEndImageState: SessionEndImageState) {
+        _sessionEndImage.value = sessionEndImageState
     }
 }
