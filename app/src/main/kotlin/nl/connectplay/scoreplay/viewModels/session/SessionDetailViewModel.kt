@@ -17,12 +17,12 @@ class SessionDetailViewModel(
     private val _state = MutableStateFlow(SessionDetailState())
     val state = _state.asStateFlow()
 
-    fun loadSession(targetId: Int, sessionId: String) {
+    fun loadSession(userId: Int, sessionId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val session: Session = sessionApi.loadSessionById(targetId, sessionId)
+                val session: Session = sessionApi.loadSessionById(userId, sessionId)
 
                 _state.update {
                     it.copy(
