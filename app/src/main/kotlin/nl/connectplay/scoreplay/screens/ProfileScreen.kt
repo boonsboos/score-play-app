@@ -52,7 +52,6 @@ import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import nl.connectplay.scoreplay.viewModels.profile.UiState
 import org.koin.androidx.compose.koinViewModel
