@@ -22,12 +22,12 @@ import org.koin.androidx.compose.koinViewModel
 fun SessionDetailScreen(
     backStack: NavBackStack<NavKey>,
     sessionId: String,
-    userId: Int,
+    targetId: Int,
     sessionViewModel: SessionDetailViewModel = koinViewModel()
 ) {
 
     LaunchedEffect(sessionId) {
-        sessionViewModel.loadSession(userId, sessionId)
+        sessionViewModel.loadSession(targetId, sessionId)
     }
 
     val state by sessionViewModel.state.collectAsState()
