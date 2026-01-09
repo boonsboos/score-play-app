@@ -70,12 +70,19 @@ class ProfileViewModel(
         }
     }
 
+    fun loadAllSessions(id: Int) {
+        launchRequest(_sessionsState) {
+            profileApi.getAllSessions(id)
+        }
+    }
+
     fun loadFollowedGames(id: Int) {
         launchRequest(_gamesState) {
             profileApi.getFollowedGames(id)
         }
     }
 
+    // this function runs a request inside viewModelScope so you don't repeat it everywhere
     private fun <T> launchRequest(
         state: MutableStateFlow<UiState<T>>,
         block: suspend () -> T
@@ -123,7 +130,8 @@ class ProfileViewModel(
 
                 // Check if is there is already a pending request
                 val requests = friendsApi.getAllFriendRequests()
-                val isPending = requests.outstanding.any { it.user.id == targetUserId && it.status == FriendshipStatus.PENDING }
+                val isPending =
+                    requests.outstanding.any { it.user.id == targetUserId && it.status == FriendshipStatus.PENDING }
 
                 // Update the friendship status based on the checks above
                 _friendshipStatus.update {
