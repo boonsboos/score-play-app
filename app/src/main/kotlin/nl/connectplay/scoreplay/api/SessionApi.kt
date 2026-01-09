@@ -70,8 +70,11 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
                 bearerAuth(tokenDataStore.token.first() ?: "")
             }.body()
 
-        } catch (_: NoTransformationFoundException) {
-            Log.d("ScoresApiCall", "The scores are NOT given!")
+        } catch (e: NoTransformationFoundException) {
+            Log.d(
+                "ScoresApiCall",
+                "Failed to parse scores response for session $sessionId; returning empty list: ${e.message}"
+            )
             listOf()
         }
     }
