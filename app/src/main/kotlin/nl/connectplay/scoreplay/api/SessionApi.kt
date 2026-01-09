@@ -76,6 +76,9 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
                 "Failed to parse scores response for session $sessionId; returning empty list: ${e.message}"
             )
             listOf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to get scores", e)
         }
     }
 
