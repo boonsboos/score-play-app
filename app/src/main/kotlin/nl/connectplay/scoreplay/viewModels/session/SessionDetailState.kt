@@ -5,7 +5,7 @@ import nl.connectplay.scoreplay.models.session.Session
 
 data class SessionDetailState(
     val session: Session? = null,
-    val scores: List<ScoreDto>? = emptyList(),
+    val scores: List<ScoreDto> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )
