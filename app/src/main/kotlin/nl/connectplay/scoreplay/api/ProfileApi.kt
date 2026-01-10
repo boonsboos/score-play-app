@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.api
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
@@ -15,6 +16,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import io.ktor.http.contentType
 import kotlinx.coroutines.flow.firstOrNull
@@ -217,5 +219,27 @@ class ProfileApi(
     } catch (e: NoTransformationFoundException) {
         e.printStackTrace()
         throw Exception("Failed to upload profile picture", e)
+    }
+
+    suspend fun getAllSessions(userId: Int): List<UserSession> {
+        try {
+            // make a get request to get all sessions of the specific user
+            val response = client.get(Routes.Users.sessions(userId)) {
+                bearerAuth(tokenDataStore.token.firstOrNull().orEmpty())
+            }
+
+            // if the api return a 201
+            return if (response.status == HttpStatusCode.NoContent) {
+                emptyList()
+            } else {
+                response.body()
+            }
+        } catch (e: ClientRequestException) {
+            // if the token is invalid (401)
+            if (e.response.status == HttpStatusCode.Unauthorized) {
+                tokenDataStore.clearToken()
+            }
+            throw e
+        }
     }
 }

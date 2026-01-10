@@ -55,7 +55,10 @@ object Screens {
     data class EditProfile(val currentUser: UserProfile) : NavKey
 
     @Serializable
-    data class FollowedGames(val userId: Int?=null) : NavKey
+    data class FollowedGames(val userId: Int? = null) : NavKey
+
+    @Serializable
+    data class UserSessions(val userId: Int? = null) : NavKey
 
     @Serializable
     data class Leaderboard(val gameId: Int) : NavKey

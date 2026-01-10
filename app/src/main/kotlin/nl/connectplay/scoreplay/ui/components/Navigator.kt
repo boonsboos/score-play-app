@@ -26,6 +26,7 @@ import nl.connectplay.scoreplay.screens.RegisterScreen
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.screens.SearchScreen
 import nl.connectplay.scoreplay.screens.profile.FollowedGamesScreen
+import nl.connectplay.scoreplay.screens.profile.UserSessionsScreen
 import nl.connectplay.scoreplay.screens.session.RoundDetailScreen
 import nl.connectplay.scoreplay.screens.session.SessionFinishScreen
 import nl.connectplay.scoreplay.screens.session.SessionScoreScreen
@@ -107,6 +108,10 @@ fun Navigator(modifier: Modifier = Modifier) {
 
                 is Screens.FollowedGames -> NavEntry(key = key) {
                     FollowedGamesScreen(backStack, targetUserId = key.userId)
+                }
+
+                is Screens.UserSessions -> NavEntry(key = key) {
+                    UserSessionsScreen(backStack, targetUserId = key.userId)
                 }
 
                 is Screens.Friends -> NavEntry(key = key) {
