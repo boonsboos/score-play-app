@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.api
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
@@ -28,6 +29,7 @@ import kotlinx.io.buffered
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.dto.CreateSessionDto
 import nl.connectplay.scoreplay.models.dto.CreateScoreDto
+import nl.connectplay.scoreplay.models.dto.ScoreDto
 import nl.connectplay.scoreplay.models.dto.UpdateSessionDto
 import nl.connectplay.scoreplay.models.session.Session
 import nl.connectplay.scoreplay.stores.TokenDataStore
@@ -70,6 +72,25 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
         if (!resp.status.isSuccess()) {
             throw RuntimeException("addScores failed: ${resp.status} $raw")
+        }
+    }
+
+    suspend fun allScores(sessionId: String): List<ScoreDto> {
+        return try {
+            client.get(Routes.Sessions.Scores.all(sessionId)) {
+                contentType(ContentType.Application.Json)
+                bearerAuth(tokenDataStore.token.first() ?: "")
+            }.body()
+
+        } catch (e: NoTransformationFoundException) {
+            Log.d(
+                "ScoresApiCall",
+                "Failed to parse scores response for session $sessionId; returning empty list: ${e.message}"
+            )
+            listOf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to get scores", e)
         }
     }
 

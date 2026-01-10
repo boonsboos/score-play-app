@@ -34,7 +34,7 @@ object Screens {
     data object SessionFinish : NavKey
 
     @Serializable
-    data class SessionDetail(val sessionId: String, val targetId: Int) : NavKey
+    data class SessionDetail(val sessionId: String, val userId: Int, val ownerName: String) : NavKey
 
     @Serializable
     data class GameDetail(val gameId: Int) : NavKey

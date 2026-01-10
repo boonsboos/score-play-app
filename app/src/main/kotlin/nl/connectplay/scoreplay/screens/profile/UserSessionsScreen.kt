@@ -76,6 +76,11 @@ fun UserSessionsScreen(
         }
     }
 
+    val ownerName: String = (profileState as? UiState.Success)
+        ?.data
+        ?.username
+        ?: "Session Owner"
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title, backStack) },
@@ -125,7 +130,8 @@ fun UserSessionsScreen(
                                     backStack.add(
                                         Screens.SessionDetail(
                                             sessionId = session.id,
-                                            targetId = session.hostId
+                                            userId = session.hostId,
+                                            ownerName = ownerName
                                         )
                                     )
                                 },
