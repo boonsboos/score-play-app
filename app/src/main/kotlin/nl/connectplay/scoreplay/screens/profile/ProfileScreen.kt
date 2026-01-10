@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens.profile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -175,7 +176,14 @@ fun ProfileScreen(
                     item {
                         SectionHeader(
                             "Last ${state.data.size} sessions",
-                            onClick = { /* TODO: Navigate to all sessions */ })
+                            onClick = {
+                                backStack.add(
+                                    Screens.UserSessions(
+                                        (profileState as UiState.Success).data.id
+                                    )
+                                )
+                            }
+                        )
                     }
                     items(items) { session ->
                         Row(
