@@ -391,19 +391,20 @@ class SessionViewModel(
                 sessionApi.update(remoteSessionId, updateSessionDto = UpdateSessionDto(endTime = Clock.System.now().toString()))
 
                 // 5) optionally upload the picture
-                // do it in a different coroutine because it takes longer
-                launch {
-                    val sessionEndImage = _sessionEndImage.value ?: return@launch
-
+                val sessionImageUploadSuccess = _sessionEndImage.value?.let {
                     sessionApi.addEndPicture(
                         sessionId = remoteSessionId,
-                        dataInputStream = sessionEndImage.context.contentResolver?.openInputStream(
-                            sessionEndImage.image
+                        dataInputStream = it.context.contentResolver?.openInputStream(
+                            it.image
                         )!!
                     )
+                } ?: false
+
+                if (!sessionImageUploadSuccess) {
+                    Log.w("handleFinishSession", "We didn't manage to upload the session image, but everything else went fine!")
                 }
 
-                _snackbar.tryEmit("Session Uploaded Successfully!")
+                _snackbar.tryEmit("Session uploaded successfully!")
 
             } catch (e: Exception) {
                 Log.e("SessionVM", "FinishSession failed", e)

@@ -199,6 +199,7 @@ fun ProfileEditScreen(
         }
         if (showPicker) {
             PhotoPickerSheet(
+                prompt = "Change profile picture",
                 onDismissRequest = { showPicker = false },
                 onPictureTaken = {
                     Log.d(it::class.simpleName, "Picture $it")

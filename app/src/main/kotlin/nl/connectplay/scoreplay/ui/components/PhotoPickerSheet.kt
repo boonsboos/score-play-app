@@ -37,7 +37,11 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotoPickerSheet(onDismissRequest: () -> Unit, onPictureTaken: (photo: Uri) -> Unit) {
+fun PhotoPickerSheet(
+    prompt: String,
+    onDismissRequest: () -> Unit,
+    onPictureTaken: (photo: Uri) -> Unit
+) {
     val context = LocalContext.current
     var cameraUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
@@ -90,7 +94,7 @@ fun PhotoPickerSheet(onDismissRequest: () -> Unit, onPictureTaken: (photo: Uri) 
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Change profile picture",
+                text = prompt,
                 style = MaterialTheme.typography.titleMedium
             )
             Row(
@@ -125,7 +129,7 @@ fun PhotoPickerSheet(onDismissRequest: () -> Unit, onPictureTaken: (photo: Uri) 
                     onClick = {
                         scope.launch {
                             sheetState.hide()
-                            pickImageLauncher.launch("image/jpeg")
+                            pickImageLauncher.launch("image/*")
                         }
                     }
                 )

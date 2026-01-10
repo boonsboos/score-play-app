@@ -20,6 +20,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.io.asSource
@@ -123,7 +124,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
                         )
                         append(HttpHeaders.ContentType, ContentType.Image.JPEG)
                     }) {
-                        dataInputStream.asSource().buffered()
+                        dataInputStream.use { it.asInput() }
                     }
                 }
             )

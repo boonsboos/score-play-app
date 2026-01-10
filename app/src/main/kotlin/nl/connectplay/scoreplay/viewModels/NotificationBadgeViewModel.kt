@@ -48,9 +48,8 @@ class NotificationBadgeViewModel(
         viewModelScope.launch {
             Log.d("SSE", "Starting SSE session")
 
-            lateinit var session: ClientSSESession
             try {
-                session = httpClient.sseSession(
+                val session = httpClient.sseSession(
                     urlString = Routes.Notifications.live,
                     reconnectionTime = 15.seconds // try to reconnect after 15sec if connection gets lost
                 ) {
@@ -65,7 +64,6 @@ class NotificationBadgeViewModel(
                 Log.e("SSE", "SSE session encountered an error ${e.message}", e)
             } finally {
                 Log.w("SSE", "Closing connection!")
-                session.coroutineContext.cancel()
             }
         }
     }

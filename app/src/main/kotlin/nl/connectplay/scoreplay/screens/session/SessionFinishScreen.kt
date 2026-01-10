@@ -185,6 +185,7 @@ fun SessionFinishScreen(
 
             if (showImagePicker) {
                 PhotoPickerSheet(
+                    prompt = "Get a picture of the table",
                     onDismissRequest = { showImagePicker = false },
                     onPictureTaken = { imageUri ->
                         sessionViewModel.addImage(SessionEndImageState(imageUri, context))
