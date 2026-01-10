@@ -123,7 +123,10 @@ fun UserSessionsScreen(
                             androidx.compose.material3.ListItem(
                                 modifier = Modifier.clickable {
                                     backStack.add(
-                                        Screens.GameDetail(session.game.id)
+                                        Screens.SessionDetail(
+                                            sessionId = session.id,
+                                            targetId = session.hostId
+                                        )
                                     )
                                 },
                                 headlineContent = {
