@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -200,11 +201,18 @@ fun SessionFinishScreen(
                 style = MaterialTheme.typography.labelMedium
             )
 
-            if (imageUri != null) {
-                FallbackImage(
-                    url = imageUri!!.image,
-                    size = 300.dp,
-                ) {}
+            imageUri?.let { imageState ->
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    FallbackImage(
+                        url = imageState.image,
+                        size = 300.dp,
+                    ) { /* no fallback required as URL is always non-null */ }
+                }
             }
         }
     }
