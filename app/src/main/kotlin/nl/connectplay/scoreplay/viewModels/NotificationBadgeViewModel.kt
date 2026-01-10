@@ -10,13 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.sse.ClientSSESession
 import io.ktor.client.plugins.sse.sseSession
 import kotlin.time.Duration.Companion.seconds
 import io.ktor.client.request.headers
 import io.ktor.sse.ServerSentEvent
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.cancel
 import kotlinx.serialization.json.Json
 import nl.connectplay.scoreplay.api.Routes
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
@@ -47,7 +44,6 @@ class NotificationBadgeViewModel(
     fun startSse(token: String) {
         viewModelScope.launch {
             Log.d("SSE", "Starting SSE session")
-
             try {
                 val session = httpClient.sseSession(
                     urlString = Routes.Notifications.live,
@@ -62,8 +58,6 @@ class NotificationBadgeViewModel(
                 session.incoming.collect { processSseEvent(it) }
             } catch (e: Exception) {
                 Log.e("SSE", "SSE session encountered an error ${e.message}", e)
-            } finally {
-                Log.w("SSE", "Closing connection!")
             }
         }
     }
