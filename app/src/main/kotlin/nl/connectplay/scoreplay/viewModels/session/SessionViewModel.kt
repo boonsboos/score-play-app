@@ -364,8 +364,6 @@ class SessionViewModel(
 
     @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
     private fun handleFinishSession() {
-        Log.d("FinishSession", "Called!")
-
         viewModelScope.launch {
             try {
                 val session = sessionDao.getSession()
