@@ -167,7 +167,8 @@ fun ProfileScreen(
             }
             stateSection(sessionsState) { state ->
                 val items = state.data
-                var targetId = (profileState as? UiState.Success)?.data?.id ?: targetUserId
+                val targetId = (profileState as? UiState.Success)?.data?.id ?: targetUserId
+
                 if (items.isEmpty()) {
                     item {
                         SectionHeader("Last sessions", empty = true)
@@ -183,56 +184,62 @@ fun ProfileScreen(
                             "Last ${state.data.size} sessions",
                             onClick = { /* TODO: Navigate to all sessions */ })
                     }
-                    items(items) { session ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(75.dp)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
-                                .padding(horizontal = 20.dp)
-                                .clickable(enabled = targetId != null) {
-                                    backStack.add(
-                                        Screens.SessionDetail(
-                                            sessionId = session.id,
-                                            userId = targetId!!,
-                                            ownerName = ownerName
-                                        )) },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            FallbackImage(
-                                url = session.endOfSessionPictureUrl, size = 75.dp
+                    if (items.isNotEmpty()) {
+                        items(items) { session ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(75.dp)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
+                                    .padding(horizontal = 20.dp)
+                                    .clickable(enabled = targetId != null) {
+                                        targetId?.let { id ->
+                                            backStack.add(
+                                                Screens.SessionDetail(
+                                                    sessionId = session.id,
+                                                    userId = id,
+                                                    ownerName = ownerName
+                                                )
+                                            )
+                                        }
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
                             ) {
-                                Icon(
-                                    modifier = Modifier.size(75.dp),
-                                    imageVector = Icons.Outlined.Image,
-                                    contentDescription = ""
-                                )
-                            }
-                            Column(
-                                modifier = Modifier.height(75.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                Text(
-                                    text = session.game.name,
-                                    modifier = Modifier,
-                                )
-                                Text(
-                                    text = session.startTime.format(
-                                        LocalDateTime.Format {
-                                            day()
-                                            char('-')
-                                            monthNumber()
-                                            char('-')
-                                            year()
-                                            char(' ')
-                                            hour()
-                                            char(':')
-                                            minute()
-                                        }),
-                                    modifier = Modifier
-                                )
+                                FallbackImage(
+                                    url = session.endOfSessionPictureUrl, size = 75.dp
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(75.dp),
+                                        imageVector = Icons.Outlined.Image,
+                                        contentDescription = ""
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier.height(75.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start,
+                                ) {
+                                    Text(
+                                        text = session.game.name,
+                                        modifier = Modifier,
+                                    )
+                                    Text(
+                                        text = session.startTime.format(
+                                            LocalDateTime.Format {
+                                                day()
+                                                char('-')
+                                                monthNumber()
+                                                char('-')
+                                                year()
+                                                char(' ')
+                                                hour()
+                                                char(':')
+                                                minute()
+                                            }),
+                                        modifier = Modifier
+                                    )
+                                }
                             }
                         }
                     }
