@@ -35,7 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -113,11 +116,21 @@ fun SessionSetupScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
         floatingActionButton = {
+            val canContinue = state.gameId != null
             // Persist the draft session to Room before navigating to scoring.
-            FloatingActionButton(onClick = {
-                onEvent(SessionEvent.SaveSession)
-                backStack.add(Screens.SessionScore)
-            }) { Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Score Screen") }
+            if (canContinue) {
+                FloatingActionButton(
+                    onClick = {
+                        onEvent(SessionEvent.SaveSession)
+                        backStack.add(Screens.SessionScore)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Score Screen"
+                    )
+                }
+            }
         },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
