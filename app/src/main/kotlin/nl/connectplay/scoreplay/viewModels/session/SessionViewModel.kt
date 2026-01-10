@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.viewModels.session
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -361,7 +362,7 @@ class SessionViewModel(
         }
     }
 
-    @OptIn(ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
     private fun handleFinishSession() {
         Log.d("FinishSession", "Called!")
 
@@ -391,22 +392,7 @@ class SessionViewModel(
                 sessionApi.update(remoteSessionId, updateSessionDto = UpdateSessionDto(endTime = Clock.System.now().toString()))
 
                 // 5) optionally upload the picture
-                val sessionImageUploadSuccess = _sessionEndImage.value?.let {
-                    val inputStream = it.context.contentResolver?.openInputStream(
-                        it.image
-                    )
-
-                    inputStream?.use { imageData ->
-                        sessionApi.addEndPicture(
-                            sessionId = remoteSessionId,
-                            dataInputStream = imageData
-                        )
-                    }
-                } ?: false
-
-                if (!sessionImageUploadSuccess) {
-                    Log.w("handleFinishSession", "We didn't manage to upload the session image, but everything else went fine!")
-                }
+                uploadSessionEndImage(remoteSessionId)
 
                 _snackbar.tryEmit("Session uploaded successfully!")
 
@@ -416,8 +402,32 @@ class SessionViewModel(
         }
     }
 
-    suspend fun prepareScores(): List<CreateScoreDto> {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun uploadSessionEndImage(remoteSessionId: String): Boolean {
+        // only upload if the user selected an image
+        val sessionImageUploadSuccess = _sessionEndImage.value?.let {
+            val inputStream = it.context.contentResolver?.openInputStream(
+                it.image
+            )
 
+            // make sure the input stream is closed afterwards
+            // we cannot rely on Ktor to close it for us
+            inputStream?.use { imageData ->
+                sessionApi.addEndPicture(
+                    sessionId = remoteSessionId,
+                    dataInputStream = imageData
+                )
+            }
+        } ?: false
+
+        // release our reference to the Context
+        // resetting the replay cache on the MutableStateFlow doesn't do anything so let's just emit null.
+        _sessionEndImage.emit(null)
+
+        return sessionImageUploadSuccess
+    }
+
+    suspend fun prepareScores(): List<CreateScoreDto> {
         val players = sessionPlayerDao.getSessionPlayers()
         val scores = sessionScoreDao.getScoresForSession()
         /**
