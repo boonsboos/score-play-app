@@ -392,12 +392,16 @@ class SessionViewModel(
 
                 // 5) optionally upload the picture
                 val sessionImageUploadSuccess = _sessionEndImage.value?.let {
-                    sessionApi.addEndPicture(
-                        sessionId = remoteSessionId,
-                        dataInputStream = it.context.contentResolver?.openInputStream(
-                            it.image
-                        )!!
+                    val inputStream = it.context.contentResolver?.openInputStream(
+                        it.image
                     )
+
+                    inputStream?.use { imageData ->
+                        sessionApi.addEndPicture(
+                            sessionId = remoteSessionId,
+                            dataInputStream = imageData
+                        )
+                    }
                 } ?: false
 
                 if (!sessionImageUploadSuccess) {
