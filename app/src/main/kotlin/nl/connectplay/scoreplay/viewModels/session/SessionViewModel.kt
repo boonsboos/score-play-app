@@ -3,7 +3,6 @@ package nl.connectplay.scoreplay.viewModels.session
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -362,7 +361,7 @@ class SessionViewModel(
         }
     }
 
-    @OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalTime::class)
     private fun handleFinishSession() {
         viewModelScope.launch {
             try {
@@ -400,7 +399,6 @@ class SessionViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun uploadSessionEndImage(remoteSessionId: String): Boolean {
         // only upload if the user selected an image
         val sessionImageUploadSuccess = _sessionEndImage.value?.let {
