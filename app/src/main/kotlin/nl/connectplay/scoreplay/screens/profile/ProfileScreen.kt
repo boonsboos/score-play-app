@@ -152,9 +152,11 @@ fun ProfileScreen(
 
                         ScorePlayButton(
                             label = when (friendshipStatus) {
-                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> "Remove Friend"
-                                FriendshipStatus.PENDING -> "Pending…"
-                                null, FriendshipStatus.REJECTED -> "Add Friend"
+                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> stringResource(
+                                    R.string.profile_button_remove_friend
+                                )
+                                FriendshipStatus.PENDING -> stringResource(R.string.profile_button_pending_friend)
+                                null, FriendshipStatus.REJECTED -> stringResource(R.string.profile_button_add_friend)
                             },
                             enabled = friendshipStatus != FriendshipStatus.PENDING,
                             onClick = { profileViewModel.onFriendButtonClicked(profile.id) },
@@ -300,7 +302,7 @@ fun ProfileScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             ScorePlayButton(
-                                label = "Log off",
+                                label = stringResource(R.string.profile_button_log_off),
                                 modifier = Modifier
                                     .fillMaxWidth(0.5f)
                                     .padding(top = 40.dp),

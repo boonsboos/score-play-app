@@ -140,7 +140,11 @@ fun UserSessionsScreen(
                                     Text(session.game.name)
                                 },
                                 supportingContent = {
-                                    Text("Played on ${session.startTime}")
+                                    Text(
+                                        stringResource(
+                                            R.string.session_screen_played_on,
+                                            session.startTime
+                                        ))
                                 },
                                 leadingContent = {
                                     Icon(

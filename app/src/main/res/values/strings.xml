@@ -138,4 +138,9 @@
     <string name="profile_last_sessions_empty">Last sessions</string>
     <string name="profile_last_sessions_empty_description">No items found</string>
     <string name="profile_followed_games_empty_description">No items found</string>
+    <string name="session_screen_played_on">Played on %1$s</string>
+    <string name="profile_button_log_off">Log out</string>
+    <string name="profile_button_remove_friend">Remove Friend</string>
+    <string name="profile_button_pending_friend">Pending…</string>
+    <string name="profile_button_add_friend">Add friend</string>
 </resources>

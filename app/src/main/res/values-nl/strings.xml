@@ -135,4 +135,9 @@
     <string name="profile_last_sessions_empty">Afgelopen sessies</string>
     <string name="profile_last_sessions_empty_description">Geen recente sessies</string>
     <string name="profile_followed_games_empty_description">Geen gevolgde games</string>
+    <string name="session_screen_played_on">Gespeeld op %1$s</string>
+    <string name="profile_button_log_off">Uitloggen</string>
+    <string name="profile_button_remove_friend">Verwijder vriend</string>
+    <string name="profile_button_pending_friend">Wachten...</string>
+    <string name="profile_button_add_friend">Voeg toe</string>
 </resources>
