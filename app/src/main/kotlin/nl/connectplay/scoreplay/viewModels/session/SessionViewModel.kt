@@ -41,7 +41,7 @@ class SessionViewModel(
     private val friendsApi: FriendsApi,
     private val sessionApi: SessionApi,
     private val tokenDataStore: TokenDataStore
-): ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(SessionState())
 
     val state = _state.asStateFlow()
@@ -128,7 +128,7 @@ class SessionViewModel(
 
     fun loadActiveSessionFromDb(computeWinner: Boolean = false) {
         viewModelScope.launch {
-            val session = sessionDao.getSession()
+            val session = sessionDao.getSession() ?: return@launch
             val players = sessionPlayerDao.getSessionPlayers()
 
             /**
@@ -189,16 +189,16 @@ class SessionViewModel(
 
     fun onEvent(event: SessionEvent) {
         when (event) {
-            is SessionEvent.Initialize       -> handleInitialize(event)
-            is SessionEvent.StartNewSession  -> handleStartNewSession()
-            SessionEvent.SaveSession         -> handleSaveSession()
-            is SessionEvent.SetGame          -> handleSetGame(event)
-            is SessionEvent.SetVisibility    -> handleSetVisibility(event)
+            is SessionEvent.Initialize -> handleInitialize(event)
+            is SessionEvent.StartNewSession -> handleStartNewSession()
+            SessionEvent.SaveSession -> handleSaveSession()
+            is SessionEvent.SetGame -> handleSetGame(event)
+            is SessionEvent.SetVisibility -> handleSetVisibility(event)
             is SessionEvent.UpdateVisibility -> handleUpdateVisibility(event)
-            is SessionEvent.AddPlayer        -> handleAddPlayer(event)
-            is SessionEvent.RemovePlayer     -> handleRemovePlayer(event)
-            is SessionEvent.AddRound         -> handleAddRound(event)
-            SessionEvent.FinishSession       -> handleFinishSession()
+            is SessionEvent.AddPlayer -> handleAddPlayer(event)
+            is SessionEvent.RemovePlayer -> handleRemovePlayer(event)
+            is SessionEvent.AddRound -> handleAddRound(event)
+            SessionEvent.FinishSession -> handleFinishSession()
         }
     }
 
@@ -206,13 +206,15 @@ class SessionViewModel(
         /** Ensure the logged-in user is always present as the owner player (guestName == null) and never duplicated. */
         _state.update { current ->
             val userId = event.userId
-            val hasOwnerAlready = current.sessionPlayers.any { it.userId == userId && it.guestName == null }
+            val hasOwnerAlready =
+                current.sessionPlayers.any { it.userId == userId && it.guestName == null }
 
             when (current.userId) {
                 null -> freshState(userId)
                 userId if !hasOwnerAlready -> current.copy(
                     sessionPlayers = listOf(RoomSessionPlayer(userId = userId, guestName = null))
                 )
+
                 else -> current
             }
         }
@@ -279,15 +281,21 @@ class SessionViewModel(
     }
 
     private fun handleSetGame(e: SessionEvent.SetGame) {
-        _state.update { it.copy(
-            gameId = e.gameId
-        ) }
+        _state.update {
+            it.copy(
+                gameId = e.gameId
+            )
+        }
     }
+
     private fun handleSetVisibility(e: SessionEvent.SetVisibility) {
-        _state.update { it.copy(
-            visibility = e.visibility
-        ) }
+        _state.update {
+            it.copy(
+                visibility = e.visibility
+            )
+        }
     }
+
     private fun handleUpdateVisibility(e: SessionEvent.UpdateVisibility) {
         viewModelScope.launch {
             sessionDao.updateVisibility(e.visibility)
@@ -365,7 +373,7 @@ class SessionViewModel(
     private fun handleFinishSession() {
         viewModelScope.launch {
             try {
-                val session = sessionDao.getSession()
+                val session = sessionDao.getSession() ?: return@launch
 
                 /** 1) Create a session on the backend and obtain the backend session identifier (UUID/String). */
                 val createResp = sessionApi.createSession(
@@ -386,7 +394,10 @@ class SessionViewModel(
                 Log.d("SessionVM", "addScores OK -> uploaded=${scores.size}")
 
                 // 4) Set the end time
-                sessionApi.update(remoteSessionId, updateSessionDto = UpdateSessionDto(endTime = Clock.System.now().toString()))
+                sessionApi.update(
+                    remoteSessionId,
+                    updateSessionDto = UpdateSessionDto(endTime = Clock.System.now().toString())
+                )
 
                 // 5) optionally upload the picture
                 uploadSessionEndImage(remoteSessionId)
@@ -426,6 +437,7 @@ class SessionViewModel(
     suspend fun prepareScores(): List<CreateScoreDto> {
         val players = sessionPlayerDao.getSessionPlayers()
         val scores = sessionScoreDao.getScoresForSession()
+
         /**
          * Room scores reference players by local sessionPlayerId.
          * Backend expects player identity by (userId, guestName), so we map local IDs back to player info.

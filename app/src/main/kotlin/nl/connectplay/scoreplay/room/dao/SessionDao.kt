@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.room.entities.RoomSession
 
@@ -34,7 +35,7 @@ interface SessionDao {
      * Assumes exactly one row exists; will throw if the table is empty.
      */
     @Query("SELECT * FROM sessions")
-    suspend fun getSession(): RoomSession
+    suspend fun getSession(): RoomSession?
 
     /**
      * Clear the active session from local database.
