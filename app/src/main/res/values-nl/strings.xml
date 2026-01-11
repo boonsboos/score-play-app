@@ -101,6 +101,7 @@
     <string name="session_list_empty">Geen sessies</string>
     <string name="session_list_error">Fout tijdens het laden van sessies</string>
     <string name="screen_new_session_title">Nieuwe sessie</string>
+    <string name="friends_awaiting_response">(wacht op antwoord)</string>
     <string name="round_detail_finish">Klaar</string>
     <string name="round_detail_player_backup">Speler %1$d</string>
     <string name="session_detail_rounds_header">Rondes</string>
@@ -126,4 +127,12 @@
     <string name="profile_edit_delete_dialog_text">Weet je heel zeker dat je je account wil verwijderen? Dit kan niet ongedaan gemaakt worden!</string>
     <string name="profile_edit_delete_dialog_confirm">Ja</string>
     <string name="profile_edit_delete_dialog_deny">Nee</string>
+    <string name="friends_outstanding_requests">Verzonden</string>
+    <string name="friends_pending_requests">Ontvangen</string>
+    <string name="friends_empty">Geen vrienden gevonden :(</string>
+    <string name="profile_edit_language_label">Taal</string>
+    <string name="profile_last_sessions">Afgelopen %1$d sessies</string>
+    <string name="profile_last_sessions_empty">Afgelopen sessies</string>
+    <string name="profile_last_sessions_empty_description">Geen recente sessies</string>
+    <string name="profile_followed_games_empty_description">Geen gevolgde games</string>
 </resources>

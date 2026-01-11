@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -114,11 +115,13 @@ fun SessionSetupScreen(
         }
     }
 
+    val canContinue = state.gameId != null
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_new_session_title), backStack = backStack) },
         floatingActionButton = {
-            val canContinue = state.gameId != null
+
             // Persist the draft session to Room before navigating to scoring.
             if (canContinue) {
                 FloatingActionButton(
@@ -144,7 +147,8 @@ fun SessionSetupScreen(
 
             SessionTabs(
                 backStack = backStack,
-                currentScreen = Screens.SessionSetup
+                currentScreen = Screens.SessionSetup,
+                canProgress = canContinue
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -172,7 +176,7 @@ fun SessionSetupScreen(
                         expanded = true
                     },
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                         .padding(horizontal = 8.dp)
                         .fillMaxWidth(),
                     label = { Text(stringResource(R.string.session_setup_search_game)) },

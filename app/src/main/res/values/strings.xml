@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Score &amp; Play</string>
     <string name="photo_picker_camera">Take photo</string>
@@ -130,4 +131,11 @@
     <string name="profile_edit_delete_dialog_text">Are you sure you want to delete your account? This action cannot be undone.</string>
     <string name="profile_edit_delete_dialog_confirm">Yes</string>
     <string name="profile_edit_delete_dialog_deny">No</string>
+    <string name="nederlands" translatable="false">Nederlands</string>
+    <string name="english" translatable="false">English</string>
+    <string name="profile_edit_language_label">Language</string>
+    <string name="profile_last_sessions">Last %1$d sessions</string>
+    <string name="profile_last_sessions_empty">Last sessions</string>
+    <string name="profile_last_sessions_empty_description">No items found</string>
+    <string name="profile_followed_games_empty_description">No items found</string>
 </resources>

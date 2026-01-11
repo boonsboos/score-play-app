@@ -83,7 +83,8 @@ val apiModule = module {
     singleOf(::ProfileApi)
     singleOf(::FriendsApi)
     singleOf(::LeaderboardApi)
-    single { NotificationBadgeViewModel(get(), androidContext()) }
+
+    singleOf(::NotificationBadgeViewModel)
 }
 
 // Koin module for app storage (DataStore)
@@ -92,7 +93,6 @@ val storeModule = module {
 }
 
 val databaseModule = module {
-
     single {
         Room.databaseBuilder(
             get(),
@@ -113,5 +113,4 @@ val databaseModule = module {
     single<SessionScoreDao> {
         get<Database>().sessionScoreDao
     }
-
 }

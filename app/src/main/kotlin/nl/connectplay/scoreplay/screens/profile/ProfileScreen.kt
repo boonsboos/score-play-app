@@ -169,9 +169,9 @@ fun ProfileScreen(
 
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader("Last sessions", empty = true)
+                        SectionHeader(stringResource(R.string.profile_last_sessions_empty), empty = true)
                         Text(
-                            text = "No items found",
+                            text = stringResource(R.string.profile_last_sessions_empty_description),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -179,7 +179,7 @@ fun ProfileScreen(
                 } else {
                     item {
                         SectionHeader(
-                            "Last ${state.data.size} sessions",
+                            stringResource(R.string.profile_last_sessions, state.data.size),
                             onClick = {
                                 backStack.add(
                                     Screens.UserSessions(
@@ -246,7 +246,7 @@ fun ProfileScreen(
                     item {
                         SectionHeader(title = stringResource(R.string.screen_followed_games_title), empty = true)
                         Text(
-                            text = "No items found",
+                            text = stringResource(R.string.profile_followed_games_empty_description),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

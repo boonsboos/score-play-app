@@ -15,7 +15,8 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.viewModels.UiState
 
 class ProfileEditViewModel(
-    private val currentUser: UserProfile, private val profileApi: ProfileApi
+    private val currentUser: UserProfile,
+    private val profileApi: ProfileApi
 ) : ViewModel() {
 
     private val _updatedProfileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)

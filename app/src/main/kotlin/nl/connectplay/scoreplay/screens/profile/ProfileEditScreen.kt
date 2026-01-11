@@ -18,9 +18,9 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,8 +47,8 @@ import nl.connectplay.scoreplay.ui.components.PhotoPickerSheet
 import nl.connectplay.scoreplay.ui.components.ScorePlayButton
 import nl.connectplay.scoreplay.ui.components.ScorePlayInputField
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
-import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
 import nl.connectplay.scoreplay.viewModels.UiState
+import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -181,13 +181,15 @@ fun ProfileEditScreen(
                 else
                     stringResource(R.string.profile_edit_cta),
                 enabled = profileState !is UiState.Loading,
-                onClick = { profileEditViewModel.onSaveProfile(context) },
+                onClick = {
+                    profileEditViewModel.onSaveProfile(context)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
             )
 
-            FilledTonalButton(
+            OutlinedButton(
                 modifier = Modifier
                     .fillMaxWidth(),
                 onClick = { showDeleteDialog = true }
