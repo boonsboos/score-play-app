@@ -1,9 +1,7 @@
 package nl.connectplay.scoreplay.screens.session
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -38,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -84,7 +83,7 @@ fun SessionFinishScreen(
         }
     }
 
-    val winnerName = state.winnerPlayer?.let { it.guestName ?: "You" }
+    val winnerName = state.winnerPlayer?.let { it.guestName ?: stringResource(R.string.you) }
     val winnerScore = state.winnerScore ?: 0.0
 
     var selectedVisibility by remember(state.visibility) { mutableStateOf(state.visibility) }
@@ -92,16 +91,16 @@ fun SessionFinishScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_session_title), backStack = backStack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { onEvent(SessionEvent.FinishSession)},
             ) {
                 Icon(
                     imageVector = Icons.Default.Upload,
-                    contentDescription = "Upload"
+                    contentDescription = stringResource(R.string.session_finish_cta_upload)
                 )
-                Text("Upload")
+                Text(text = stringResource(R.string.session_finish_cta_upload))
             }
         },
         bottomBar = { BottomNavBar(backStack) }
@@ -113,7 +112,7 @@ fun SessionFinishScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "The winner is... $winnerName!",
+                text = stringResource(R.string.session_finish_winnder, winnerName!!),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineSmall
@@ -130,7 +129,7 @@ fun SessionFinishScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Session Visibility",
+                text = stringResource(R.string.session_finish_visibility_label),
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.labelLarge
             )
@@ -169,7 +168,7 @@ fun SessionFinishScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "End of Session picture (optional)",
+                    text = stringResource(R.string.session_finish_picture_label),
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.weight(1f)
                 )
@@ -186,7 +185,7 @@ fun SessionFinishScreen(
 
             if (showImagePicker) {
                 PhotoPickerSheet(
-                    prompt = "Get a picture of the table",
+                    prompt = stringResource(R.string.session_finish_cta_picture),
                     onDismissRequest = { showImagePicker = false },
                     onPictureTaken = { imageUri ->
                         sessionViewModel.addImage(SessionEndImageState(imageUri, context))
@@ -197,7 +196,7 @@ fun SessionFinishScreen(
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = "Upload a picture of the table at the end of the game.",
+                text = stringResource(R.string.session_finish_picture_description),
                 style = MaterialTheme.typography.labelMedium
             )
 

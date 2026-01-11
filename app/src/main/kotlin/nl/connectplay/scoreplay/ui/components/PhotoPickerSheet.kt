@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,10 +25,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.R
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,7 +62,6 @@ fun PhotoPickerSheet(
     val takePhotoLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
-        Log.d("PickImageLauncher", "Taken! $cameraUri")
         if (success) {
             onPictureTaken(cameraUri)
         }
@@ -70,7 +70,6 @@ fun PhotoPickerSheet(
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
-        Log.d("PickImageLauncher", "Picked! $uri")
         if (uri != null) {
             onPictureTaken(uri)
         }
@@ -82,7 +81,7 @@ fun PhotoPickerSheet(
         if (granted) {
             createCameraUri()
             takePhotoLauncher.launch(cameraUri)
-        } else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        } else Toast.makeText(context, R.string.photo_picker_permission_denied, Toast.LENGTH_SHORT).show()
     }
 
     ModalBottomSheet(
@@ -101,7 +100,7 @@ fun PhotoPickerSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ScorePlayButton(
-                    label = "Take photo",
+                    label = stringResource(R.string.photo_picker_camera),
                     onClick = {
                         scope.launch {
                             sheetState.hide()
@@ -125,7 +124,7 @@ fun PhotoPickerSheet(
                 )
 
                 ScorePlayButton(
-                    label = "Choose from gallery",
+                    label = stringResource(R.string.photo_picker_gallery),
                     onClick = {
                         scope.launch {
                             sheetState.hide()

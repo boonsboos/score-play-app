@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,9 +19,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -57,15 +61,13 @@ fun UserSessionsScreen(
     val title = when (val state = profileState) {
         is UiState.Success -> {
             if (targetUserId != null && targetUserId != userId) {
-                "${state.data.username}'s Played Sessions"
+                stringResource(R.string.screen_sessions_target_title, state.data.username)
             } else {
-                "My Played Sessions"
+                stringResource(R.string.screen_sessions_title)
             }
         }
 
-        UiState.Loading -> "Loading…"
-        is UiState.Error -> "Error"
-        UiState.Idle, is UiState.Initial -> "Profile"
+        else -> ""
     }
 
     // load all the sessions when the profile is loaded
@@ -77,13 +79,12 @@ fun UserSessionsScreen(
     }
 
     val ownerName: String = (profileState as? UiState.Success)
-        ?.data
-        ?.username
+        ?.data?.username
         ?: "Session Owner"
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title, backStack) },
+        topBar = { ScorePlayTopBar(title = title, backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
 
@@ -104,7 +105,7 @@ fun UserSessionsScreen(
                 is UiState.Error -> {
                     item {
                         Text(
-                            text = "Failed to load sessions",
+                            text = stringResource(R.string.session_list_error),
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -118,14 +119,14 @@ fun UserSessionsScreen(
                     if (sessions.isEmpty()) {
                         item {
                             Text(
-                                text = "No sessions found",
+                                text = stringResource(R.string.session_list_empty),
                                 modifier = Modifier.padding(16.dp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     } else {
                         items(sessions) { session ->
-                            androidx.compose.material3.ListItem(
+                            ListItem(
                                 modifier = Modifier.clickable {
                                     backStack.add(
                                         Screens.SessionDetail(
@@ -139,7 +140,11 @@ fun UserSessionsScreen(
                                     Text(session.game.name)
                                 },
                                 supportingContent = {
-                                    Text("Played on ${session.startTime}")
+                                    Text(
+                                        stringResource(
+                                            R.string.session_screen_played_on,
+                                            session.startTime
+                                        ))
                                 },
                                 leadingContent = {
                                     Icon(
@@ -147,7 +152,7 @@ fun UserSessionsScreen(
                                         contentDescription = null
                                     )
                                 },
-                                colors = androidx.compose.material3.ListItemDefaults.colors(
+                                colors = ListItemDefaults.colors(
                                     containerColor = MaterialTheme.colorScheme.primary.copy(
                                         alpha = 0.1f
                                     )

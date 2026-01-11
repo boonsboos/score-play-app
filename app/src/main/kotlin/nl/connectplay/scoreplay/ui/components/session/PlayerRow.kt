@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.session.PlayerUi
 
 
@@ -64,7 +66,7 @@ fun PlayerRow(
             IconButton(onClick = onRemove) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Remove player"
+                    contentDescription = stringResource(R.string.player_row_remove)
                 )
             }
         }

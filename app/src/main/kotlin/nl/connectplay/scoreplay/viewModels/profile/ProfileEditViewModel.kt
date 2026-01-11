@@ -2,6 +2,7 @@ package nl.connectplay.scoreplay.viewModels.profile
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +15,8 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.viewModels.UiState
 
 class ProfileEditViewModel(
-    private val currentUser: UserProfile, private val profileApi: ProfileApi
+    private val currentUser: UserProfile,
+    private val profileApi: ProfileApi
 ) : ViewModel() {
 
     private val _updatedProfileState = MutableStateFlow<UiState<UserProfile>>(UiState.Idle)
@@ -75,6 +77,16 @@ class ProfileEditViewModel(
                 _updatedProfileState.value = UiState.Success(result)
             } catch (e: Exception) {
                 _updatedProfileState.value = UiState.Error(e.message ?: "Unknown error", e)
+            }
+        }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            try {
+                profileApi.deleteAccount()
+            } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Error deleting account: ${e.message}", e)
             }
         }
     }

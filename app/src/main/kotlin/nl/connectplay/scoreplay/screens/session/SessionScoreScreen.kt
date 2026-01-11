@@ -34,10 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -95,7 +97,7 @@ fun SessionScoreScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Session", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_session_title), backStack = backStack) },
         floatingActionButton = {
             Box(
                 modifier = Modifier
@@ -110,7 +112,7 @@ fun SessionScoreScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Setup Screen"
+                        contentDescription = stringResource(R.string.session_score_setup_back)
                     )
                 }
 
@@ -140,7 +142,7 @@ fun SessionScoreScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "There's no rounds yet!",
+                    text = stringResource(R.string.session_score_empty),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineSmall
@@ -149,7 +151,7 @@ fun SessionScoreScreen(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Start a round to record your scores!",
+                    text = stringResource(R.string.session_score_cta),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium
@@ -159,7 +161,7 @@ fun SessionScoreScreen(
                 LazyColumn {
                     items(state.turns) { turn ->
                         ListItem(
-                            headlineContent = { Text("Round $turn") },
+                            headlineContent = { Text(text = stringResource(R.string.session_round, turn)) },
                             trailingContent = {
                                 Icon(
                                     Icons.Default.ChevronRight,
@@ -202,7 +204,7 @@ fun SessionScoreScreen(
     // Finish confirmation; navigates to finish screen (winner/visibility/upload).
     if (showFinishDialog) {
         FinishSessionDialog(
-            turn = state.turns.size,
+            completedRoundCount = state.turns.size,
             onDismiss = { showFinishDialog = false },
             onConfirm = {
                 showFinishDialog = false

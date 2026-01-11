@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.screens.profile
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,14 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
-import kotlinx.datetime.format.char
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.friends.FriendshipStatus
 import nl.connectplay.scoreplay.screens.Screens
@@ -60,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.utilities.formatted
 
 @Composable
 fun ProfileScreen(
@@ -74,8 +73,6 @@ fun ProfileScreen(
     val sessionsState by profileViewModel.sessionsState.collectAsState()
     val gamesState by profileViewModel.gamesState.collectAsState()
     val friendshipStatus by profileViewModel.friendshipStatus.collectAsState()
-
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val title = when (val state = profileState) {
         is UiState.Success -> state.data.username
@@ -155,9 +152,11 @@ fun ProfileScreen(
 
                         ScorePlayButton(
                             label = when (friendshipStatus) {
-                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> "Remove Friend"
-                                FriendshipStatus.PENDING -> "Pending…"
-                                null, FriendshipStatus.REJECTED -> "Add Friend"
+                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> stringResource(
+                                    R.string.profile_button_remove_friend
+                                )
+                                FriendshipStatus.PENDING -> stringResource(R.string.profile_button_pending_friend)
+                                null, FriendshipStatus.REJECTED -> stringResource(R.string.profile_button_add_friend)
                             },
                             enabled = friendshipStatus != FriendshipStatus.PENDING,
                             onClick = { profileViewModel.onFriendButtonClicked(profile.id) },
@@ -172,9 +171,9 @@ fun ProfileScreen(
 
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader("Last sessions", empty = true)
+                        SectionHeader(stringResource(R.string.profile_last_sessions_empty), empty = true)
                         Text(
-                            text = "No items found",
+                            text = stringResource(R.string.profile_last_sessions_empty_description),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -182,7 +181,7 @@ fun ProfileScreen(
                 } else {
                     item {
                         SectionHeader(
-                            "Last ${state.data.size} sessions",
+                            stringResource(R.string.profile_last_sessions, state.data.size),
                             onClick = {
                                 backStack.add(
                                     Screens.UserSessions(
@@ -233,18 +232,7 @@ fun ProfileScreen(
                                         modifier = Modifier,
                                     )
                                     Text(
-                                        text = session.startTime.format(
-                                            LocalDateTime.Format {
-                                                day()
-                                                char('-')
-                                                monthNumber()
-                                                char('-')
-                                                year()
-                                                char(' ')
-                                                hour()
-                                                char(':')
-                                                minute()
-                                            }),
+                                        text = session.startTime.formatted(),
                                         modifier = Modifier
                                     )
                                 }
@@ -258,9 +246,9 @@ fun ProfileScreen(
                 val items = state.data
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader("Followed games", empty = true)
+                        SectionHeader(title = stringResource(R.string.screen_followed_games_title), empty = true)
                         Text(
-                            text = "No items found",
+                            text = stringResource(R.string.profile_followed_games_empty_description),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -268,7 +256,7 @@ fun ProfileScreen(
                 } else {
                     item {
                         SectionHeader(
-                            "Followed Games (${state.data.size})",
+                            "${stringResource(R.string.screen_followed_games_title)} (${state.data.size})",
                             onClick = { backStack.add(Screens.FollowedGames((profileState as UiState.Success).data.id)) })
                     }
                     items(items) { game ->
@@ -314,37 +302,14 @@ fun ProfileScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             ScorePlayButton(
-                                label = "Log off",
+                                label = stringResource(R.string.profile_button_log_off),
                                 modifier = Modifier
                                     .fillMaxWidth(0.5f)
                                     .padding(top = 40.dp),
-                                onClick = { profileViewModel.logout() })
-                            ScorePlayButton(
-                                label = "Delete account",
-                                modifier = Modifier
-                                    .fillMaxWidth(0.5f),
-                                onClick = { showDeleteDialog = true })
+                                onClick = { profileViewModel.logout() }
+                            )
                         }
                     }
-                }
-            }
-
-            if (showDeleteDialog) {
-                item {
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDialog = false },
-                        title = { Text("Confirm Delete") },
-                        text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
-                        confirmButton = {
-                            Button(onClick = {
-                                showDeleteDialog = false
-                                profileViewModel.deleteAccount()
-                            }) { Text("Yes") }
-                        },
-                        dismissButton = {
-                            Button(onClick = { showDeleteDialog = false }) { Text("No") }
-                        }
-                    )
                 }
             }
         }

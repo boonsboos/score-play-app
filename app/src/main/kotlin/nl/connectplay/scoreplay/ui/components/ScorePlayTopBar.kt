@@ -31,14 +31,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
-import nl.connectplay.scoreplay.ui.theme.ScorePlayTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,6 @@ fun ScorePlayTopBar(
             if(!searching) Text(title, textAlign = TextAlign.Center)
         },
         navigationIcon = {
-            // todo: open search bar
             if (!searching) {
                 IconButton(
                     onClick = {
@@ -69,7 +69,7 @@ fun ScorePlayTopBar(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.top_bar_search))
                 }
             } else {
                 SearchBar(
@@ -93,7 +93,7 @@ fun ScorePlayTopBar(
             IconButton(onClick = { backStack.add(Screens.Profile()) }) {
                 Icon(
                     imageVector = Icons.Outlined.AccountCircle,
-                    contentDescription = "TODO account page"
+                    contentDescription = stringResource(R.string.top_bar_account)
                 )
             }
         },
@@ -127,7 +127,7 @@ private fun TopBarSearchBar(
             }
         },
         placeholder = {
-            Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search...")
+            Text(modifier = Modifier.clearAndSetSemantics {}, text = stringResource(R.string.top_bar_search))
         },
         leadingIcon = {
             if (searchBarState.currentValue == SearchBarValue.Expanded) {
@@ -136,7 +136,7 @@ private fun TopBarSearchBar(
                         TooltipDefaults.rememberTooltipPositionProvider(
                             TooltipAnchorPosition.Above
                         ),
-                    tooltip = { PlainTooltip { Text("Back") } },
+                    tooltip = { PlainTooltip { Text(text = stringResource(R.string.top_bar_back)) } },
                     state = rememberTooltipState(),
                 ) {
                     IconButton(
@@ -149,7 +149,7 @@ private fun TopBarSearchBar(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.top_bar_back),
                         )
                     }
                 }

@@ -6,8 +6,6 @@ import nl.connectplay.scoreplay.models.user.UserProfile
 
 // this object list all screens the app can go to
 object Screens {
-    @Serializable
-    data object Example : NavKey
 
     @Serializable
     data object Register : NavKey
@@ -62,7 +60,4 @@ object Screens {
 
     @Serializable
     data class Leaderboard(val gameId: Int) : NavKey
-
-    @Serializable
-    data class ExampleDetail(val id: Int) : NavKey
 }

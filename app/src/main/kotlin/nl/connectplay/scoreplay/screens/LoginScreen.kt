@@ -13,7 +13,9 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import nl.connectplay.scoreplay.R
 
 import nl.connectplay.scoreplay.viewModels.login.LoginViewModel
 import nl.connectplay.scoreplay.viewModels.login.LoginEvent
@@ -43,7 +45,7 @@ fun LoginScreen(
     ) {
 
         Text(
-            text = "Login",
+            text = stringResource(R.string.screen_login_title),
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,7 +60,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.credentials,
             onValueChange = viewModel::onCredentialsChange,
-            label = { Text("Credentials") },
+            label = { Text(text = stringResource(R.string.text_field_credentials)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -75,7 +77,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.password,
             onValueChange = viewModel::onPasswordChange,
-            label = { Text("Password") },
+            label = { Text(text = stringResource(R.string.text_field_password)) },
             singleLine = true,
             visualTransformation =
                 if (uiState.showPassword) VisualTransformation.None else PasswordVisualTransformation(), // password is visible or invisible
@@ -92,7 +94,7 @@ fun LoginScreen(
                     Icon(
                         imageVector = if (uiState.showPassword)
                             Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
+                        contentDescription = stringResource(R.string.password_visibility_toggle_description)
                     )
                 }
             },
@@ -113,7 +115,7 @@ fun LoginScreen(
             // loginbutton is only clickable when username and password are valid and not loading
             enabled = uiState.isFormValid && !uiState.isLoading
         ) {
-            Text(if (uiState.isLoading) "Logging in..." else "Login")
+            Text(if (uiState.isLoading) stringResource(R.string.login_logging_in) else stringResource(R.string.login_button_login))
         }
 
         // show the error message if their is any
@@ -133,7 +135,7 @@ fun LoginScreen(
             onClick = onNavigateToRegister,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Dont have an account? Register here")
+            Text(stringResource(R.string.login_cta_register))
         }
     }
 }

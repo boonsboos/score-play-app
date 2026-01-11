@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.session.RoundScoreInput
 import nl.connectplay.scoreplay.room.entities.RoomSessionPlayer
 
@@ -30,11 +32,11 @@ fun AddRoundDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New round") },
+        title = { Text(text = stringResource(R.string.add_round_dialog_title)) },
         text = {
             Column {
                 players.forEach { player ->
-                    val label = player.guestName ?: "You"
+                    val label = player.guestName ?: stringResource(R.string.you)
 
                     OutlinedTextField(
                         value = scores[player.sessionPlayerId] ?: "",
@@ -67,12 +69,12 @@ fun AddRoundDialog(
                     onSave(inputs)
                 }
             ) {
-                Text("Save round")
+                Text(text = stringResource(R.string.add_round_dialog_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     )

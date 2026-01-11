@@ -10,10 +10,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.search.SearchFilter
 import nl.connectplay.scoreplay.models.search.SearchResult
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -70,7 +72,7 @@ fun SearchScreen(
                 ) {
                     // ALL FILTER
                     FilterButton(
-                        title = "All",
+                        title = stringResource(R.string.search_filter_all),
                         selected = filter == SearchFilter.ALL,
                         onClick = {
                             searchViewModel.setFilter(SearchFilter.ALL) // update the filter
@@ -79,7 +81,7 @@ fun SearchScreen(
                     )
                     // USERS FILTER
                     FilterButton(
-                        title = "Users",
+                        title = stringResource(R.string.search_filter_users),
                         selected = filter == SearchFilter.USERS,
                         onClick = {
                             searchViewModel.setFilter(SearchFilter.USERS)
@@ -88,7 +90,7 @@ fun SearchScreen(
                     )
                     // GAMES FILTER
                     FilterButton(
-                        title = "Games",
+                        title = stringResource(R.string.search_filter_games),
                         selected = filter == SearchFilter.GAMES,
                         onClick = {
                             searchViewModel.setFilter(SearchFilter.GAMES)
@@ -108,8 +110,12 @@ fun SearchScreen(
                             is SearchResult.UserResult -> {
                                 SearchListItem(
                                     title = item.username,
-                                    subtitle = null, // not needed for user
-                                    icon = { Icon(Icons.Filled.Person, "User icon") },
+                                    icon = {
+                                        Icon(
+                                            Icons.Filled.Person,
+                                            contentDescription = stringResource(R.string.search_description_user_icon)
+                                        )
+                                   },
                                     onClick = { onUserClick(item.userId) }
                                 )
                             }
@@ -118,7 +124,12 @@ fun SearchScreen(
                                 SearchListItem(
                                     title = item.title,
                                     subtitle = item.description,
-                                    icon = { Icon(Icons.Filled.Image, "Game icon") },
+                                    icon = {
+                                        Icon(
+                                            Icons.Filled.Image,
+                                            contentDescription = stringResource(R.string.search_description_game_icon)
+                                        )
+                                    },
                                     onClick = { onGameClick(item.gameId) }
                                 )
                             }

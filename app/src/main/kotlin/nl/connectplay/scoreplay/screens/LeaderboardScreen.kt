@@ -23,10 +23,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.utilities.formattedDate
@@ -56,7 +58,7 @@ fun LeaderboardScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Leaderboard", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_leaderboard_title), backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         LazyColumn(
@@ -81,7 +83,7 @@ fun LeaderboardScreen(
                         if (index < 3) {
                             Icon(
                                 imageVector = Icons.Filled.EmojiEvents,
-                                contentDescription = "Trophy",
+                                contentDescription = stringResource(R.string.leaderboard_description_trophy_icon),
                                 tint = iconColor,
                                 modifier = requiredSpaceModifier.height(40.dp)
                             )

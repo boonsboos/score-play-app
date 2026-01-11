@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ErrorMessage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
@@ -53,7 +55,7 @@ fun GamesScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Games", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_games_title), backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Box(
@@ -64,7 +66,7 @@ fun GamesScreen(
         ) {
             // Show error message if we are done loading and no games were found
             if (gamesList.isEmpty() && !gamesAreLoading) {
-                return@Box ErrorMessage("No games :(")
+                return@Box ErrorMessage(stringResource(R.string.games_empty))
             }
 
             LazyColumn {

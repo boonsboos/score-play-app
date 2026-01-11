@@ -11,26 +11,6 @@ package nl.connectplay.scoreplay.api
  * - Less duplication and fewer string-typo bugs in your API classes.
  */
 object Routes {
-    /**
-     * Routes for the "Example" feature/domain.
-     */
-    object Example {
-        /**
-         * Base path for all Example-related endpoints.
-         * Combined with your Http base URL, this becomes:
-         * - https://pma.connectplay.local/example
-         */
-        const val root = "/example"
-
-        /**
-         * Helper for "get one Example by id":
-         * - https://pma.connectplay.local/example/{exampleId}
-         *
-         * Usage: Routes.Example.byId("123") → "/example/123"
-         */
-        fun byId(exampleId: String) = "$root/$exampleId"
-    }
-
     object Games {
         private const val root = "/games"
         fun getAll() = root
