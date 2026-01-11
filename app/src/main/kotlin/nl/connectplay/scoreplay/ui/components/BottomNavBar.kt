@@ -20,10 +20,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -44,12 +46,12 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
             icon = {
                 Icon(
                     imageVector = Icons.Filled.Home,
-                    contentDescription = "Home"
+                    contentDescription = stringResource(R.string.screen_home_title)
                 )
             },
             label = {
                 if (currentScreen == Screens.Home) {
-                    Text("Home")
+                    Text(text = stringResource(R.string.screen_home_title))
                 }
             }
         )
@@ -59,12 +61,12 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
             icon = {
                 Icon(
                     imageVector = Icons.Filled.People,
-                    contentDescription = "Friends"
+                    contentDescription = stringResource(R.string.screen_friends_title)
                 )
             },
             label = {
                 if (currentScreen == Screens.Friends) {
-                    Text("Friends")
+                    Text(text = stringResource(R.string.screen_friends_title))
                 }
             }
         )
@@ -74,12 +76,12 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
             icon = {
                 Icon(
                     imageVector = Icons.Filled.SportsEsports,
-                    contentDescription = "Games"
+                    contentDescription = stringResource(R.string.screen_games_title)
                 )
             },
             label = {
                 if (currentScreen == Screens.Games) {
-                    Text("Games")
+                    Text(text = stringResource(R.string.screen_games_title))
                 }
             }
         )
@@ -90,7 +92,7 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
                 Box {
                     Icon(
                         imageVector = Icons.Filled.Notifications,
-                        contentDescription = "Notifications"
+                        contentDescription = stringResource(R.string.screen_notifications_title)
                     )
                     // badge will be removed when client is on notificationscreen
                     if (hasUnreadNotifications && currentScreen != Screens.Notifications) {
@@ -108,7 +110,7 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
             },
             label = {
                 if (currentScreen == Screens.Notifications) {
-                    Text("Notifications")
+                    Text(text = stringResource(R.string.screen_notifications_title))
                 }
             }
         )

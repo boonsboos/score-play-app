@@ -4,8 +4,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
 
 @Composable
@@ -27,7 +29,7 @@ fun SessionTabs(
                     backStack.add(Screens.SessionSetup)
                 }
             },
-            text = { Text("Setup") }
+            text = { Text(text = stringResource(R.string.session_tab_setup)) }
         )
 
         Tab(
@@ -37,7 +39,7 @@ fun SessionTabs(
                     backStack.add(Screens.SessionScore)
                 }
             },
-            text = { Text("Scores") }
+            text = { Text(text = stringResource(R.string.session_tab_scores)) }
         )
     }
 }

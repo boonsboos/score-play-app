@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.screens.profile
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,14 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
-import kotlinx.datetime.format.char
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.friends.FriendshipStatus
 import nl.connectplay.scoreplay.screens.Screens
@@ -60,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.utilities.formatted
 
 @Composable
 fun ProfileScreen(
@@ -74,8 +73,6 @@ fun ProfileScreen(
     val sessionsState by profileViewModel.sessionsState.collectAsState()
     val gamesState by profileViewModel.gamesState.collectAsState()
     val friendshipStatus by profileViewModel.friendshipStatus.collectAsState()
-
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val title = when (val state = profileState) {
         is UiState.Success -> state.data.username
@@ -233,18 +230,7 @@ fun ProfileScreen(
                                         modifier = Modifier,
                                     )
                                     Text(
-                                        text = session.startTime.format(
-                                            LocalDateTime.Format {
-                                                day()
-                                                char('-')
-                                                monthNumber()
-                                                char('-')
-                                                year()
-                                                char(' ')
-                                                hour()
-                                                char(':')
-                                                minute()
-                                            }),
+                                        text = session.startTime.formatted(),
                                         modifier = Modifier
                                     )
                                 }
@@ -258,7 +244,7 @@ fun ProfileScreen(
                 val items = state.data
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader("Followed games", empty = true)
+                        SectionHeader(title = stringResource(R.string.screen_followed_games_title), empty = true)
                         Text(
                             text = "No items found",
                             modifier = Modifier.padding(16.dp),
@@ -268,7 +254,7 @@ fun ProfileScreen(
                 } else {
                     item {
                         SectionHeader(
-                            "Followed Games (${state.data.size})",
+                            "${stringResource(R.string.screen_followed_games_title)} (${state.data.size})",
                             onClick = { backStack.add(Screens.FollowedGames((profileState as UiState.Success).data.id)) })
                     }
                     items(items) { game ->
@@ -318,33 +304,10 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .fillMaxWidth(0.5f)
                                     .padding(top = 40.dp),
-                                onClick = { profileViewModel.logout() })
-                            ScorePlayButton(
-                                label = "Delete account",
-                                modifier = Modifier
-                                    .fillMaxWidth(0.5f),
-                                onClick = { showDeleteDialog = true })
+                                onClick = { profileViewModel.logout() }
+                            )
                         }
                     }
-                }
-            }
-
-            if (showDeleteDialog) {
-                item {
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDialog = false },
-                        title = { Text("Confirm Delete") },
-                        text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
-                        confirmButton = {
-                            Button(onClick = {
-                                showDeleteDialog = false
-                                profileViewModel.deleteAccount()
-                            }) { Text("Yes") }
-                        },
-                        dismissButton = {
-                            Button(onClick = { showDeleteDialog = false }) { Text("No") }
-                        }
-                    )
                 }
             }
         }

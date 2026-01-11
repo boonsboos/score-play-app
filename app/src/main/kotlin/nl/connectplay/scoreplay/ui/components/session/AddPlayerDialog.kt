@@ -20,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.friends.UserFriend
 
 @Composable
@@ -36,7 +38,7 @@ fun AddPlayerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Add player") },
+        title = { Text(text = stringResource(R.string.add_player_dialog_title)) },
         text = {
             Column {
                 Row(
@@ -52,7 +54,7 @@ fun AddPlayerDialog(
                             contentColor = if (isFriendMode) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurface
                         )
-                    ) { Text("Friend") }
+                    ) { Text(text = stringResource(R.string.add_player_dialog_friend)) }
 
                     TextButton(
                         onClick = {
@@ -63,7 +65,7 @@ fun AddPlayerDialog(
                             contentColor = if (!isFriendMode) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurface
                         )
-                    ) { Text("Guest") }
+                    ) { Text(text = stringResource(R.string.add_player_dialog_guest)) }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -87,7 +89,7 @@ fun AddPlayerDialog(
                     OutlinedTextField(
                         value = newPlayerName,
                         onValueChange = { newPlayerName = it },
-                        label = { Text("Player name") },
+                        label = { Text(text = stringResource(R.string.add_player_dialog_name_field)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -112,7 +114,7 @@ fun AddPlayerDialog(
             ) { Text("Add") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel)) }
         }
     )
 }

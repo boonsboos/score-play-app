@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import nl.connectplay.scoreplay.R
 
 @Composable
 fun ErrorMessage(message: String, modifier: Modifier = Modifier) {
@@ -23,7 +25,7 @@ fun ErrorMessage(message: String, modifier: Modifier = Modifier) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = Icons.Filled.ErrorOutline,
-                contentDescription = "Error",
+                contentDescription = stringResource(R.string.error_message_error),
                 tint = Color(0xFFFFFFFF),
                 modifier = Modifier.size(60.dp)
             )

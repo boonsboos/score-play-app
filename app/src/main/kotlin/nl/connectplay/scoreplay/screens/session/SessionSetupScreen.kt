@@ -37,11 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.session.PlayerUi
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
@@ -114,7 +116,7 @@ fun SessionSetupScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "New Session", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_new_session_title), backStack = backStack) },
         floatingActionButton = {
             val canContinue = state.gameId != null
             // Persist the draft session to Room before navigating to scoring.
@@ -127,7 +129,7 @@ fun SessionSetupScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Score Screen"
+                        contentDescription = stringResource(R.string.session_score_screen)
                     )
                 }
             }
@@ -149,7 +151,7 @@ fun SessionSetupScreen(
 
             /** GAMES */
             Text(
-                text = "1. Choose a Game to play",
+                text = stringResource(R.string.session_setup_step1),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -173,7 +175,7 @@ fun SessionSetupScreen(
                         .menuAnchor()
                         .padding(horizontal = 8.dp)
                         .fillMaxWidth(),
-                    label = { Text("Search game") },
+                    label = { Text(stringResource(R.string.session_setup_search_game)) },
                     singleLine = true
                 )
 
@@ -187,7 +189,7 @@ fun SessionSetupScreen(
                         // Note: "loading" refers to fetching games/friends; this UI uses it mainly for games.
                         loading -> {
                             DropdownMenuItem(
-                                text = { Text("Loading games…") },
+                                text = { Text(stringResource(R.string.session_setup_games_loading)) },
                                 onClick = {},
                                 enabled = false
                             )
@@ -195,7 +197,7 @@ fun SessionSetupScreen(
 
                         filteredGames.isEmpty() -> {
                             DropdownMenuItem(
-                                text = { Text("No games found") },
+                                text = { Text(stringResource(R.string.session_setup_games_empty)) },
                                 onClick = {},
                                 enabled = false
                             )
@@ -272,7 +274,7 @@ fun SessionSetupScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2. Who's playing?",
+                    text = stringResource(R.string.session_setup_step2),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -284,9 +286,9 @@ fun SessionSetupScreen(
                 ) {
                     Icon(
                         Icons.Default.Add,
-                        contentDescription = "Add player",
+                        contentDescription = stringResource(R.string.add_player_dialog_title),
                     )
-                    Text("Add player")
+                    Text(text = stringResource(R.string.add_player_dialog_title))
                 }
             }
 
@@ -299,7 +301,7 @@ fun SessionSetupScreen(
                 PlayerRow(
                     player = PlayerUi(
                         id = player.userId,
-                        name = if (isOwner) "You" else player.guestName.orEmpty(),
+                        name = if (isOwner) stringResource(R.string.you) else player.guestName.orEmpty(),
                         isCurrentUser = isOwner
                     ),
                     onRemove = {

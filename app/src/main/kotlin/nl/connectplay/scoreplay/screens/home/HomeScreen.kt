@@ -30,16 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.game.FollowedGame
 import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
+import nl.connectplay.scoreplay.ui.components.FollowedGameItem
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.UiState
@@ -83,7 +86,7 @@ fun HomeScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Home", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_home_title), backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
 
         LazyColumn(
@@ -103,9 +106,9 @@ fun HomeScreen(
                         backStack.add(Screens.SessionSetup)
                     }) {
                     Icon(
-                        imageVector = Icons.Default.Add, contentDescription = "Start new session"
+                        imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.new_session_button)
                     )
-                    Text("Start new session")
+                    Text(text = stringResource(R.string.new_session_button))
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -121,7 +124,7 @@ fun HomeScreen(
                         val message = (recentGames as UiState.Error).message
 
                         Text(
-                            text = "Error loading recent games: $message",
+                            text = stringResource(R.string.recent_games_error, message),
                             color = MaterialTheme.colorScheme.error
                         )
 
@@ -131,7 +134,7 @@ fun HomeScreen(
                         val games = (recentGames as UiState.Success).data
                         if (games.isEmpty()) {
                             Text(
-                                text = "No recent games played",
+                                text = stringResource(R.string.recently_played_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
@@ -140,7 +143,7 @@ fun HomeScreen(
                             )
                         } else {
                             Text(
-                                text = "Recently Played Games",
+                                text = stringResource(R.string.screen_recently_played_title),
                                 style = MaterialTheme.typography.titleLarge
                             )
                             LazyRow(
@@ -171,7 +174,7 @@ fun HomeScreen(
                     val message = (followedGames as UiState.Error).message
                     item {
                         Text(
-                            text = "Error loading followed games: $message",
+                            text = stringResource(R.string.followed_games_error, message),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -183,7 +186,7 @@ fun HomeScreen(
                     if (games.isEmpty()) {
                         item {
                             Text(
-                                text = "You are not following any games yet",
+                                text = stringResource(R.string.followed_games_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
@@ -195,7 +198,7 @@ fun HomeScreen(
                         // Header
                         item {
                             Text(
-                                text = "Followed Games", style = MaterialTheme.typography.titleLarge
+                                text = stringResource(R.string.screen_followed_games_title), style = MaterialTheme.typography.titleLarge
                             )
                         }
 

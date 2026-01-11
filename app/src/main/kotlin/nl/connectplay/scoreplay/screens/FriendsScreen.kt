@@ -21,10 +21,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.friends.FriendRequestListResponse
 import nl.connectplay.scoreplay.models.friends.UserFriend
 import nl.connectplay.scoreplay.viewModels.FriendViewModel
@@ -50,7 +52,7 @@ fun FriendsScreen(
     }
 
     Scaffold(
-        topBar = { ScorePlayTopBar(title = "Friends", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_friends_title), backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -60,19 +62,15 @@ fun FriendsScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
-            when {
-                uiState.isLoading -> {
-                    LoadingSection()
-                }
-
-                else -> {
-                    FriendList(
-                        friendRequests = uiState.friendRequests,
-                        friends = uiState.friends,
-                        viewModel = friendViewModel,
-                        backStack = backStack
-                    )
-                }
+            if (uiState.isLoading) {
+                LoadingSection()
+            } else {
+                FriendList(
+                    friendRequests = uiState.friendRequests,
+                    friends = uiState.friends,
+                    viewModel = friendViewModel,
+                    backStack = backStack
+                )
             }
         }
     }
@@ -97,7 +95,7 @@ fun FriendList(
         if (friendRequests.pending.isNotEmpty()) {
             item {
                 Text(
-                    "Pending Requests",
+                    text = stringResource(R.string.friends_pending_requests),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onTertiary
                 )
@@ -116,7 +114,7 @@ fun FriendList(
         if (friendRequests.outstanding.isNotEmpty()) {
             item {
                 Text(
-                    "Outstanding Requests",
+                    text = stringResource(R.string.friends_outstanding_requests),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier.padding(top = 16.dp)
@@ -134,7 +132,7 @@ fun FriendList(
         if (friends.isNotEmpty()) {
             item {
                 Text(
-                    "Friends",
+                    text = stringResource(R.string.screen_friends_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier.padding(top = 16.dp)
@@ -150,7 +148,7 @@ fun FriendList(
         } else {
             item {
                 Text(
-                    "No friends found :(",
+                    stringResource(R.string.friends_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiary
                 )
@@ -297,7 +295,7 @@ fun OutstandingFriendRequestRow(request: UserFriend, backStack: NavBackStack<Nav
             CircleAvatar(request)
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                "${request.user.username} (awaiting response)",
+                text ="${request.user.username} ${stringResource(R.string.friends_awaiting_response)}",
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
             )

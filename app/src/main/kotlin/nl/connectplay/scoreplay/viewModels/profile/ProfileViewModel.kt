@@ -98,17 +98,6 @@ class ProfileViewModel(
         }
     }
 
-    fun deleteAccount() {
-        viewModelScope.launch {
-            try {
-                profileApi.deleteAccount()
-                _deleteAccountEvent.emit(Unit)
-            } catch (e: Exception) {
-                Log.e(this::class.simpleName, "Error deleting account: ${e.message}", e)
-            }
-        }
-    }
-
     fun logout() {
         viewModelScope.launch {
             tokenDataStore.clearToken()

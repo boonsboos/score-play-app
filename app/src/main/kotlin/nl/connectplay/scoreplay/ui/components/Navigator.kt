@@ -11,8 +11,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import nl.connectplay.scoreplay.screens.ExampleDetailScreen
-import nl.connectplay.scoreplay.screens.ExampleScreen
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
@@ -36,7 +34,6 @@ import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
 import nl.connectplay.scoreplay.viewModels.main.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 
 @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
 @Composable
@@ -67,30 +64,6 @@ fun Navigator(modifier: Modifier = Modifier) {
         // Provide the composable content for each screen based on the navigation key
         entryProvider = { key ->
             when (key) {
-                /*
-                 * If the key is Screens.Example, show the ExampleScreen
-                 * and navigate to ExampleDetail on item click.
-                 * The screen needs to be wrapped in a NavEntry.
-                 */
-                is Screens.Example -> NavEntry(key = key) {
-                    ExampleScreen(onClick = { exampleId ->
-                        backStack.add(
-                            Screens.ExampleDetail(exampleId)
-                        )
-                    })
-                }
-
-                is Screens.ExampleDetail -> NavEntry(key = key) {
-                    ExampleDetailScreen(
-                        viewModel = koinViewModel {
-                            parametersOf(key.id)
-                        },
-                        onBackClick = {
-//                            backStack.removeLast()
-                        }
-                    )
-                }
-
                 is Screens.Home -> NavEntry(key = key) {
                     HomeScreen(backStack)
                 }
@@ -191,7 +164,7 @@ fun Navigator(modifier: Modifier = Modifier) {
                             backStack.add(Screens.GameDetail(gameId = gameId.toInt()))
                         },
                         onUserClick = { userId ->
-                            backStack.add(Screens.Profile(userId = userId.toInt()))
+                            backStack.add(Screens.Profile(userId = userId))
                         }
                     )
                 }

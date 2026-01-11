@@ -21,9 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -59,7 +61,7 @@ fun RoundDetailScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = "Round $turn", backStack = backStack) },
+        topBar = { ScorePlayTopBar(title = stringResource(R.string.session_round, turn), backStack = backStack) },
         floatingActionButton = {
             Box(
                 modifier = Modifier
@@ -82,7 +84,7 @@ fun RoundDetailScreen(
                     onClick = { showFinishDialog = true },
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Finish")
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.round_detail_finish))
                 }
             }
         },
@@ -97,7 +99,10 @@ fun RoundDetailScreen(
         ) {
             rows.forEach { row ->
                 RoundScoreRow(
-                    name = row.guestName ?: "Player ${row.sessionPlayerId}",
+                    name = row.guestName ?: stringResource(
+                        R.string.round_detail_player_backup,
+                        row.sessionPlayerId
+                    ),
                     score = row.score
                 )
             }
@@ -105,7 +110,7 @@ fun RoundDetailScreen(
 
         if (showFinishDialog) {
             FinishSessionDialog(
-                turn = state.turns.size,
+                completedRoundCount = state.turns.size,
                 onDismiss = { showFinishDialog = false },
                 onConfirm = {
                     showFinishDialog = false

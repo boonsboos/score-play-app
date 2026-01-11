@@ -3,7 +3,6 @@ package nl.connectplay.scoreplay
 import androidx.room.Room
 import io.ktor.client.HttpClient
 import nl.connectplay.scoreplay.api.AuthApi
-import nl.connectplay.scoreplay.api.ExampleApi
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.GameApi
 import nl.connectplay.scoreplay.api.LeaderboardApi
@@ -17,7 +16,6 @@ import nl.connectplay.scoreplay.room.Database
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
 import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.stores.TokenDataStore
-import nl.connectplay.scoreplay.viewModels.ExampleDetailViewModel
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import nl.connectplay.scoreplay.viewModels.NotificationListViewModel
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
@@ -41,8 +39,6 @@ import org.koin.android.ext.koin.androidContext
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
-    viewModelOf(::ExampleDetailViewModel)
-
     // RegisterViewModel with AuthAPI
     viewModelOf(::RegisterViewModel)
     viewModelOf(::GamesListViewModel)
@@ -56,12 +52,7 @@ val viewModelsModule = module {
     viewModelOf(::SessionViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::NotificationListViewModel)
-    viewModel {
-        FriendViewModel(
-            friendsApi = get(),
-            tokenDataStore = get()
-        )
-    }
+    viewModelOf(::FriendViewModel)
     viewModelOf(::ProfileEditViewModel)
     // some weird hacky way to provide parameters to ViewModel
     viewModel { (userId: Int?) ->
@@ -83,17 +74,14 @@ val apiModule = module {
     // Expose the existing Http.client via Koin
     single<HttpClient> { Http.client }
 
-    // ExampleApi that depends on HttpClient
-    single { ExampleApi(get()) } // get<HttpClient>()
-
     // AuthApi that depends on HttpClient
-    single { AuthApi(get()) }
+    singleOf(::AuthApi)
     singleOf(::GameApi)
-    single { NotificationApi(get(), get()) }
-    single { SessionApi(get(), get()) }
-    single { SearchApi(get()) }
-    single { ProfileApi(get(), get()) }
-    single { FriendsApi(get(), get()) }
+    singleOf(::NotificationApi)
+    singleOf(::SessionApi)
+    singleOf(::SearchApi)
+    singleOf(::ProfileApi)
+    singleOf(::FriendsApi)
     singleOf(::LeaderboardApi)
     single { NotificationBadgeViewModel(get(), androidContext()) }
 }

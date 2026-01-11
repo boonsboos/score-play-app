@@ -22,13 +22,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.viewModels.RegisterEvent
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -42,6 +43,7 @@ fun RegisterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val registerSuccessSnackbarText = stringResource(R.string.register_account_created_snackbar)
 
     // Errors for snackbar
     LaunchedEffect(uiState.errorMessage) {
@@ -54,7 +56,7 @@ fun RegisterScreen(
         viewModel.events.collect { event ->
             when (event) {
                 RegisterEvent.Success -> {
-                    snackbarHostState.showSnackbar("Account created successfully")
+                    snackbarHostState.showSnackbar(registerSuccessSnackbarText)
                     onNavigateToLogin()
                 }
             }
@@ -66,12 +68,13 @@ fun RegisterScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
 
             Text(
-                text = "Register",
+                text = stringResource(R.string.screen_register_title),
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,7 +88,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChange,
-                label = { Text("Email") },
+                label = { Text(text = stringResource(R.string.text_field_email)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -102,7 +105,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.username,
                 onValueChange = viewModel::onUsernameChange,
-                label = { Text("Username") },
+                label = { Text(text = stringResource(R.string.text_field_username)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -119,7 +122,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = { Text("Password") },
+                label = { Text(text = stringResource(R.string.text_field_password)) },
                 singleLine = true,
                 visualTransformation = if (uiState.showPassword) {
                     VisualTransformation.None
@@ -136,7 +139,7 @@ fun RegisterScreen(
                             imageVector =
                                 if (uiState.showPassword) Icons.Default.Visibility
                                 else Icons.Default.VisibilityOff,
-                            contentDescription = "Toggle password visibility"
+                            contentDescription = stringResource(R.string.password_visibility_toggle_description)
                         )
                     }
                 },
@@ -150,7 +153,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.repeatPassword,
                 onValueChange = viewModel::onRepeatPasswordChange,
-                label = { Text("Repeat password") },
+                label = { Text(text = stringResource(R.string.register_repeat_password)) },
                 singleLine = true,
                 visualTransformation = if (uiState.showRepeatPassword) {
                     VisualTransformation.None
@@ -179,14 +182,20 @@ fun RegisterScreen(
                     .height(48.dp),
                 enabled = uiState.isFormValid && !uiState.isLoading
             ) {
-                Text(if (uiState.isLoading) "Creating..." else "Create account")
+                Text(
+                    text = if (uiState.isLoading) {
+                        stringResource(R.string.register_loading)
+                    } else {
+                        stringResource(R.string.register_button_create)
+                    }
+                )
             }
 
             TextButton(
                 onClick = onNavigateToLogin,
                 modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally)
             ) {
-                Text("Already have an account? Log in")
+                Text(text = stringResource(R.string.register_cta_log_in))
             }
         }
     }

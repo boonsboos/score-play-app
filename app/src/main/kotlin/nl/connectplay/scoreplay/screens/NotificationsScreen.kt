@@ -1,6 +1,5 @@
 package nl.connectplay.scoreplay.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +44,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.notifications.NotificationFilter
 import nl.connectplay.scoreplay.models.notifications.NotificationUi
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
@@ -83,7 +84,7 @@ fun NotificationsScreen(
         modifier = Modifier.fillMaxSize(), // the screen is filled entire size
         topBar = {
             ScorePlayTopBar(
-                title = "Notifications",
+                title = stringResource(R.string.screen_notifications_title),
                 backStack = backStack
             )
         }, // added the composable topbar
@@ -103,7 +104,7 @@ fun NotificationsScreen(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 FilterButton(
-                    title = "All",
+                    title = stringResource(R.string.notification_filter_all),
                     // mark this filter button as selected when the ALL filter is active (also for styling)
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.ALL,
                     // change the filter state so the ViewModel knows which filter is active
@@ -112,28 +113,28 @@ fun NotificationsScreen(
                     }
                 )
                 FilterButton(
-                    title = "Unread",
+                    title = stringResource(R.string.notification_filter_unread),
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.UNREAD,
                     onClick = {
                         notificationViewModel.setFilter(NotificationFilter.UNREAD)
                     }
                 )
                 FilterButton(
-                    title = "Friend Requests",
+                    title = stringResource(R.string.notification_filter_friend_requests),
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.FRIEND_REQUEST,
                     onClick = {
                         notificationViewModel.setFilter(NotificationFilter.FRIEND_REQUEST)
                     }
                 )
                 FilterButton(
-                    title = "Replies",
+                    title = stringResource(R.string.notification_filter_friend_request_replies),
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.REPLIES,
                     onClick = {
                         notificationViewModel.setFilter(NotificationFilter.REPLIES)
                     }
                 )
                 FilterButton(
-                    title = "Highscores",
+                    title = stringResource(R.string.notification_filter_highscores),
                     selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.HIGHSCORES,
                     onClick = {
                         notificationViewModel.setFilter(NotificationFilter.HIGHSCORES)
@@ -155,7 +156,7 @@ fun NotificationsScreen(
 
                 notifications.isEmpty() -> {
                     Text(
-                        text = "No notifications available", textAlign = TextAlign.Center
+                        text = stringResource(R.string.notification_empty), textAlign = TextAlign.Center
                     )
                 }
 
@@ -174,10 +175,6 @@ fun NotificationsScreen(
                                         event = event,
                                         read = notification.read,
                                         onClick = {
-                                            Log.d(
-                                                "NOTIFY",
-                                                "Clicked notification: ${notification.notificationId}"
-                                            )
                                             selectedNotification.value = notification
                                         }
                                     )
@@ -187,10 +184,6 @@ fun NotificationsScreen(
                                         event = event,
                                         read = notification.read,
                                         onClick = {
-                                            Log.d(
-                                                "NOTIFY",
-                                                "Clicked notification: ${notification.notificationId}"
-                                            )
                                             selectedNotification.value = notification
                                         }
                                     )
@@ -200,10 +193,6 @@ fun NotificationsScreen(
                                         event = event,
                                         read = notification.read,
                                         onClick = {
-                                            Log.d(
-                                                "NOTIFY",
-                                                "Clicked notification: ${notification.notificationId}"
-                                            )
                                             selectedNotification.value = notification
                                         },
                                         userDto = if (event.score.sessionPlayer.guest == null) {
@@ -290,8 +279,12 @@ fun FriendRequestNotificationItem(
                 )
             }
         },
-        headlineContent = { Text("New friend request from ${event.from.username}") },
-        supportingContent = { Text("Will you accept?") },
+        headlineContent = { Text(
+            stringResource(
+                R.string.notification_friend_request,
+                event.from.username
+            )) },
+        supportingContent = { Text(stringResource(R.string.notification_friend_request_cta)) },
     )
 }
 
@@ -318,12 +311,24 @@ fun FriendRequestReplyNotificationItem(
                 )
             }
         },
-        headlineContent = { Text("${event.respondingUser.username} responded!") },
+        headlineContent = { Text(
+            stringResource(
+                R.string.notification_friend_request_response,
+                event.respondingUser.username
+            )) },
         supportingContent = {
             if (event.accepts) {
-                Text("${event.respondingUser.username} accepted your friend request! Yay!")
+                Text(
+                    stringResource(
+                        R.string.notification_friend_request_response_accepted,
+                        event.respondingUser.username
+                    ))
             } else {
-                Text("${event.respondingUser.username} declined your friend request... :(")
+                Text(
+                    stringResource(
+                        R.string.notification_friend_request_response_declined,
+                        event.respondingUser.username
+                    ))
             }
         }
     )
@@ -340,7 +345,15 @@ fun HighscoreNotificationItem(
         event = event,
         read = read,
         onClick = onClick,
-        headlineContent = { Text("New #${event.podium} score on ${event.game.name}") },
+        headlineContent = {
+            Text(
+                stringResource(
+                    R.string.notification_highscore,
+                    event.podium,
+                    event.game.name
+                )
+            )
+        },
         leadingContent = {
             Icon(
                 imageVector = Icons.Filled.EmojiEvents,
@@ -349,11 +362,13 @@ fun HighscoreNotificationItem(
             )
         },
         supportingContent = {
-            if (userDto != null) {
-                Text("${userDto.username} got a score of ${event.score.score}!")
-            } else {
-                Text("${event.score.sessionPlayer.guest} got a score of ${event.score.score}!")
-            }
+            Text(
+                stringResource(
+                    R.string.notification_highscore_description,
+                    userDto?.username ?: event.score.sessionPlayer.guest!!,
+                    event.score.score
+                )
+            )
         }
     )
 }

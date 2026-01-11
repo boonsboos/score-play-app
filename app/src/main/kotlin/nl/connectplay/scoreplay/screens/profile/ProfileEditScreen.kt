@@ -1,20 +1,10 @@
 package nl.connectplay.scoreplay.screens.profile
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Environment
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +15,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,12 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.screens.Screens
@@ -59,10 +51,6 @@ import nl.connectplay.scoreplay.viewModels.profile.ProfileEditViewModel
 import nl.connectplay.scoreplay.viewModels.UiState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,13 +63,15 @@ fun ProfileEditScreen(
     ),
 ) {
     val context = LocalContext.current
-    var showPicker by remember { mutableStateOf(false) }
 
     val profileState by profileEditViewModel.updatedProfileState.collectAsState()
     val usernameState by profileEditViewModel.username.collectAsState()
     val emailState by profileEditViewModel.email.collectAsState()
     val pendingImage by profileEditViewModel.pendingImageUri.collectAsState()
     val pictureUrl by profileEditViewModel.pictureUrl.collectAsState()
+
+    var showPicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(profileState) {
         if (profileState is UiState.Success) backStack.removeAt(backStack.lastIndex)
@@ -100,7 +90,7 @@ fun ProfileEditScreen(
     Scaffold(
         topBar = {
             ScorePlayTopBar(
-                title = "Edit profile",
+                title = stringResource(R.string.screen_edit_profile_title),
                 backStack = backStack
             )
         },
@@ -142,7 +132,7 @@ fun ProfileEditScreen(
                         ) {
                             Icon(
                                 Icons.Default.CameraAlt,
-                                contentDescription = "Profile picture",
+                                contentDescription = stringResource(R.string.profile_picture),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -157,7 +147,7 @@ fun ProfileEditScreen(
             ) {
                 ScorePlayInputField(
                     value = usernameState,
-                    placeholder = "Username",
+                    placeholder = stringResource(R.string.text_field_username),
                     onChange = profileEditViewModel::onUsernameChanged,
                     enabled = profileState !is UiState.Loading
                 )
@@ -165,7 +155,7 @@ fun ProfileEditScreen(
                 ScorePlayInputField(
                     // should never be null, but UserProfile.email is nullable for other parts of the program.
                     value = emailState!!,
-                    placeholder = "Email address",
+                    placeholder = stringResource(R.string.text_field_email),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
                     ),
@@ -187,19 +177,44 @@ fun ProfileEditScreen(
 
             ScorePlayButton(
                 label = if (profileState is UiState.Loading)
-                    "Saving..."
+                    stringResource(R.string.profile_edit_saving)
                 else
-                    "Save changes",
+                    stringResource(R.string.profile_edit_cta),
                 enabled = profileState !is UiState.Loading,
                 onClick = { profileEditViewModel.onSaveProfile(context) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
             )
+
+            FilledTonalButton(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onClick = { showDeleteDialog = true }
+            ) {
+                Text(stringResource(R.string.profile_edit_delete_account))
+            }
+
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text(stringResource(R.string.profile_edit_delete_dialog_title)) },
+                    text = { Text(stringResource(R.string.profile_edit_delete_dialog_text)) },
+                    confirmButton = {
+                        Button(onClick = {
+                            showDeleteDialog = false
+                            profileEditViewModel.deleteAccount()
+                        }) { Text(stringResource(R.string.profile_edit_delete_dialog_confirm)) }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.profile_edit_delete_dialog_deny)) }
+                    }
+                )
+            }
         }
         if (showPicker) {
             PhotoPickerSheet(
-                prompt = "Change profile picture",
+                prompt = stringResource(R.string.profile_edit_cta_profile_picture),
                 onDismissRequest = { showPicker = false },
                 onPictureTaken = {
                     profileEditViewModel.onPictureChanged(it)

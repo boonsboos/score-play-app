@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,10 +19,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
@@ -50,13 +51,11 @@ fun FollowedGamesScreen(
     val title = when (val state = profileState) {
         is UiState.Success -> {
             if (targetUserId != null && targetUserId != userId) {
-                "${state.data.username}'s Followed Games"
-            } else "My Followed Games"
+                stringResource(R.string.screen_followed_games_target_title, state.data.username)
+            } else stringResource(R.string.screen_followed_games_title)
         }
 
-        UiState.Loading -> "Loading…"
-        is UiState.Error -> "Error"
-        UiState.Idle, is UiState.Initial -> "Profile"
+        else -> ""
     }
 
     Scaffold(
@@ -78,10 +77,11 @@ fun FollowedGamesScreen(
                 is UiState.Error -> {
                     item {
                         Text(
-                            text = "Failed to load followed games: ${
+                            text = stringResource(
+                                R.string.followed_games_error,
                                 (gamesState as UiState.Error).exception?.message
-                                    ?: "Unknown error"
-                            }",
+                                    ?: stringResource(R.string.unknown_error)
+                            ),
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.errorContainer)

@@ -6,33 +6,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import nl.connectplay.scoreplay.R
 
 @Composable
 fun FinishSessionDialog(
-    turn: Int,
+    completedRoundCount: Int,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Finish session") },
+        title = { Text(text = stringResource(R.string.finish_session_dialog_title)) },
         text = {
             Text(
-                text = """
-                    $turn rounds completed. End this session now?
-                    This will finalize the scores and disable further changes.
-                """.trimIndent(),
+                text = stringResource(R.string.finish_session_dialog_description, completedRoundCount),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text("Finish")
+                Text(stringResource(R.string.finish_session_dialog_finish))
             }
         }
     )

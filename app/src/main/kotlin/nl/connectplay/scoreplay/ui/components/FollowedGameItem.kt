@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.screens.home
+package nl.connectplay.scoreplay.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import nl.connectplay.scoreplay.models.game.FollowedGame
-import nl.connectplay.scoreplay.ui.components.FallbackImage
 
 
 @Composable
