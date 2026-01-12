@@ -155,6 +155,7 @@ fun ProfileScreen(
                                 FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> stringResource(
                                     R.string.profile_button_remove_friend
                                 )
+
                                 FriendshipStatus.PENDING -> stringResource(R.string.profile_button_pending_friend)
                                 null, FriendshipStatus.REJECTED -> stringResource(R.string.profile_button_add_friend)
                             },
@@ -171,7 +172,10 @@ fun ProfileScreen(
 
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader(stringResource(R.string.profile_last_sessions_empty), empty = true)
+                        SectionHeader(
+                            stringResource(R.string.profile_last_sessions_empty),
+                            empty = true
+                        )
                         Text(
                             text = stringResource(R.string.profile_last_sessions_empty_description),
                             modifier = Modifier.padding(16.dp),
@@ -191,51 +195,50 @@ fun ProfileScreen(
                             }
                         )
                     }
-                    if (items.isNotEmpty()) {
-                        items(items) { session ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(75.dp)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
-                                    .padding(horizontal = 20.dp)
-                                    .clickable(enabled = targetId != null) {
-                                        targetId?.let { id ->
-                                            backStack.add(
-                                                Screens.SessionDetail(
-                                                    sessionId = session.id,
-                                                    userId = id,
-                                                    ownerName = ownerName
-                                                )
+                    items(items) { session ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(75.dp)
+                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                .padding(horizontal = 20.dp)
+                                .clickable(enabled = targetId != null) {
+                                    targetId?.let { id ->
+                                        backStack.add(
+                                            Screens.SessionDetail(
+                                                sessionId = session.id,
+                                                userId = id,
+                                                ownerName = ownerName
                                             )
-                                        }
-                                    },
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
+                                        )
+                                    }
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            FallbackImage(
+                                url = session.endOfSessionPictureUrl,
+                                size = 72.dp
                             ) {
-                                FallbackImage(
-                                    url = session.endOfSessionPictureUrl, size = 75.dp
-                                ) {
-                                    Icon(
-                                        modifier = Modifier.size(75.dp),
-                                        imageVector = Icons.Outlined.Image,
-                                        contentDescription = ""
-                                    )
-                                }
-                                Column(
-                                    modifier = Modifier.height(75.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.Start,
-                                ) {
-                                    Text(
-                                        text = session.game.name,
-                                        modifier = Modifier,
-                                    )
-                                    Text(
-                                        text = session.startTime.formatted(),
-                                        modifier = Modifier
-                                    )
-                                }
+                                Icon(
+                                    modifier = Modifier.size(72.dp),
+                                    imageVector = Icons.Outlined.Image,
+                                    contentDescription = ""
+                                )
+                            }
+                            Column(
+                                modifier = Modifier.height(75.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start,
+                            ) {
+                                Text(
+                                    text = session.game.name,
+                                    modifier = Modifier,
+                                )
+                                Text(
+                                    text = session.startTime.formatted(),
+                                    modifier = Modifier
+                                )
                             }
                         }
                     }
@@ -246,7 +249,10 @@ fun ProfileScreen(
                 val items = state.data
                 if (items.isEmpty()) {
                     item {
-                        SectionHeader(title = stringResource(R.string.screen_followed_games_title), empty = true)
+                        SectionHeader(
+                            title = stringResource(R.string.screen_followed_games_title),
+                            empty = true
+                        )
                         Text(
                             text = stringResource(R.string.profile_followed_games_empty_description),
                             modifier = Modifier.padding(16.dp),
@@ -264,7 +270,7 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(75.dp)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1F))
+                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
                                 .padding(horizontal = 20.dp)
                                 .clickable {
                                     backStack.add(Screens.GameDetail(game.id))
@@ -273,7 +279,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.Start
                         ) {
                             FallbackImage(
-                                url = null,
+                                url = game.pictures.firstOrNull(),
                                 size = 75.dp
                             ) {
                                 Icon(

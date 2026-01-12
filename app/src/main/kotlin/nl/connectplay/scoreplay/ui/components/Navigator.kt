@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.screens.FriendsScreen
 import nl.connectplay.scoreplay.screens.GameDetailScreen
 import nl.connectplay.scoreplay.screens.GamesScreen
@@ -55,7 +56,8 @@ fun Navigator(modifier: Modifier = Modifier) {
     val backStack = rememberNavBackStack(start)
 
     NavDisplay(
-        modifier = modifier, backStack = backStack,
+        modifier = modifier,
+        backStack = backStack,
         // Add decorators to handle saved state, ViewModelStore, and scene setup
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),

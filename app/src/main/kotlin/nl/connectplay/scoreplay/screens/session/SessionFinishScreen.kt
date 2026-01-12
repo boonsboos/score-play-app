@@ -83,7 +83,7 @@ fun SessionFinishScreen(
         }
     }
 
-    val winnerName = state.winnerPlayer?.let { it.guestName ?: stringResource(R.string.you) }
+    val winnerName = state.winnerPlayer?.let { it.guestName ?: stringResource(R.string.you) } ?: stringResource(R.string.you)
     val winnerScore = state.winnerScore ?: 0.0
 
     var selectedVisibility by remember(state.visibility) { mutableStateOf(state.visibility) }
@@ -112,7 +112,7 @@ fun SessionFinishScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = stringResource(R.string.session_finish_winnder, winnerName!!),
+                text = stringResource(R.string.session_finish_winnder, winnerName),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineSmall
@@ -122,7 +122,7 @@ fun SessionFinishScreen(
 
 
             RoundScoreRow(
-                name = winnerName.toString(),
+                name = winnerName,
                 score = winnerScore
             )
 

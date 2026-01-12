@@ -67,22 +67,22 @@ object DarkColors {
     val TertiaryContainer = Color.hsv(54f, 0.30f, 0.28f)
     val OnTertiaryContainer = Color.hsv(54f, 0.25f, 0.90f)
 
-    val Background = Color(0xFF1C1B1F)
+    val Background = Color(0xFF0E0D11)
     val OnBackground = Color(0xFFE6E1E5)
 
-    val Surface = Color(0xFF1C1B1F)
+    val Surface = Color(0xFF0E0D11)
     val OnSurface = Color(0xFFE6E1E5)
-    val OnSurfaceVariant = Color(0xFFCAC4D0)
+    val OnSurfaceVariant = Color(0xFFBEB8C4)
 
-    val SurfaceDim = Color(0xFF141318)
-    val SurfaceBright = Color(0xFF3A383E)
+    val SurfaceDim = Color(0xFF0B0A0E)
+    val SurfaceBright = Color(0xFF2A2830)
 
-    val SurfaceContainerLowest = Color(0xFF0F0E13)
-    val SurfaceContainerLow = Color(0xFF1D1B22)
-    val SurfaceContainer = Color(0xFF211F26)
-    val SurfaceContainerHigh = Color(0xFF2B2931)
-    val SurfaceContainerHighest = Color(0xFF36343C)
+    val SurfaceContainerLowest = Color(0xFF131218)
+    val SurfaceContainerLow = Color(0xFF191820)
+    val SurfaceContainer = Color(0xFF1F1E27)
+    val SurfaceContainerHigh = Color(0xFF262430)
+    val SurfaceContainerHighest = Color(0xFF2E2C38)
 
-    val Outline = Color(0xFF938F99)
-    val OutlineVariant = Color(0xFF49454F)
+    val Outline = Color(0xFF8E8995)
+    val OutlineVariant = Color(0xFF3F3B45)
 }
