@@ -144,7 +144,8 @@ fun UserSessionsScreen(
                                         stringResource(
                                             R.string.session_screen_played_on,
                                             session.startTime
-                                        ))
+                                        )
+                                    )
                                 },
                                 leadingContent = {
                                     Icon(
@@ -153,9 +154,7 @@ fun UserSessionsScreen(
                                     )
                                 },
                                 colors = ListItemDefaults.colors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(
-                                        alpha = 0.1f
-                                    )
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 )
                             )
                         }

@@ -100,9 +100,7 @@ fun FollowedGamesScreen(
                                         backStack.add(Screens.GameDetail(it.id))
                                     },
                                 colors = ListItemDefaults.colors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(
-                                        alpha = 0.1F
-                                    )
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 headlineContent = { Text(it.name) },
                                 overlineContent = { Text(it.publisher) },

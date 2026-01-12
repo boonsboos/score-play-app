@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +67,14 @@ class HomeViewModel(
             } catch (e: Exception) {
                 _followedState.value = UiState.Error(e.message ?: "Unknown error", e)
             }
+        }
+    }
+
+    fun refresh() {
+        val id = userId.value
+        if (id != null) {
+            loadRecentGames()
+            loadFollowedGames(id)
         }
     }
 }

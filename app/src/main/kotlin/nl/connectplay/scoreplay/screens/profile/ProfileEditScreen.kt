@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -112,30 +113,26 @@ fun ProfileEditScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
-                    contentAlignment = Alignment.BottomEnd
+                FallbackImage(
+                    url = pendingImage ?: pictureUrl,
+                    size = 140.dp,
+                    shape = CircleShape,
+                    modifier = Modifier.clickable { showPicker = true },
                 ) {
-                    FallbackImage(
-                        url = pendingImage ?: pictureUrl,
-                        size = 140.dp,
-                        shape = CircleShape,
-                        modifier = Modifier.clickable { showPicker = true },
+                    Box(
+                        modifier = Modifier
+                            .size(140.dp)
+                            .background(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(140.dp)
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.CameraAlt,
-                                contentDescription = stringResource(R.string.profile_picture),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Icon(
+                            Icons.Default.CameraAlt,
+                            contentDescription = stringResource(R.string.profile_picture),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
             }
@@ -149,7 +146,8 @@ fun ProfileEditScreen(
                     value = usernameState,
                     placeholder = stringResource(R.string.text_field_username),
                     onChange = profileEditViewModel::onUsernameChanged,
-                    enabled = profileState !is UiState.Loading
+                    enabled = profileState !is UiState.Loading,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 ScorePlayInputField(
@@ -160,7 +158,8 @@ fun ProfileEditScreen(
                         keyboardType = KeyboardType.Email
                     ),
                     onChange = profileEditViewModel::onEmailChanged,
-                    enabled = profileState !is UiState.Loading
+                    enabled = profileState !is UiState.Loading,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -186,7 +185,7 @@ fun ProfileEditScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+                    .padding(bottom = 12.dp)
             )
 
             OutlinedButton(
@@ -196,6 +195,8 @@ fun ProfileEditScreen(
             ) {
                 Text(stringResource(R.string.profile_edit_delete_account))
             }
+            // For safety. So the delete button isn't too close to the bottom edge. And can be easily tapped.
+            Spacer(Modifier.height(44.dp))
 
             if (showDeleteDialog) {
                 AlertDialog(
@@ -209,7 +210,9 @@ fun ProfileEditScreen(
                         }) { Text(stringResource(R.string.profile_edit_delete_dialog_confirm)) }
                     },
                     dismissButton = {
-                        Button(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.profile_edit_delete_dialog_deny)) }
+                        Button(onClick = {
+                            showDeleteDialog = false
+                        }) { Text(stringResource(R.string.profile_edit_delete_dialog_deny)) }
                     }
                 )
             }

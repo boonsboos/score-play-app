@@ -55,6 +55,7 @@ import nl.connectplay.scoreplay.models.notifications.events.HighscoreEvent
 import nl.connectplay.scoreplay.models.user.UserProfile
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.FilterButton
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 import nl.connectplay.scoreplay.utilities.formatted
 import kotlin.time.ExperimentalTime
 
@@ -90,119 +91,124 @@ fun NotificationsScreen(
         }, // added the composable topbar
         // added the composable bottombar
         bottomBar = { BottomNavBar(backStack) }) { innerPadding ->
-        Column(
-            modifier = Modifier.padding(innerPadding)
+        PullToRefresh(
+            onRefresh = notificationViewModel::loadNotifications
         ) {
-            // horizontal scrollbar for the filterbuttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(filterScrollState)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .height(40.dp), // make sure the notifications aren't clipping the filter buttons
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Column(
+                modifier = Modifier.padding(innerPadding)
             ) {
-                FilterButton(
-                    title = stringResource(R.string.notification_filter_all),
-                    // mark this filter button as selected when the ALL filter is active (also for styling)
-                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.ALL,
-                    // change the filter state so the ViewModel knows which filter is active
-                    onClick = {
-                        notificationViewModel.setFilter(NotificationFilter.ALL)
-                    }
-                )
-                FilterButton(
-                    title = stringResource(R.string.notification_filter_unread),
-                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.UNREAD,
-                    onClick = {
-                        notificationViewModel.setFilter(NotificationFilter.UNREAD)
-                    }
-                )
-                FilterButton(
-                    title = stringResource(R.string.notification_filter_friend_requests),
-                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.FRIEND_REQUEST,
-                    onClick = {
-                        notificationViewModel.setFilter(NotificationFilter.FRIEND_REQUEST)
-                    }
-                )
-                FilterButton(
-                    title = stringResource(R.string.notification_filter_friend_request_replies),
-                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.REPLIES,
-                    onClick = {
-                        notificationViewModel.setFilter(NotificationFilter.REPLIES)
-                    }
-                )
-                FilterButton(
-                    title = stringResource(R.string.notification_filter_highscores),
-                    selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.HIGHSCORES,
-                    onClick = {
-                        notificationViewModel.setFilter(NotificationFilter.HIGHSCORES)
-                    }
-                )
-            }
-            when {
-                isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-
-                error != null -> {
-                    Text(
-                        text = error ?: "Unknown error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                // horizontal scrollbar for the filterbuttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(filterScrollState)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                        .height(40.dp), // make sure the notifications aren't clipping the filter buttons
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    FilterButton(
+                        title = stringResource(R.string.notification_filter_all),
+                        // mark this filter button as selected when the ALL filter is active (also for styling)
+                        selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.ALL,
+                        // change the filter state so the ViewModel knows which filter is active
+                        onClick = {
+                            notificationViewModel.setFilter(NotificationFilter.ALL)
+                        }
+                    )
+                    FilterButton(
+                        title = stringResource(R.string.notification_filter_unread),
+                        selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.UNREAD,
+                        onClick = {
+                            notificationViewModel.setFilter(NotificationFilter.UNREAD)
+                        }
+                    )
+                    FilterButton(
+                        title = stringResource(R.string.notification_filter_friend_requests),
+                        selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.FRIEND_REQUEST,
+                        onClick = {
+                            notificationViewModel.setFilter(NotificationFilter.FRIEND_REQUEST)
+                        }
+                    )
+                    FilterButton(
+                        title = stringResource(R.string.notification_filter_friend_request_replies),
+                        selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.REPLIES,
+                        onClick = {
+                            notificationViewModel.setFilter(NotificationFilter.REPLIES)
+                        }
+                    )
+                    FilterButton(
+                        title = stringResource(R.string.notification_filter_highscores),
+                        selected = notificationViewModel.filter.collectAsState().value == NotificationFilter.HIGHSCORES,
+                        onClick = {
+                            notificationViewModel.setFilter(NotificationFilter.HIGHSCORES)
+                        }
                     )
                 }
+                when {
+                    isLoading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    }
 
-                notifications.isEmpty() -> {
-                    Text(
-                        text = stringResource(R.string.notification_empty), textAlign = TextAlign.Center
-                    )
-                }
+                    error != null -> {
+                        Text(
+                            text = error ?: "Unknown error",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                        )
+                    }
 
-                else -> {
-                    // this makes a scrollable list of notifications
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(notifications) { notification ->
-                            // checks the type of the event
-                            when (val event = notification.event) {
+                    notifications.isEmpty() -> {
+                        Text(
+                            text = stringResource(R.string.notification_empty),
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                                is FriendRequestEvent ->
-                                    FriendRequestNotificationItem(
-                                        event = event,
-                                        read = notification.read,
-                                        onClick = {
-                                            selectedNotification.value = notification
-                                        }
-                                    )
+                    else -> {
+                        // this makes a scrollable list of notifications
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(notifications) { notification ->
+                                // checks the type of the event
+                                when (val event = notification.event) {
 
-                                is FriendRequestReplyEvent ->
-                                    FriendRequestReplyNotificationItem(
-                                        event = event,
-                                        read = notification.read,
-                                        onClick = {
-                                            selectedNotification.value = notification
-                                        }
-                                    )
+                                    is FriendRequestEvent ->
+                                        FriendRequestNotificationItem(
+                                            event = event,
+                                            read = notification.read,
+                                            onClick = {
+                                                selectedNotification.value = notification
+                                            }
+                                        )
 
-                                is HighscoreEvent ->
-                                    HighscoreNotificationItem(
-                                        event = event,
-                                        read = notification.read,
-                                        onClick = {
-                                            selectedNotification.value = notification
-                                        },
-                                        userDto = if (event.score.sessionPlayer.guest == null) {
-                                            requiredHighScoreUsers[event.score.sessionPlayer.userId]
-                                        } else {
-                                            null
-                                        }
-                                    )
+                                    is FriendRequestReplyEvent ->
+                                        FriendRequestReplyNotificationItem(
+                                            event = event,
+                                            read = notification.read,
+                                            onClick = {
+                                                selectedNotification.value = notification
+                                            }
+                                        )
+
+                                    is HighscoreEvent ->
+                                        HighscoreNotificationItem(
+                                            event = event,
+                                            read = notification.read,
+                                            onClick = {
+                                                selectedNotification.value = notification
+                                            },
+                                            userDto = if (event.score.sessionPlayer.guest == null) {
+                                                requiredHighScoreUsers[event.score.sessionPlayer.userId]
+                                            } else {
+                                                null
+                                            }
+                                        )
+                                }
+                                HorizontalDivider()
                             }
-                            HorizontalDivider()
                         }
                     }
                 }
@@ -246,9 +252,9 @@ fun NotificationRow(
         colors = ListItemDefaults.colors()
             .copy(
                 containerColor = if (read)
-                    MaterialTheme.colorScheme.surfaceContainerLowest
+                    MaterialTheme.colorScheme.background
                 else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    MaterialTheme.colorScheme.surfaceContainerHigh
             ),
         modifier = Modifier
             .fillMaxWidth()
@@ -279,11 +285,14 @@ fun FriendRequestNotificationItem(
                 )
             }
         },
-        headlineContent = { Text(
-            stringResource(
-                R.string.notification_friend_request,
-                event.from.username
-            )) },
+        headlineContent = {
+            Text(
+                stringResource(
+                    R.string.notification_friend_request,
+                    event.from.username
+                )
+            )
+        },
         supportingContent = { Text(stringResource(R.string.notification_friend_request_cta)) },
     )
 }
@@ -311,24 +320,29 @@ fun FriendRequestReplyNotificationItem(
                 )
             }
         },
-        headlineContent = { Text(
-            stringResource(
-                R.string.notification_friend_request_response,
-                event.respondingUser.username
-            )) },
+        headlineContent = {
+            Text(
+                stringResource(
+                    R.string.notification_friend_request_response,
+                    event.respondingUser.username
+                )
+            )
+        },
         supportingContent = {
             if (event.accepts) {
                 Text(
                     stringResource(
                         R.string.notification_friend_request_response_accepted,
                         event.respondingUser.username
-                    ))
+                    )
+                )
             } else {
                 Text(
                     stringResource(
                         R.string.notification_friend_request_response_declined,
                         event.respondingUser.username
-                    ))
+                    )
+                )
             }
         }
     )

@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +39,7 @@ import nl.connectplay.scoreplay.ui.components.CircleAvatar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import org.koin.androidx.compose.koinViewModel
 import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 
 @Composable
 fun FriendsScreen(
@@ -63,20 +66,24 @@ fun FriendsScreen(
         bottomBar = { BottomNavBar(backStack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+        PullToRefresh(
+            onRefresh = friendViewModel::refreshData
         ) {
-            if (uiState.isLoading) {
-                LoadingSection()
-            } else {
-                FriendList(
-                    friendRequests = uiState.friendRequests,
-                    friends = uiState.friends,
-                    viewModel = friendViewModel,
-                    backStack = backStack
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                if (uiState.isLoading) {
+                    LoadingSection()
+                } else {
+                    FriendList(
+                        friendRequests = uiState.friendRequests,
+                        friends = uiState.friends,
+                        viewModel = friendViewModel,
+                        backStack = backStack
+                    )
+                }
             }
         }
     }
@@ -226,7 +233,7 @@ fun PendingFriendRequestRow(
         trailingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 IconButton(
                     onClick = onAccept,

@@ -1,7 +1,10 @@
 package nl.connectplay.scoreplay.ui.components
 
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,13 +16,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.ArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,23 +40,37 @@ import nl.connectplay.scoreplay.models.game.FollowedGame
 fun FollowedGameItem(
     game: FollowedGame,
     modifier: Modifier = Modifier,
-    onUserClick: (playerId: Int) -> Unit = { }
 ) {
     var expanded by rememberSaveable(game.id) { mutableStateOf(false) }
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp)
-            .clickable { expanded = !expanded }
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(horizontal = 24.dp, vertical = 12.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { expanded = !expanded }
     ) {
-        Text(
-            text = game.name,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = game.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+            if (game.podium.isNotEmpty())
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                )
+        }
 
         if (expanded) {
-            Spacer(Modifier.height(8.dp))
+            if (game.podium.isNotEmpty()) Spacer(Modifier.height(8.dp))
 
             game.podium.forEach { podiumItem ->
                 Row(
@@ -66,7 +88,8 @@ fun FollowedGameItem(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = podiumItem.playerName.first().toString(),
+                                text = podiumItem.playerName.firstOrNull()?.uppercaseChar()
+                                    ?.toString() ?: "?",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
@@ -86,14 +109,6 @@ fun FollowedGameItem(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Spacer(Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                        contentDescription = "View details",
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-//                            .clickable { onUserClick(podiumItem.playerId) }
-                    )
                 }
             }
         }

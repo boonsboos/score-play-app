@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,20 +23,27 @@ fun RoundScoreRow(
     score: Double,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(14.dp)
     val initial = name.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "?"
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = shape,
-        color = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    ListItem(
+        modifier = modifier,
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        headlineContent = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        trailingContent = {
+            Text(
+                text = formatScore(score),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        leadingContent = {
             Box(
                 modifier = Modifier
                     .size(34.dp)
@@ -49,22 +58,8 @@ fun RoundScoreRow(
                     fontWeight = FontWeight.SemiBold
                 )
             }
-
-            Spacer(Modifier.width(12.dp))
-
-            Text(
-                text = name,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                text = formatScore(score),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold
-            )
         }
-    }
+    )
 }
 
 private fun formatScore(score: Double): String {

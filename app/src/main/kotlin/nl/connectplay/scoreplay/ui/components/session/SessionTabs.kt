@@ -47,7 +47,7 @@ fun SessionTabs(
                 Text(
                     text = stringResource(R.string.session_tab_scores),
                     color = if (!canProgress) {
-                        MaterialTheme.colorScheme.surfaceDim
+                        MaterialTheme.colorScheme.inverseOnSurface
                     } else {
                         Color.Unspecified
                     }

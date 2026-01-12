@@ -31,6 +31,8 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ErrorMessage
+import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GamesListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -67,41 +69,48 @@ fun GamesScreen(
         },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+        PullToRefresh(
+            onRefresh = gameListViewModel::fetch
         ) {
-            // Show error message if we are done loading and no games were found
-            if (gamesList.isEmpty() && !gamesAreLoading) {
-                return@Column ErrorMessage(stringResource(R.string.games_empty))
-            }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                items(items = gamesList.toList(), key = { it.id }) {
-                    ListItem(
-                        modifier = Modifier.clickable {
-                            backStack.add(Screens.GameDetail(it.id))
-                        },
-                        headlineContent = { Text(it.name) },
-                        overlineContent = { Text(it.publisher) },
-                        supportingContent = {
-                            Text(
-                                it.description,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        leadingContent = {
-                            Icon(
-                                Icons.Filled.Image,
-                                "TODO image",
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                    )
-                    HorizontalDivider()
+                // Show error message if we are done loading and no games were found
+                if (gamesList.isEmpty() && !gamesAreLoading) {
+                    return@Column ErrorMessage(stringResource(R.string.games_empty))
+                }
+                if (gamesAreLoading) {
+                    return@Column LoadingSection()
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(items = gamesList.toList(), key = { it.id }) {
+                        ListItem(
+                            modifier = Modifier.clickable {
+                                backStack.add(Screens.GameDetail(it.id))
+                            },
+                            headlineContent = { Text(it.name) },
+                            overlineContent = { Text(it.publisher) },
+                            supportingContent = {
+                                Text(
+                                    it.description,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            leadingContent = {
+                                Icon(
+                                    Icons.Filled.Image,
+                                    "TODO image",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        )
+                        HorizontalDivider()
+                    }
                 }
             }
         }

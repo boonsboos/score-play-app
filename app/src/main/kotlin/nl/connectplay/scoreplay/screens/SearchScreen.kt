@@ -26,6 +26,7 @@ import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.SearchListItem
 import nl.connectplay.scoreplay.ui.components.FilterButton
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 import nl.connectplay.scoreplay.viewModels.SearchViewModel
 
 @Composable
@@ -56,97 +57,101 @@ fun SearchScreen(
         topBar = { ScorePlayTopBar(title = "Search", backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+        PullToRefresh(
+            onRefresh = searchViewModel::search
         ) {
-            // this styling is for the filter options
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(vertical = 8.dp)
-                    .height(40.dp),
-                horizontalArrangement = Arrangement.spacedBy(
-                    10.dp,
-                    Alignment.CenterHorizontally
-                )
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                // ALL FILTER
-                FilterButton(
-                    title = stringResource(R.string.search_filter_all),
-                    selected = filter == SearchFilter.ALL,
-                    onClick = {
-                        searchViewModel.setFilter(SearchFilter.ALL) // update the filter
-                        searchViewModel.search() // update the search results
-                    }
-                )
-                // USERS FILTER
-                FilterButton(
-                    title = stringResource(R.string.search_filter_users),
-                    selected = filter == SearchFilter.USERS,
-                    onClick = {
-                        searchViewModel.setFilter(SearchFilter.USERS)
-                        searchViewModel.search()
-                    }
-                )
-                // GAMES FILTER
-                FilterButton(
-                    title = stringResource(R.string.search_filter_games),
-                    selected = filter == SearchFilter.GAMES,
-                    onClick = {
-                        searchViewModel.setFilter(SearchFilter.GAMES)
-                        searchViewModel.search()
-                    }
-                )
-            }
+                // this styling is for the filter options
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(vertical = 8.dp)
+                        .height(40.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        10.dp,
+                        Alignment.CenterHorizontally
+                    )
+                ) {
+                    // ALL FILTER
+                    FilterButton(
+                        title = stringResource(R.string.search_filter_all),
+                        selected = filter == SearchFilter.ALL,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.ALL) // update the filter
+                            searchViewModel.search() // update the search results
+                        }
+                    )
+                    // USERS FILTER
+                    FilterButton(
+                        title = stringResource(R.string.search_filter_users),
+                        selected = filter == SearchFilter.USERS,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.USERS)
+                            searchViewModel.search()
+                        }
+                    )
+                    // GAMES FILTER
+                    FilterButton(
+                        title = stringResource(R.string.search_filter_games),
+                        selected = filter == SearchFilter.GAMES,
+                        onClick = {
+                            searchViewModel.setFilter(SearchFilter.GAMES)
+                            searchViewModel.search()
+                        }
+                    )
+                }
 
-            // scrollable list for the found users and games
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(results) { item ->
+                // scrollable list for the found users and games
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(results) { item ->
 
-                    // checks in the list if its a user or game item
-                    when (item) {
-                        is SearchResult.UserResult -> {
-                            Log.d(
-                                "SearchScreen",
-                                "User ${item.username}, pictureUrl=${item.picture}"
-                            )
-                            SearchListItem(
-                                title = item.username,
-                                icon = {
-                                    FallbackImage(
-                                        url = item.picture,
-                                        size = 36.dp,
-                                        shape = CircleShape
-                                    ) {
+                        // checks in the list if its a user or game item
+                        when (item) {
+                            is SearchResult.UserResult -> {
+                                Log.d(
+                                    "SearchScreen",
+                                    "User ${item.username}, pictureUrl=${item.picture}"
+                                )
+                                SearchListItem(
+                                    title = item.username,
+                                    icon = {
+                                        FallbackImage(
+                                            url = item.picture,
+                                            size = 36.dp,
+                                            shape = CircleShape
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Person,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(36.dp)
+                                            )
+                                        }
+                                    },
+                                    onClick = { onUserClick(item.userId) }
+                                )
+                            }
+
+                            is SearchResult.GameResult -> {
+                                SearchListItem(
+                                    title = item.title,
+                                    subtitle = item.description,
+                                    icon = {
                                         Icon(
-                                            imageVector = Icons.Filled.Person,
-                                            contentDescription = null,
+                                            Icons.Filled.Image,
+                                            contentDescription = stringResource(R.string.search_description_game_icon),
                                             modifier = Modifier.size(36.dp)
                                         )
-                                    }
-                                },
-                                onClick = { onUserClick(item.userId) }
-                            )
-                        }
-
-                        is SearchResult.GameResult -> {
-                            SearchListItem(
-                                title = item.title,
-                                subtitle = item.description,
-                                icon = {
-                                    Icon(
-                                        Icons.Filled.Image,
-                                        contentDescription = stringResource(R.string.search_description_game_icon),
-                                        modifier=Modifier.size(36.dp)
-                                    )
-                                },
-                                onClick = { onGameClick(item.gameId) }
-                            )
+                                    },
+                                    onClick = { onGameClick(item.gameId) }
+                                )
+                            }
                         }
                     }
                 }
