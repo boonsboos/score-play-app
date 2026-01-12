@@ -10,7 +10,7 @@ sealed class SearchResult {
     data class UserResult(
         val userId: Int,
         val username: String,
-        val pictureUrl: String? = null
+        val picture: String? = null
     ) : SearchResult()
 
     data class GameResult(
