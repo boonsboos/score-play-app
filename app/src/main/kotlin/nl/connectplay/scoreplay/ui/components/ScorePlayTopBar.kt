@@ -57,7 +57,7 @@ fun ScorePlayTopBar(
 
     CenterAlignedTopAppBar(
         title = {
-            if(!searching) Text(title, textAlign = TextAlign.Center)
+            if (!searching) Text(title, textAlign = TextAlign.Center)
         },
         navigationIcon = {
             if (!searching) {
@@ -69,7 +69,10 @@ fun ScorePlayTopBar(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.top_bar_search))
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = stringResource(R.string.top_bar_search)
+                    )
                 }
             } else {
                 SearchBar(
@@ -97,8 +100,10 @@ fun ScorePlayTopBar(
                 )
             }
         },
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface),
+        modifier = Modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
@@ -127,7 +132,10 @@ private fun TopBarSearchBar(
             }
         },
         placeholder = {
-            Text(modifier = Modifier.clearAndSetSemantics {}, text = stringResource(R.string.top_bar_search))
+            Text(
+                modifier = Modifier.clearAndSetSemantics {},
+                text = stringResource(R.string.top_bar_search)
+            )
         },
         leadingIcon = {
             if (searchBarState.currentValue == SearchBarValue.Expanded) {
