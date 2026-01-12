@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,12 +36,14 @@ import nl.connectplay.scoreplay.viewModels.RegisterEvent
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("LocalContextResourcesRead", "Justification: hardcoded string replacement with string resources")
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = koinViewModel(),
     onNavigateToLogin: () -> Unit,
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -47,7 +51,8 @@ fun RegisterScreen(
 
     // Errors for snackbar
     LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
+        if (uiState.errorMessage != null) {
+            val message = context.resources.getString(uiState.errorMessage!!)
             snackbarHostState.showSnackbar(message)
         }
     }

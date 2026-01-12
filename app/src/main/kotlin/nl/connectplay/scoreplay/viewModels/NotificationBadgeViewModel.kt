@@ -14,7 +14,10 @@ import io.ktor.client.plugins.sse.sseSession
 import kotlin.time.Duration.Companion.seconds
 import io.ktor.client.request.headers
 import io.ktor.sse.ServerSentEvent
+import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
+import nl.connectplay.scoreplay.R
+import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.api.Routes
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
@@ -24,7 +27,8 @@ import nl.connectplay.scoreplay.ui.notifications.NotificationBuilder
 
 class NotificationBadgeViewModel(
     private val httpClient: HttpClient,
-    private val appContext: Context
+    private val appContext: Context,
+    private val profileApi: ProfileApi
 ) : ViewModel() {
     private val _hasUnreadNotifications = MutableStateFlow(false)
     val hasUnreadNotifications =
@@ -63,7 +67,7 @@ class NotificationBadgeViewModel(
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun processSseEvent(sseEvent: ServerSentEvent) {
+    private suspend fun processSseEvent(sseEvent: ServerSentEvent) {
         Log.d("SSE", "Received event from server ${sseEvent.data}")
 
         try {
@@ -79,43 +83,61 @@ class NotificationBadgeViewModel(
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun processEvent(event: BaseEvent) {
+    private suspend fun processEvent(event: BaseEvent) {
         when (event) {
             is FriendRequestEvent -> {
-                val title = "New Friend Request"
-                val message = "${event.from.username} has send you a friend request!"
+                val title = appContext.getString(
+                        R.string.notification_friend_request,
+                    event.from.username
+                )
+                val message = appContext.getString(R.string.notification_friend_request_cta)
                 // shows the notification for the friend request event
                 NotificationBuilder.showNotification(appContext, title, message)
             }
 
             is FriendRequestReplyEvent -> {
-                val title = "Reaction to Friend Request"
+                val title = appContext.getString(
+                        R.string.notification_friend_request_response,
+                    event.respondingUser.username
+                )
                 val message =
                     // because there are two options there must be a check to check if the friend request was accepted or not
                     if (event.accepts) {
-                        "${event.respondingUser.username} has accepted your friend request"
+                        appContext.getString(
+                                R.string.notification_friend_request_response_accepted,
+                            event.respondingUser.username
+                        )
                     } else {
-                        "${event.respondingUser.username} has declined your friend request"
+                        appContext.getString(
+                            R.string.notification_friend_request_response_declined,
+                            event.respondingUser.username
+                        )
                     }
                 NotificationBuilder.showNotification(appContext, title, message)
             }
 
             is HighscoreEvent -> {
-                val title = "New highscore on game ${event.game.name}"
+
+                val userDto = viewModelScope.async { profileApi.getProfile(event.score.sessionPlayer.userId) }
+
+                val title = appContext.getString(
+                    R.string.notification_highscore,
+                    event.podium,
+                    event.game.name
+                )
                 val message =
                     // a guest player or a user can have a highscore
-                    if (event.score.sessionPlayer.guest != null) {
-                        "${event.score.sessionPlayer.guest} has a score of: ${event.score.score}!"
-                    } else {
-                        "${event.score.sessionPlayer.userId} has a score of: ${event.score.score}!"
-                    }
+                    appContext.getString(
+                        R.string.notification_highscore_description,
+                        event.score.sessionPlayer.guest ?: userDto.await().username,
+                        event.score.score.toString()
+                    )
                 NotificationBuilder.showNotification(appContext, title, message)
             }
         }
     }
 
     fun setHasUnread(hasUnread: Boolean) {
-        Log.d("Notifications", "$hasUnread")
         _hasUnreadNotifications.value = hasUnread
     }
 }
