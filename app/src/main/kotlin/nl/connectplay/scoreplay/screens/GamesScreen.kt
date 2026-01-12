@@ -4,12 +4,15 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -55,21 +59,26 @@ fun GamesScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_games_title), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = stringResource(R.string.screen_games_title),
+                backStack = backStack
+            )
+        },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.primary),
         ) {
             // Show error message if we are done loading and no games were found
             if (gamesList.isEmpty() && !gamesAreLoading) {
-                return@Box ErrorMessage(stringResource(R.string.games_empty))
+                return@Column ErrorMessage(stringResource(R.string.games_empty))
             }
-
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
                 items(items = gamesList.toList(), key = { it.id }) {
                     ListItem(
                         modifier = Modifier.clickable {
@@ -84,8 +93,15 @@ fun GamesScreen(
                                 overflow = TextOverflow.Ellipsis
                             )
                         },
-                        leadingContent = { Icon(Icons.Filled.Image, "TODO image") }
+                        leadingContent = {
+                            Icon(
+                                Icons.Filled.Image,
+                                "TODO image",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     )
+                    HorizontalDivider()
                 }
             }
         }
