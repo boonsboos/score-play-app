@@ -64,7 +64,7 @@ class SearchViewModel(private val searchApi: SearchApi) : ViewModel() {
             SearchResult.UserResult(
                 userId = user.userId,
                 username = user.username,
-                pictureUrl = user.pictureUrl
+                picture = user.picture
             )
         }
     }
