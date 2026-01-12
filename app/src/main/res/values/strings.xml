@@ -117,7 +117,7 @@
     <string name="friends_outstanding_requests">Sent requests</string>
     <string name="friends_pending_requests">Received requests</string>
     <string name="friends_empty">No friends found :(</string>
-    <string name="friends_awaiting_response">(awaiting response)</string>
+    <string name="friends_awaiting_response">awaiting response</string>
     <string name="round_detail_finish">Finish</string>
     <string name="round_detail_player_backup">Player %1$d</string>
     <string name="session_detail_rounds_header">Rounds</string>
@@ -143,4 +143,5 @@
     <string name="profile_button_remove_friend">Remove Friend</string>
     <string name="profile_button_pending_friend">Pending…</string>
     <string name="profile_button_add_friend">Add friend</string>
+    <string name="wants_to_be_your_friend">Wants to be your friend</string>
 </resources>

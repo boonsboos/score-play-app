@@ -101,7 +101,7 @@
     <string name="session_list_empty">Geen sessies</string>
     <string name="session_list_error">Fout tijdens het laden van sessies</string>
     <string name="screen_new_session_title">Nieuwe sessie</string>
-    <string name="friends_awaiting_response">(wacht op antwoord)</string>
+    <string name="friends_awaiting_response">wacht op antwoord</string>
     <string name="round_detail_finish">Klaar</string>
     <string name="round_detail_player_backup">Speler %1$d</string>
     <string name="session_detail_rounds_header">Rondes</string>
@@ -140,4 +140,5 @@
     <string name="profile_button_remove_friend">Verwijder vriend</string>
     <string name="profile_button_pending_friend">Wachten...</string>
     <string name="profile_button_add_friend">Voeg toe</string>
+    <string name="wants_to_be_your_friend">wilt je vriend zijn</string>
 </resources>

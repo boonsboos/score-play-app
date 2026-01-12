@@ -21,26 +21,23 @@ fun CircleAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 40.dp
 ) {
-    if (!user.user.picture.isNullOrBlank()) {
-        AsyncImage(
-            model = user.user.picture,
-            contentDescription = "${user.user.username} avatar",
-            modifier = modifier
-                .size(size)
-                .clip(CircleShape)
-        )
-    } else {
+    FallbackImage(
+        url = user.user.picture,
+        contentDescription = "${user.user.username} avatar",
+        size = size,
+        shape = CircleShape,
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
                 .size(size)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
             Text(
                 text = user.user.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.titleMedium,
             )
         }
     }

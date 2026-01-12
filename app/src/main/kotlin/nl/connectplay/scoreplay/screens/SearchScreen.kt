@@ -120,13 +120,13 @@ fun SearchScreen(
                                 icon = {
                                     FallbackImage(
                                         url = item.picture,
-                                        size = 24.dp,
+                                        size = 36.dp,
                                         shape = CircleShape
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.Person,
                                             contentDescription = null,
-                                            modifier = Modifier.size(50.dp)
+                                            modifier = Modifier.size(36.dp)
                                         )
                                     }
                                 },
@@ -141,7 +141,8 @@ fun SearchScreen(
                                 icon = {
                                     Icon(
                                         Icons.Filled.Image,
-                                        contentDescription = stringResource(R.string.search_description_game_icon)
+                                        contentDescription = stringResource(R.string.search_description_game_icon),
+                                        modifier=Modifier.size(36.dp)
                                     )
                                 },
                                 onClick = { onGameClick(item.gameId) }
