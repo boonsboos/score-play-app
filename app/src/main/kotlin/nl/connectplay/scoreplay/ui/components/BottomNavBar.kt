@@ -36,10 +36,10 @@ fun BottomNavBar(backStack: NavBackStack<NavKey>) {
     val currentScreen = backStack.lastOrNull()
     val badgeViewModel: NotificationBadgeViewModel = koinViewModel()
     val hasUnreadNotifications by badgeViewModel.hasUnreadNotifications.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        Log.d("BADGE_UI", "instance=${badgeViewModel.hashCode()}")
-    }
-    NavigationBar {
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
         NavigationBarItem(
             selected = currentScreen == Screens.Home,
             onClick = { backStack.add(Screens.Home) },
