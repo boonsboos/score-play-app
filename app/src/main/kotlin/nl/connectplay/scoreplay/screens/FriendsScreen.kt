@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,12 @@ fun FriendsScreen(
     }
 
     Scaffold(
-        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_friends_title), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = stringResource(R.string.screen_friends_title),
+                backStack = backStack
+            )
+        },
         bottomBar = { BottomNavBar(backStack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -60,7 +67,6 @@ fun FriendsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             if (uiState.isLoading) {
                 LoadingSection()
@@ -83,31 +89,30 @@ fun FriendList(
     viewModel: FriendViewModel,
     backStack: NavBackStack<NavKey>
 ) {
-    val listState = rememberLazyListState()
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        state = listState
     ) {
-
         if (friendRequests.pending.isNotEmpty()) {
             item {
                 Text(
                     text = stringResource(R.string.friends_pending_requests),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             items(friendRequests.pending) { request ->
                 PendingFriendRequestRow(
-                    friend = request,
+                    request = request,
                     onAccept = { viewModel.approveRequest(request.user.id) },
                     onDecline = { viewModel.declineRequest(request.user.id) },
-                    backStack = backStack
+                    onProfileClick = { backStack.add(Screens.Profile(request.user.id)) }
                 )
+                if (friendRequests.pending.size > 1 && request != friendRequests.pending.last()) {
+                    HorizontalDivider()
+                }
             }
         }
 
@@ -116,16 +121,20 @@ fun FriendList(
                 Text(
                     text = stringResource(R.string.friends_outstanding_requests),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onTertiary,
-                    modifier = Modifier.padding(top = 16.dp)
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             items(friendRequests.outstanding) { request ->
                 OutstandingFriendRequestRow(
-                    request,
-                    backStack = backStack
+                    request = request,
+                    onProfileClick = { backStack.add(Screens.Profile(request.user.id)) }
                 )
+                if (friendRequests.outstanding.size > 1 && request != friendRequests.outstanding.last()) {
+                    HorizontalDivider()
+                }
             }
         }
 
@@ -134,23 +143,27 @@ fun FriendList(
                 Text(
                     text = stringResource(R.string.screen_friends_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onTertiary,
-                    modifier = Modifier.padding(top = 16.dp)
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             items(friends) { friend ->
                 FriendRow(
                     friend,
-                    backStack = backStack
+                    onProfileClick = { backStack.add(Screens.Profile(friend.user.id)) }
                 )
+                if (friends.size > 1 && friend != friends.last()) {
+                    HorizontalDivider()
+                }
             }
         } else {
             item {
                 Text(
                     stringResource(R.string.friends_empty),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }
@@ -158,147 +171,121 @@ fun FriendList(
 }
 
 @Composable
-fun FriendRow(friend: UserFriend, backStack: NavBackStack<NavKey>) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+fun FriendRow(friend: UserFriend, onProfileClick: () -> Unit) {
+    ListItem(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable { backStack.add(Screens.Profile(friend.user.id)) },
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)
-        ) {
-            CircleAvatar(friend)
-            Spacer(modifier = Modifier.width(12.dp))
+            .clickable { onProfileClick() },
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            headlineColor = MaterialTheme.colorScheme.onSurface
+
+        ),
+        headlineContent = {
             Text(
                 friend.user.username,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
             )
+        },
+        leadingContent = {
+            CircleAvatar(friend)
         }
-    }
+    )
 }
 
 @Composable
 fun PendingFriendRequestRow(
-    friend: UserFriend,
+    request: UserFriend,
     onAccept: () -> Unit,
     onDecline: () -> Unit,
-    backStack: NavBackStack<NavKey>
+    onProfileClick: () -> Unit,
 ) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+    ListItem(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(12.dp)
+            .clickable { onProfileClick() },
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            headlineColor = MaterialTheme.colorScheme.onSurface
+        ),
+        headlineContent = {
+            Text(
+                text = request.user.username,
+                style = MaterialTheme.typography.titleMedium,
             )
-            .clickable { backStack.add(Screens.Profile(friend.user.id)) }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                CircleAvatar(friend)
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    friend.user.username,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Row {
-                Box(
+        },
+        supportingContent = {
+            Text(
+                text = stringResource(R.string.wants_to_be_your_friend),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        leadingContent = {
+            CircleAvatar(request)
+        },
+        trailingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                IconButton(
+                    onClick = onAccept,
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
+                        .size(32.dp),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = CircleShape,
                 ) {
-                    IconButton(
-                        onClick = onAccept,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = "Accept",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = "Accept",
+                    )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Box(
+                IconButton(
+                    onClick = onDecline,
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        .size(32.dp),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = CircleShape,
                 ) {
-                    IconButton(
-                        onClick = onDecline,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Decline",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Decline",
+                    )
                 }
             }
         }
-    }
+    )
 }
 
 @Composable
-fun OutstandingFriendRequestRow(request: UserFriend, backStack: NavBackStack<NavKey>) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+fun OutstandingFriendRequestRow(request: UserFriend, onProfileClick: () -> Unit) {
+    ListItem(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable { backStack.add(Screens.Profile(request.user.id)) }
+            .clickable { onProfileClick() },
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            headlineColor = MaterialTheme.colorScheme.onSurface
 
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircleAvatar(request)
-            Spacer(modifier = Modifier.width(12.dp))
+        ),
+        headlineContent = {
             Text(
-                text ="${request.user.username} ${stringResource(R.string.friends_awaiting_response)}",
+                request.user.username,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
             )
+        },
+        supportingContent = {
+            Text(stringResource(R.string.friends_awaiting_response))
+        },
+        leadingContent = {
+            CircleAvatar(request)
         }
-    }
+    )
 }

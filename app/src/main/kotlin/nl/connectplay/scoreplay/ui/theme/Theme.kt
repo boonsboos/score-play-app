@@ -33,6 +33,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = LightColors.OnBackground,
     surface = LightColors.Surface,
     onSurface = LightColors.OnSurface,
+    onSurfaceVariant = LightColors.OnSurfaceVariant,
     surfaceDim = LightColors.SurfaceDim,
     surfaceBright = LightColors.SurfaceBright,
     surfaceContainerLowest = LightColors.SurfaceContainerLowest,
@@ -42,10 +43,6 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainerHighest = LightColors.SurfaceContainerHighest,
     outline = LightColors.Outline,
     outlineVariant = LightColors.OutlineVariant,
-    error = LightColors.Error,
-    onError = LightColors.OnError,
-    errorContainer = LightColors.ErrorContainer,
-    onErrorContainer = LightColors.OnErrorContainer,
 )
 
 /**
@@ -68,6 +65,7 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = DarkColors.OnBackground,
     surface = DarkColors.Surface,
     onSurface = DarkColors.OnSurface,
+    onSurfaceVariant = DarkColors.OnSurfaceVariant,
     surfaceDim = DarkColors.SurfaceDim,
     surfaceBright = DarkColors.SurfaceBright,
     surfaceContainerLowest = DarkColors.SurfaceContainerLowest,
@@ -77,10 +75,6 @@ private val DarkColorScheme = darkColorScheme(
     surfaceContainerHighest = DarkColors.SurfaceContainerHighest,
     outline = DarkColors.Outline,
     outlineVariant = DarkColors.OutlineVariant,
-    error = DarkColors.Error,
-    onError = DarkColors.OnError,
-    errorContainer = DarkColors.ErrorContainer,
-    onErrorContainer = DarkColors.OnErrorContainer,
 )
 
 @Composable

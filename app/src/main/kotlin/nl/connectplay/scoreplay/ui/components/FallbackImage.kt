@@ -22,15 +22,16 @@ import coil3.request.crossfade
 @Composable
 fun FallbackImage(
     url: Any?,
-    modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(8.dp),
     size: Dp,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+    shape: Shape = RoundedCornerShape(8.dp),
     fallback: @Composable () -> Unit,
 ) {
     if (url != null) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).build(),
-            contentDescription = null,
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(size)
