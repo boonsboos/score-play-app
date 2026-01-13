@@ -66,6 +66,9 @@ class RegisterViewModel(
     fun onTogglePasswordVisibility() {
         _uiState.update { it.copy(showPassword = !it.showPassword) }
     }
+    fun onTogglePasswordRepeatVisibility() {
+        _uiState.update { it.copy(showRepeatPassword = !it.showRepeatPassword) }
+    }
 
     private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()

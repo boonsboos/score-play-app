@@ -3,6 +3,7 @@ package nl.connectplay.scoreplay.screens.profile
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -23,12 +24,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import kotlinx.datetime.format
 import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.LoadingSection
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
+import nl.connectplay.scoreplay.utilities.formatted
 import nl.connectplay.scoreplay.viewModels.UiState
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -87,7 +90,6 @@ fun UserSessionsScreen(
         topBar = { ScorePlayTopBar(title = title, backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-
         // scrollable session list
         LazyColumn(
             modifier = Modifier
@@ -143,14 +145,15 @@ fun UserSessionsScreen(
                                     Text(
                                         stringResource(
                                             R.string.session_screen_played_on,
-                                            session.startTime
+                                            session.startTime.formatted()
                                         )
                                     )
                                 },
                                 leadingContent = {
                                     Icon(
+                                        modifier = Modifier.size(48.dp),
                                         imageVector = Icons.Outlined.Image,
-                                        contentDescription = null
+                                        contentDescription = "Session Game Image",
                                     )
                                 },
                                 colors = ListItemDefaults.colors(

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -61,7 +63,12 @@ fun RoundDetailScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = stringResource(R.string.session_round, turn), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = stringResource(R.string.session_round, turn),
+                backStack = backStack
+            )
+        },
         floatingActionButton = {
             Box(
                 modifier = Modifier
@@ -84,19 +91,22 @@ fun RoundDetailScreen(
                     onClick = { showFinishDialog = true },
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.round_detail_finish))
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = stringResource(R.string.round_detail_finish)
+                    )
                 }
             }
         },
 
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+//            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            rows.forEach { row ->
+            items(rows) { row ->
                 RoundScoreRow(
                     name = row.guestName ?: stringResource(
                         R.string.round_detail_player_backup,

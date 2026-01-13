@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -19,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,7 @@ import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.UiState
 import nl.connectplay.scoreplay.viewModels.profile.ProfileViewModel
@@ -63,60 +66,70 @@ fun FollowedGamesScreen(
         topBar = { ScorePlayTopBar(title, backStack) },
         bottomBar = { BottomNavBar(backStack) },
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        PullToRefresh(
+            onRefresh = { profileViewModel.loadFollowedGames((profileState as UiState.Success).data.id) }
         ) {
-            when (gamesState) {
-                UiState.Loading -> {
-                    item { LoadingSection() }
-                }
-
-                is UiState.Error -> {
-                    item {
-                        Text(
-                            text = stringResource(
-                                R.string.followed_games_error,
-                                (gamesState as UiState.Error).exception?.message
-                                    ?: stringResource(R.string.unknown_error)
-                            ),
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.errorContainer)
-                                .padding(16.dp)
-                        )
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (gamesState) {
+                    UiState.Loading -> {
+                        item { LoadingSection() }
                     }
-                }
 
-                is UiState.Success -> {
-                    val games = (gamesState as UiState.Success).data
-                    if (games.isNotEmpty())
-                        items(games) {
-                            ListItem(
-                                modifier = Modifier
-                                    .clickable {
-                                        backStack.add(Screens.GameDetail(it.id))
-                                    },
-                                colors = ListItemDefaults.colors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    is UiState.Error -> {
+                        item {
+                            Text(
+                                text = stringResource(
+                                    R.string.followed_games_error,
+                                    (gamesState as UiState.Error).exception?.message
+                                        ?: stringResource(R.string.unknown_error)
                                 ),
-                                headlineContent = { Text(it.name) },
-                                overlineContent = { Text(it.publisher) },
-                                supportingContent = {
-                                    Text(
-                                        it.description,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                },
-                                leadingContent = { Icon(Icons.Filled.Image, "TODO image") }
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.errorContainer)
+                                    .padding(16.dp)
                             )
                         }
-                }
+                    }
 
-                else -> Unit
+                    is UiState.Success -> {
+                        val games = (gamesState as UiState.Success).data
+                        if (games.isNotEmpty())
+                            items(games) {
+                                ListItem(
+                                    modifier = Modifier
+                                        .clickable {
+                                            backStack.add(Screens.GameDetail(it.id))
+                                        },
+                                    colors = ListItemDefaults.colors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                    ),
+                                    headlineContent = { Text(it.name) },
+                                    overlineContent = { Text(it.publisher) },
+                                    supportingContent = {
+                                        Text(
+                                            it.description,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    leadingContent = {
+                                        Icon(
+                                            modifier = Modifier.size(48.dp),
+                                            imageVector = Icons.Filled.Image,
+                                            contentDescription = "TODO image"
+                                        )
+                                    }
+                                )
+                            }
+                    }
+
+                    else -> Unit
+                }
             }
         }
     }

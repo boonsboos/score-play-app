@@ -66,7 +66,7 @@ class ProfileViewModel(
 
     fun loadLastSessions(id: Int) {
         launchRequest(_sessionsState) {
-            profileApi.getLastSessions(id)
+            profileApi.getLastSessions(id).reversed()
         }
     }
 

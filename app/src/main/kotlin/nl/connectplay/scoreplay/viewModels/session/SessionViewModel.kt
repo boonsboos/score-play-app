@@ -198,7 +198,7 @@ class SessionViewModel(
             is SessionEvent.AddPlayer -> handleAddPlayer(event)
             is SessionEvent.RemovePlayer -> handleRemovePlayer(event)
             is SessionEvent.AddRound -> handleAddRound(event)
-            SessionEvent.FinishSession -> handleFinishSession()
+            is SessionEvent.FinishSession -> handleFinishSession(event.onFinished)
         }
     }
 
@@ -370,7 +370,7 @@ class SessionViewModel(
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun handleFinishSession() {
+    private fun handleFinishSession(onFinished: () -> Unit) {
         viewModelScope.launch {
             try {
                 val session = sessionDao.getSession() ?: return@launch
@@ -403,7 +403,7 @@ class SessionViewModel(
                 uploadSessionEndImage(remoteSessionId)
 
                 _snackbar.tryEmit("Session uploaded successfully!")
-
+                onFinished()
             } catch (e: Exception) {
                 Log.e("SessionVM", "FinishSession failed", e)
             }

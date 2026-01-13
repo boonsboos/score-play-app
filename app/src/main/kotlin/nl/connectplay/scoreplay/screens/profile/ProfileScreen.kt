@@ -138,7 +138,6 @@ fun ProfileScreen(
         PullToRefresh(
             onRefresh = profileViewModel::loadProfile
         ) {
-
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -240,8 +239,11 @@ fun ProfileScreen(
                                         modifier = Modifier,
                                     )
                                     Text(
-                                        text = session.startTime.formatted(),
-                                        modifier = Modifier
+                                        text =
+                                            stringResource(
+                                                R.string.session_screen_played_on,
+                                                session.startTime.formatted()
+                                            ),
                                     )
                                 }
                             }
@@ -332,7 +334,7 @@ fun ProfileScreen(
 fun ProfileAvatar(url: String?) {
     FallbackImage(
         url = url,
-        size = 128.dp,
+        size = 144.dp,
         shape = CircleShape,
         modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     ) {
@@ -340,7 +342,7 @@ fun ProfileAvatar(url: String?) {
             imageVector = Icons.Outlined.Person,
             contentDescription = "",
             tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.size((128.dp) * 0.75f)
+            modifier = Modifier.size((144.dp) * 0.60f)
         )
     }
 }

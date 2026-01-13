@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -101,6 +104,7 @@ fun ProfileEditScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(horizontal = 20.dp)
+                .padding(top = 100.dp)
                 .fillMaxSize()
         ) {
 
@@ -115,29 +119,22 @@ fun ProfileEditScreen(
             ) {
                 FallbackImage(
                     url = pendingImage ?: pictureUrl,
-                    size = 140.dp,
+                    size = 144.dp,
                     shape = CircleShape,
-                    modifier = Modifier.clickable { showPicker = true },
+                    modifier = Modifier
+                        .clickable { showPicker = true }
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(140.dp)
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.CameraAlt,
-                            contentDescription = stringResource(R.string.profile_picture),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier.size((144.dp) * 0.60f),
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = stringResource(R.string.profile_picture),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(48.dp))
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -174,29 +171,38 @@ fun ProfileEditScreen(
 
             Spacer(Modifier.weight(1f))
 
-            ScorePlayButton(
-                label = if (profileState is UiState.Loading)
-                    stringResource(R.string.profile_edit_saving)
-                else
-                    stringResource(R.string.profile_edit_cta),
-                enabled = profileState !is UiState.Loading,
-                onClick = {
-                    profileEditViewModel.onSaveProfile(context)
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
-            )
-
-            OutlinedButton(
-                modifier = Modifier
+                    .padding(bottom = 44.dp)
                     .fillMaxWidth(),
-                onClick = { showDeleteDialog = true }
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(R.string.profile_edit_delete_account))
+                ScorePlayButton(
+                    label = if (profileState is UiState.Loading)
+                        stringResource(R.string.profile_edit_saving)
+                    else
+                        stringResource(R.string.profile_edit_cta),
+                    enabled = profileState !is UiState.Loading,
+                    onClick = {
+                        profileEditViewModel.onSaveProfile(context)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(bottom = 12.dp)
+                )
+
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    onClick = { showDeleteDialog = true }
+                ) {
+                    Text(
+                        stringResource(R.string.profile_edit_delete_account),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
-            // For safety. So the delete button isn't too close to the bottom edge. And can be easily tapped.
-            Spacer(Modifier.height(44.dp))
 
             if (showDeleteDialog) {
                 AlertDialog(
