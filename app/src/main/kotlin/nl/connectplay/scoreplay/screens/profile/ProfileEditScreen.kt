@@ -115,25 +115,18 @@ fun ProfileEditScreen(
             ) {
                 FallbackImage(
                     url = pendingImage ?: pictureUrl,
-                    size = 140.dp,
+                    size = 144.dp,
                     shape = CircleShape,
-                    modifier = Modifier.clickable { showPicker = true },
+                    modifier = Modifier
+                        .clickable { showPicker = true }
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(140.dp)
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.CameraAlt,
-                            contentDescription = stringResource(R.string.profile_picture),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier.size((144.dp) * 0.60f),
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = stringResource(R.string.profile_picture),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
 
