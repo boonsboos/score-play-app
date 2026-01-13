@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -44,6 +46,7 @@ import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.room.events.SessionEvent
+import nl.connectplay.scoreplay.screens.Screens
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.PhotoPickerSheet
@@ -83,7 +86,8 @@ fun SessionFinishScreen(
         }
     }
 
-    val winnerName = state.winnerPlayer?.let { it.guestName ?: stringResource(R.string.you) } ?: stringResource(R.string.you)
+    val winnerName = state.winnerPlayer?.let { it.guestName ?: stringResource(R.string.you) }
+        ?: stringResource(R.string.you)
     val winnerScore = state.winnerScore ?: 0.0
 
     var selectedVisibility by remember(state.visibility) { mutableStateOf(state.visibility) }
@@ -91,13 +95,22 @@ fun SessionFinishScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_session_title), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = stringResource(R.string.screen_session_title),
+                backStack = backStack
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { onEvent(SessionEvent.FinishSession)},
+                onClick = {
+                    onEvent(SessionEvent.FinishSession(onFinished = {
+                        backStack.add(Screens.Leaderboard(state.gameId ?: 1))
+                    }))
+                },
             ) {
                 Icon(
-                    imageVector = Icons.Default.Upload,
+                    imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.session_finish_cta_upload)
                 )
                 Text(text = stringResource(R.string.session_finish_cta_upload))
@@ -109,7 +122,7 @@ fun SessionFinishScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(top = 24.dp)
         ) {
             Text(
                 text = stringResource(R.string.session_finish_winnder, winnerName),
@@ -120,7 +133,6 @@ fun SessionFinishScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
             RoundScoreRow(
                 name = winnerName,
                 score = winnerScore
@@ -128,89 +140,91 @@ fun SessionFinishScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = stringResource(R.string.session_finish_visibility_label),
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Visibility selection updates both local UI state and persists to Room via the event.
-            SingleChoiceSegmentedButtonRow(modifier = Modifier) {
-                SessionVisibility.entries.forEachIndexed { index, option ->
-                    SegmentedButton(
-                        selected = selectedVisibility == option,
-                        onClick = {
-                            selectedVisibility = option
-                            onEvent(SessionEvent.UpdateVisibility(option))
-                        },
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = SessionVisibility.entries.size
-                        )
-                    ) {
-                        Text(
-                            text = option.toLabel(),
-                            maxLines = 1,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
-                    text = stringResource(R.string.session_finish_picture_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.weight(1f)
+                    text = stringResource(R.string.session_finish_visibility_label),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.labelLarge
                 )
 
-                TextButton(
-                    onClick = { showImagePicker = true },
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Icon(Icons.Default.Upload, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Upload")
-                }
-            }
+                Spacer(Modifier.height(8.dp))
 
-            if (showImagePicker) {
-                PhotoPickerSheet(
-                    prompt = stringResource(R.string.session_finish_cta_picture),
-                    onDismissRequest = { showImagePicker = false },
-                    onPictureTaken = { imageUri ->
-                        sessionViewModel.addImage(SessionEndImageState(imageUri, context))
+                // Visibility selection updates both local UI state and persists to Room via the event.
+                SingleChoiceSegmentedButtonRow(modifier = Modifier) {
+                    SessionVisibility.entries.forEachIndexed { index, option ->
+                        SegmentedButton(
+                            selected = selectedVisibility == option,
+                            onClick = {
+                                selectedVisibility = option
+                                onEvent(SessionEvent.UpdateVisibility(option))
+                            },
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = SessionVisibility.entries.size
+                            )
+                        ) {
+                            Text(
+                                text = option.toLabel(),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
-                )
-            }
+                }
 
-            Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(24.dp))
 
-            Text(
-                text = stringResource(R.string.session_finish_picture_description),
-                style = MaterialTheme.typography.labelMedium
-            )
-
-            imageUri?.let { imageState ->
-                Box(
-                    contentAlignment = Alignment.Center,
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    FallbackImage(
-                        url = imageState.image,
-                        size = 300.dp,
-                    ) { /* no fallback required as URL is always non-null */ }
+                    Text(
+                        text = stringResource(R.string.session_finish_picture_label),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    TextButton(
+                        onClick = { showImagePicker = true },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Upload, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Upload")
+                    }
+                }
+
+                if (showImagePicker) {
+                    PhotoPickerSheet(
+                        prompt = stringResource(R.string.session_finish_cta_picture),
+                        onDismissRequest = { showImagePicker = false },
+                        onPictureTaken = { imageUri ->
+                            sessionViewModel.addImage(SessionEndImageState(imageUri, context))
+                        }
+                    )
+                }
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(R.string.session_finish_picture_description),
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                imageUri?.let { imageState ->
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    ) {
+                        FallbackImage(
+                            url = imageState.image,
+                            size = 300.dp,
+                        ) { /* no fallback required as URL is always non-null */ }
+                    }
                 }
             }
         }

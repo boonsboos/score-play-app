@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -80,8 +81,8 @@ fun SessionScoreScreen(
         if (state.turns.isNotEmpty()) {
             add(
                 SpeedDialAction(
-                    label = "Finish",
-                    icon = Icons.Default.Check,
+                    label = "Finish Session",
+                    icon = Icons.Default.Flag,
                     onClick = { showFinishDialog = true }
                 )
             )

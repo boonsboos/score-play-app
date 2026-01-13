@@ -108,7 +108,7 @@
     <string name="session_setup_games_loading">Loading games…</string>
     <string name="session_setup_games_empty">No games found</string>
     <string name="session_setup_step2">2. Who\'s playing?</string>
-    <string name="session_finish_cta_upload">Upload</string>
+    <string name="session_finish_cta_upload">Save Session</string>
     <string name="session_finish_winnder">The winner is… %1$s!</string>
     <string name="session_finish_visibility_label">Session visibility</string>
     <string name="session_finish_picture_label">End of Session picture (optional)</string>

@@ -51,7 +51,7 @@ fun Navigator(modifier: Modifier = Modifier) {
         }
     }
 
-    val start = if (tokenState.token != null) Screens.Home else Screens.Login
+    val start = if (tokenState.token != null) Screens.Home else Screens.Register
 
     val backStack = rememberNavBackStack(start)
 

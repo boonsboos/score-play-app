@@ -115,7 +115,7 @@
     <string name="session_setup_games_loading">Spellen ophalen…</string>
     <string name="session_setup_games_empty">Geen spellen gevonden</string>
     <string name="session_setup_step2">2. Wie doet er mee?</string>
-    <string name="session_finish_cta_upload">Uploaden</string>
+    <string name="session_finish_cta_upload">Sessie Opslaan</string>
     <string name="session_score_empty">Er zijn nog geen rondes!</string>
     <string name="session_score_screen">Naar scorescherm</string>
     <string name="session_setup_step1">1. Kies het spel dat je gaat spelen</string>

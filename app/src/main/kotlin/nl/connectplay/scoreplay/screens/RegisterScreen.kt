@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,12 +32,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.viewModels.RegisterEvent
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@SuppressLint("LocalContextResourcesRead", "Justification: hardcoded string replacement with string resources")
+@SuppressLint(
+    "LocalContextResourcesRead",
+    "Justification: hardcoded string replacement with string resources"
+)
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
@@ -61,7 +67,10 @@ fun RegisterScreen(
         viewModel.events.collect { event ->
             when (event) {
                 RegisterEvent.Success -> {
-                    snackbarHostState.showSnackbar(registerSuccessSnackbarText)
+                    launch {
+                        snackbarHostState.showSnackbar(registerSuccessSnackbarText)
+                    }
+                    delay(1000)
                     onNavigateToLogin()
                 }
             }
@@ -75,7 +84,9 @@ fun RegisterScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
@@ -174,6 +185,16 @@ fun RegisterScreen(
                         viewModel.onRegisterClick()
                     }
                 ),
+                trailingIcon = {
+                    IconButton(onClick = viewModel::onTogglePasswordRepeatVisibility) {
+                        Icon(
+                            imageVector =
+                                if (uiState.showPassword) Icons.Default.Visibility
+                                else Icons.Default.VisibilityOff,
+                            contentDescription = stringResource(R.string.password_visibility_toggle_description)
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
