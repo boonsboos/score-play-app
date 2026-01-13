@@ -58,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import nl.connectplay.scoreplay.ui.components.LoadingSection
+import nl.connectplay.scoreplay.ui.components.PullToRefresh
 import nl.connectplay.scoreplay.utilities.formatted
 
 @Composable
@@ -134,186 +135,190 @@ fun ProfileScreen(
                 }
             }
         }) { innerPadding ->
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        PullToRefresh(
+            onRefresh = profileViewModel::loadProfile
         ) {
-            stateSection(profileState) { state ->
-                val profile = state.data
-                item {
-                    Spacer(modifier = Modifier.size(20.dp))
-                    ProfileAvatar(url = profile.picture)
 
-                    Spacer(modifier = Modifier.size(24.dp))
-                    if (profile.id != userId) {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                stateSection(profileState) { state ->
+                    val profile = state.data
+                    item {
+                        Spacer(modifier = Modifier.size(20.dp))
+                        ProfileAvatar(url = profile.picture)
 
-                        ScorePlayButton(
-                            label = when (friendshipStatus) {
-                                FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> stringResource(
-                                    R.string.profile_button_remove_friend
-                                )
+                        Spacer(modifier = Modifier.size(24.dp))
+                        if (profile.id != userId) {
 
-                                FriendshipStatus.PENDING -> stringResource(R.string.profile_button_pending_friend)
-                                null, FriendshipStatus.REJECTED -> stringResource(R.string.profile_button_add_friend)
-                            },
-                            enabled = friendshipStatus != FriendshipStatus.PENDING,
-                            onClick = { profileViewModel.onFriendButtonClicked(profile.id) },
-                            modifier = Modifier.fillMaxWidth(0.5f)
-                        )
-                    }
-                }
-            }
-            stateSection(sessionsState) { state ->
-                val items = state.data
-                val targetId = (profileState as? UiState.Success)?.data?.id ?: targetUserId
-
-                if (items.isEmpty()) {
-                    item {
-                        SectionHeader(
-                            stringResource(R.string.profile_last_sessions_empty),
-                            empty = true
-                        )
-                        Text(
-                            text = stringResource(R.string.profile_last_sessions_empty_description),
-                            modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } else {
-                    item {
-                        SectionHeader(
-                            stringResource(R.string.profile_last_sessions, state.data.size),
-                            onClick = {
-                                backStack.add(
-                                    Screens.UserSessions(
-                                        (profileState as UiState.Success).data.id
-                                    )
-                                )
-                            }
-                        )
-                    }
-                    items(items) { session ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(75.dp)
-                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                                .padding(horizontal = 20.dp)
-                                .clickable(enabled = targetId != null) {
-                                    targetId?.let { id ->
-                                        backStack.add(
-                                            Screens.SessionDetail(
-                                                sessionId = session.id,
-                                                userId = id,
-                                                ownerName = ownerName
-                                            )
-                                        )
-                                    }
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            FallbackImage(
-                                url = session.endOfSessionPictureUrl,
-                                size = 72.dp
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(72.dp),
-                                    imageVector = Icons.Outlined.Image,
-                                    contentDescription = ""
-                                )
-                            }
-                            Column(
-                                modifier = Modifier.height(75.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                Text(
-                                    text = session.game.name,
-                                    modifier = Modifier,
-                                )
-                                Text(
-                                    text = session.startTime.formatted(),
-                                    modifier = Modifier
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            item { Spacer(modifier = Modifier.size(24.dp)) }
-            stateSection(gamesState) { state ->
-                val items = state.data
-                if (items.isEmpty()) {
-                    item {
-                        SectionHeader(
-                            title = stringResource(R.string.screen_followed_games_title),
-                            empty = true
-                        )
-                        Text(
-                            text = stringResource(R.string.profile_followed_games_empty_description),
-                            modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } else {
-                    item {
-                        SectionHeader(
-                            "${stringResource(R.string.screen_followed_games_title)} (${state.data.size})",
-                            onClick = { backStack.add(Screens.FollowedGames((profileState as UiState.Success).data.id)) })
-                    }
-                    items(items) { game ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(75.dp)
-                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                                .padding(horizontal = 20.dp)
-                                .clickable {
-                                    backStack.add(Screens.GameDetail(game.id))
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            FallbackImage(
-                                url = game.pictures.firstOrNull(),
-                                size = 75.dp
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(75.dp),
-                                    imageVector = Icons.Outlined.Image,
-                                    contentDescription = ""
-                                )
-                            }
-                            Text(
-                                text = game.name,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                        HorizontalDivider()
-                    }
-                }
-            }
-            stateSection(profileState) { state ->
-                val profile = state.data
-                if (profile.id == userId) {
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .padding(bottom = 12.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
                             ScorePlayButton(
-                                label = stringResource(R.string.profile_button_log_off),
-                                modifier = Modifier
-                                    .fillMaxWidth(0.5f)
-                                    .padding(top = 40.dp),
-                                onClick = { profileViewModel.logout() }
+                                label = when (friendshipStatus) {
+                                    FriendshipStatus.FRIENDS, FriendshipStatus.ACCEPTED -> stringResource(
+                                        R.string.profile_button_remove_friend
+                                    )
+
+                                    FriendshipStatus.PENDING -> stringResource(R.string.profile_button_pending_friend)
+                                    null, FriendshipStatus.REJECTED -> stringResource(R.string.profile_button_add_friend)
+                                },
+                                enabled = friendshipStatus != FriendshipStatus.PENDING,
+                                onClick = { profileViewModel.onFriendButtonClicked(profile.id) },
+                                modifier = Modifier.fillMaxWidth(0.5f)
                             )
+                        }
+                    }
+                }
+                stateSection(sessionsState) { state ->
+                    val items = state.data
+                    val targetId = (profileState as? UiState.Success)?.data?.id ?: targetUserId
+
+                    if (items.isEmpty()) {
+                        item {
+                            SectionHeader(
+                                stringResource(R.string.profile_last_sessions_empty),
+                                empty = true
+                            )
+                            Text(
+                                text = stringResource(R.string.profile_last_sessions_empty_description),
+                                modifier = Modifier.padding(16.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        item {
+                            SectionHeader(
+                                stringResource(R.string.profile_last_sessions, state.data.size),
+                                onClick = {
+                                    backStack.add(
+                                        Screens.UserSessions(
+                                            (profileState as UiState.Success).data.id
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                        items(items) { session ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(75.dp)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                    .padding(horizontal = 20.dp)
+                                    .clickable(enabled = targetId != null) {
+                                        targetId?.let { id ->
+                                            backStack.add(
+                                                Screens.SessionDetail(
+                                                    sessionId = session.id,
+                                                    userId = id,
+                                                    ownerName = ownerName
+                                                )
+                                            )
+                                        }
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                FallbackImage(
+                                    url = session.endOfSessionPictureUrl,
+                                    size = 72.dp
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(72.dp),
+                                        imageVector = Icons.Outlined.Image,
+                                        contentDescription = ""
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier.height(75.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start,
+                                ) {
+                                    Text(
+                                        text = session.game.name,
+                                        modifier = Modifier,
+                                    )
+                                    Text(
+                                        text = session.startTime.formatted(),
+                                        modifier = Modifier
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                item { Spacer(modifier = Modifier.size(24.dp)) }
+                stateSection(gamesState) { state ->
+                    val items = state.data
+                    if (items.isEmpty()) {
+                        item {
+                            SectionHeader(
+                                title = stringResource(R.string.screen_followed_games_title),
+                                empty = true
+                            )
+                            Text(
+                                text = stringResource(R.string.profile_followed_games_empty_description),
+                                modifier = Modifier.padding(16.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        item {
+                            SectionHeader(
+                                "${stringResource(R.string.screen_followed_games_title)} (${state.data.size})",
+                                onClick = { backStack.add(Screens.FollowedGames((profileState as UiState.Success).data.id)) })
+                        }
+                        items(items) { game ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(75.dp)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                    .padding(horizontal = 20.dp)
+                                    .clickable {
+                                        backStack.add(Screens.GameDetail(game.id))
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                FallbackImage(
+                                    url = game.pictures.firstOrNull(),
+                                    size = 75.dp
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(75.dp),
+                                        imageVector = Icons.Outlined.Image,
+                                        contentDescription = ""
+                                    )
+                                }
+                                Text(
+                                    text = game.name,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                            HorizontalDivider()
+                        }
+                    }
+                }
+                stateSection(profileState) { state ->
+                    val profile = state.data
+                    if (profile.id == userId) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(bottom = 12.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                ScorePlayButton(
+                                    label = stringResource(R.string.profile_button_log_off),
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.5f)
+                                        .padding(top = 40.dp),
+                                    onClick = { profileViewModel.logout() }
+                                )
+                            }
                         }
                     }
                 }
