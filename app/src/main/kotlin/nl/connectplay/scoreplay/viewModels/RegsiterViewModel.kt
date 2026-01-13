@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.viewModels
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.models.auth.register.RegisterRequest
 
@@ -22,7 +24,7 @@ data class RegisterUiState(
     val showPassword: Boolean = false,
     val showRepeatPassword: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: Int? = null
 ) {
     val isFormValid: Boolean =
         email.isNotBlank() &&
@@ -74,19 +76,19 @@ class RegisterViewModel(
 
         // Check if email is valid
         if (!isValidEmail(state.email)) {
-            _uiState.update { it.copy(errorMessage = "Please enter a valid email address") }
+            _uiState.update { it.copy(errorMessage = R.string.registration_invalid_email) }
             return
         }
 
         // Check if password is at least 8 characters
         if (state.password.length < 8) {
-            _uiState.update { it.copy(errorMessage = "Password must be at least 8 characters") }
+            _uiState.update { it.copy(errorMessage = R.string.registration_invalid_password) }
             return
         }
 
         // Check if both passwords match
         if (state.password != state.repeatPassword) {
-            _uiState.update { it.copy(errorMessage = "Passwords do not match") }
+            _uiState.update { it.copy(errorMessage = R.string.registration_passwords_not_match) }
             return
         }
 
@@ -109,23 +111,24 @@ class RegisterViewModel(
             } catch (e: ClientRequestException) {
                 val status = e.response.status
 
-                val message = when (status) {
-                    HttpStatusCode.Conflict -> "User already exists."
-                    else -> "Registration failed (${status.value})"
-                }
+                Log.e(this::class.simpleName, "Registration failure - Received HTTP status code $status from backend", e)
 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = message
+                        errorMessage = when (status) {
+                            HttpStatusCode.Conflict -> R.string.registration_user_exists
+                            else -> R.string.registration_user_exists
+                        }
                     )
                 }
 
             } catch (e: Exception) {
+                Log.e(this::class.simpleName, "Registration failure - unknown error", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = e.message ?: "Registration failed"
+                        errorMessage = R.string.registration_failure
                     )
                 }
             }

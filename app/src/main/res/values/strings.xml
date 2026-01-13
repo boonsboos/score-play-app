@@ -144,4 +144,9 @@
     <string name="profile_button_pending_friend">Pending…</string>
     <string name="profile_button_add_friend">Add friend</string>
     <string name="wants_to_be_your_friend">Wants to be your friend</string>
+    <string name="registration_user_exists">User already exists!</string>
+    <string name="registration_failure">Registration failed</string>
+    <string name="registration_invalid_email">Please enter a valid email address</string>
+    <string name="registration_invalid_password">Password must be at least 8 characters</string>
+    <string name="registration_passwords_not_match">Passwords do not match</string>
 </resources>

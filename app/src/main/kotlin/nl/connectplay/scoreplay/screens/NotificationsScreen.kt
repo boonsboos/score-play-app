@@ -380,7 +380,7 @@ fun HighscoreNotificationItem(
                 stringResource(
                     R.string.notification_highscore_description,
                     userDto?.username ?: event.score.sessionPlayer.guest!!,
-                    event.score.score
+                    event.score.score.toString()
                 )
             )
         }

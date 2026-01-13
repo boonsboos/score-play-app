@@ -141,4 +141,9 @@
     <string name="profile_button_pending_friend">Wachten...</string>
     <string name="profile_button_add_friend">Voeg toe</string>
     <string name="wants_to_be_your_friend">wilt je vriend zijn</string>
+    <string name="registration_user_exists">Gebruiker bestaat al!</string>
+    <string name="registration_failure">Registratie mislukt</string>
+    <string name="registration_invalid_email">Voer een correct e-mailadres in</string>
+    <string name="registration_invalid_password">Wachtwoord moet minstens 8 tekens lang zijn</string>
+    <string name="registration_passwords_not_match">Wachtwoorden komen niet overeen</string>
 </resources>
