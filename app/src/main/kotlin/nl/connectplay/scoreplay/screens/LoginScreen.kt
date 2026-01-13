@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -38,104 +39,112 @@ fun LoginScreen(
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Text(
-            text = stringResource(R.string.screen_login_title),
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp, bottom = 8.dp),
-            textAlign = TextAlign.Center
-        )
-
-        // spacer addes space between ui elements
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // username or email input field
-        OutlinedTextField(
-            value = uiState.credentials,
-            onValueChange = viewModel::onCredentialsChange,
-            label = { Text(text = stringResource(R.string.text_field_credentials)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // password input field
-        OutlinedTextField(
-            value = uiState.password,
-            onValueChange = viewModel::onPasswordChange,
-            label = { Text(text = stringResource(R.string.text_field_password)) },
-            singleLine = true,
-            visualTransformation =
-                if (uiState.showPassword) VisualTransformation.None else PasswordVisualTransformation(), // password is visible or invisible
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { viewModel.onLoginClick() }
-            ),
-            // show the hide unhide icon (eye)
-            trailingIcon = {
-                IconButton(onClick = viewModel::onTogglePasswordVisibility) {
-                    Icon(
-                        imageVector = if (uiState.showPassword)
-                            Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = stringResource(R.string.password_visibility_toggle_description)
-                    )
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // login button
-        Button(
-            onClick = { viewModel.onLoginClick() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(48.dp),
-            // loginbutton is only clickable when username and password are valid and not loading
-            enabled = uiState.isFormValid && !uiState.isLoading
+    Scaffold { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(if (uiState.isLoading) stringResource(R.string.login_logging_in) else stringResource(R.string.login_button_login))
-        }
 
-        // show the error message if their is any
-        if (uiState.errorMessage != null) {
             Text(
-                text = uiState.errorMessage!!,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
+                text = stringResource(R.string.screen_login_title),
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp, bottom = 8.dp),
+                textAlign = TextAlign.Center
+            )
+
+            // spacer addes space between ui elements
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // username or email input field
+            OutlinedTextField(
+                value = uiState.credentials,
+                onValueChange = viewModel::onCredentialsChange,
+                label = { Text(text = stringResource(R.string.text_field_credentials)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
             )
-        }
 
-        // navigate to register
-        TextButton(
-            onClick = onNavigateToRegister,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(stringResource(R.string.login_cta_register))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // password input field
+            OutlinedTextField(
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChange,
+                label = { Text(text = stringResource(R.string.text_field_password)) },
+                singleLine = true,
+                visualTransformation =
+                    if (uiState.showPassword) VisualTransformation.None else PasswordVisualTransformation(), // password is visible or invisible
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { viewModel.onLoginClick() }
+                ),
+                // show the hide unhide icon (eye)
+                trailingIcon = {
+                    IconButton(onClick = viewModel::onTogglePasswordVisibility) {
+                        Icon(
+                            imageVector = if (uiState.showPassword)
+                                Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = stringResource(R.string.password_visibility_toggle_description)
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // login button
+            Button(
+                onClick = { viewModel.onLoginClick() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(48.dp),
+                // loginbutton is only clickable when username and password are valid and not loading
+                enabled = uiState.isFormValid && !uiState.isLoading
+            ) {
+                Text(
+                    if (uiState.isLoading) stringResource(R.string.login_logging_in) else stringResource(
+                        R.string.login_button_login
+                    )
+                )
+            }
+
+            // show the error message if their is any
+            if (uiState.errorMessage != null) {
+                Text(
+                    text = uiState.errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+            }
+
+            // navigate to register
+            TextButton(
+                onClick = onNavigateToRegister,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(stringResource(R.string.login_cta_register))
+            }
         }
     }
 }
