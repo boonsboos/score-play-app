@@ -1,6 +1,8 @@
 package nl.connectplay.scoreplay.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -101,6 +104,7 @@ fun ProfileEditScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(horizontal = 20.dp)
+                .padding(top = 100.dp)
                 .fillMaxSize()
         ) {
 
@@ -130,7 +134,7 @@ fun ProfileEditScreen(
                 }
             }
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(48.dp))
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -190,9 +194,13 @@ fun ProfileEditScreen(
                 OutlinedButton(
                     modifier = Modifier
                         .fillMaxWidth(0.5f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                     onClick = { showDeleteDialog = true }
                 ) {
-                    Text(stringResource(R.string.profile_edit_delete_account))
+                    Text(
+                        stringResource(R.string.profile_edit_delete_account),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
 

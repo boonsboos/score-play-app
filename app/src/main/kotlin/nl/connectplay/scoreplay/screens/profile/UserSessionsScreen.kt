@@ -90,7 +90,6 @@ fun UserSessionsScreen(
         topBar = { ScorePlayTopBar(title = title, backStack = backStack) },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
-
         // scrollable session list
         LazyColumn(
             modifier = Modifier
