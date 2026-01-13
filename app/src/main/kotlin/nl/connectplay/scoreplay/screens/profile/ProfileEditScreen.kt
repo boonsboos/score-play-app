@@ -167,29 +167,34 @@ fun ProfileEditScreen(
 
             Spacer(Modifier.weight(1f))
 
-            ScorePlayButton(
-                label = if (profileState is UiState.Loading)
-                    stringResource(R.string.profile_edit_saving)
-                else
-                    stringResource(R.string.profile_edit_cta),
-                enabled = profileState !is UiState.Loading,
-                onClick = {
-                    profileEditViewModel.onSaveProfile(context)
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
-            )
-
-            OutlinedButton(
-                modifier = Modifier
+                    .padding(bottom = 44.dp)
                     .fillMaxWidth(),
-                onClick = { showDeleteDialog = true }
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(R.string.profile_edit_delete_account))
+                ScorePlayButton(
+                    label = if (profileState is UiState.Loading)
+                        stringResource(R.string.profile_edit_saving)
+                    else
+                        stringResource(R.string.profile_edit_cta),
+                    enabled = profileState !is UiState.Loading,
+                    onClick = {
+                        profileEditViewModel.onSaveProfile(context)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(bottom = 12.dp)
+                )
+
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f),
+                    onClick = { showDeleteDialog = true }
+                ) {
+                    Text(stringResource(R.string.profile_edit_delete_account))
+                }
             }
-            // For safety. So the delete button isn't too close to the bottom edge. And can be easily tapped.
-            Spacer(Modifier.height(44.dp))
 
             if (showDeleteDialog) {
                 AlertDialog(
