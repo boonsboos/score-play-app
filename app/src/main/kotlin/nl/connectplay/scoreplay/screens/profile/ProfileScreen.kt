@@ -138,7 +138,6 @@ fun ProfileScreen(
         PullToRefresh(
             onRefresh = profileViewModel::loadProfile
         ) {
-
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -240,8 +239,11 @@ fun ProfileScreen(
                                         modifier = Modifier,
                                     )
                                     Text(
-                                        text = session.startTime.formatted(),
-                                        modifier = Modifier
+                                        text =
+                                            stringResource(
+                                                R.string.session_screen_played_on,
+                                                session.startTime.formatted()
+                                            ),
                                     )
                                 }
                             }
