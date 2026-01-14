@@ -1,0 +1,474 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' =======================
+' APPLICATION
+' =======================
+class ScorePlayApp <<Application>> {
+    +onCreate()
+}
+
+class MainActivity <<Activity>> {
+    +onCreate(savedInstanceState)
+}
+
+ScorePlayApp --> MainActivity
+
+' =======================
+' VIEWMODELS
+' =======================
+package "ViewModels" {
+
+    class GamesListViewModel <<ViewModel>> {
+        +gamesSet: StateFlow<Set<Game>>
+        +areLoading: StateFlow<Boolean>
+
+        +fetch()
+        +fetchMore()
+    }
+
+    class GameDetailViewModel <<ViewModel>> {
+        +gameState: StateFlow<GameDetailDto?>
+        +loadingState: StateFlow<Boolean>
+
+        +getGame(gameId: Int)
+        +toggleFollow(gameId: Int)
+    }
+
+    class HomeViewModel <<ViewModel>> {
+        +recentState: StateFlow<UiState<List<Game>>>
+        +followedState: StateFlow<UiState<List<FollowedGame>>>
+
+        +observeUserId()
+        +loadRecentGames()
+        +loadFollowedGames(userId: Int)
+    }
+
+    class NotificationBadgeViewModel <<ViewModel>> {
+        +hasUnreadNotifications: StateFlow<Boolean>
+
+        +startSse(token: String)
+        +processSseEvent(sseEvent: ServerSentEvent)
+        +processEvent(event: BaseEvent)
+        +setHasUnread(hasUnread: Boolean)
+    }
+
+    class NotificationListViewModel <<ViewModel>> {
+        +state: StateFlow<List<NotificationUi>>
+        +allNotifications: StateFlow<List<NotificationUi>>
+        +filter: StateFlow<NotificationFilter>
+        +isLoading: StateFlow<Boolean>
+        +error: StateFlow<String?>
+
+        +loadNotifications()
+        +setFilter(newFilter: NotificationFilter)
+        +markNotificationsAsRead(notificationId: String)
+        +applyFilter()
+    }
+
+
+    class LoginViewModel <<ViewModel>> {
+        +uiState: StateFlow<LoginUiState>
+        +events: SharedFlow<LoginEvent>
+
+        +onCredentialsChange(value: String)
+        +onPasswordChange(value: String)
+        +onTogglePasswordVisibility()
+        +onLoginClick()
+    }
+
+    class MainViewModel <<ViewModel>> {
+        +tokenState: StateFlow<MainUiState>
+        +logout()
+    }
+
+    class ProfileViewModel <<ViewModel>> {
+        +profileState: StateFlow<UiState<UserProfile>>
+        +sessionsState: StateFlow<UiState<List<UserSession>>>
+        +gamesState: StateFlow<UiState<List<FollowedGame>>>
+        +friendshipStatus: StateFlow<FriendshipStatus?>
+
+        +logoutEvent: SharedFlow<Unit>
+        +deleteAccountEvent: SharedFlow<Unit>
+
+        +loadProfile()
+        +loadLastSessions(userId: Int)
+        +loadFollowedGames(userId: Int)
+        +loadFriendshipStatus(targetUserId: Int)
+        +onFriendButtonClicked(targetUserId: Int)
+        +logout()
+        +deleteAccount()
+    }
+
+    class FriendViewModel <<ViewModel>> {
+        +uiState: StateFlow<FriendsUiState>
+        +errors: StateFlow<FriendError>
+
+        +refreshData()
+        +approveRequest(friendId: Int)
+        +declineRequest(friendId: Int)
+    }
+
+    class FriendError {
+        +count: Int
+        +message: String?
+    }
+
+    class ProfileEditViewModel <<ViewModel>> {
+        +username: StateFlow<String?>
+        +email: StateFlow<String?>
+        +pictureUrl: StateFlow<String?>
+        +pendingImageUri: StateFlow<Uri?>
+        +updatedProfileState: StateFlow<UiState<UserProfile>>
+
+        +onUsernameChanged(newUsername: String)
+        +onEmailChanged(newEmail: String)
+        +onPictureChanged(newPicture: Uri)
+        +isValidEmail(email: String?)
+        +onSaveProfile(context: Context)
+    }
+
+
+    class SessionViewModel <<ViewModel>> {
+        +state: StateFlow<SessionState>
+        +games: StateFlow<List<Game>>
+        +friends: StateFlow<List<UserFriend>>
+        +loading: StateFlow<Boolean>
+        +snackbar: SharedFlow<String>
+
+        +getUserId()
+        +freshState(userId: Int)
+        +fetchGames()
+        +fetchFriends()
+        +loadActiveSessionFromDb(computeWinner: Boolean)
+        +onEvent(event: SessionEvent)
+        +handeStartNewSession()
+        +handeSaveSession()
+        +handeSetGame(e: SessionEvent.SetGame)
+        +handeSetVisibility(e: SessionEvent.SetVisibility)
+        +handleUpdateVisibility(e: SessionEvent.UpdateVisibility)
+        +handleAddPlayer(e: SessionEvent.AddPlayer)
+        +handeRemovePlayer(e: SessionEvent.RemovePlayer)
+        +handleAddRount(e: SessionEvent.AddRount)
+        +handeFinishSession()
+    }
+
+    class SessionDetailViewModel <<ViewModel>> {
+        +state: StateFlow<SessionDetailState>
+
+        +handleFetch(userId: Int, sessionId: String)
+        +handleDelete()
+    }
+
+
+    class SearchViewModel <<ViewModel>> {
+        +results: StateFlow<List<SearchResult>>
+        +searchQuery: StateFlow<String>
+        +filter: StateFlow<SearchFilter>
+
+        +setFilter(filter: SearchFilter)
+        +setQuery(query: String)
+        +search()
+    }
+
+
+    class LeaderboardViewModel <<ViewModel>> {
+        +scores: StateFlow<List<LeaderboardEntry>>
+        +loading: StateFlow<Boolean>
+
+        +fetch()
+    }
+
+}
+
+' =======================
+' UI STATE / EVENTS
+' =======================
+package "UI State & Events" {
+
+    interface UiState<T> <<sealed>>
+
+    class Idle
+    class Loading
+    class Initial<T> {
+        +data: T
+    }
+
+    class Success<T> {
+        +data: T
+    }
+
+    class Error {
+        +message: String
+        +exception: Exception?
+    }
+
+    UiState <|-- Idle
+    UiState <|-- Loading
+    UiState <|-- Initial
+    UiState <|-- Success
+    UiState <|-- Error
+
+    class LoginUiState {
+        credentials: String
+        password: String
+        showPassword: Boolean
+        isLoading: Boolean
+        errorMessage: String?
+        isFormValid: Boolean
+    }
+
+    class FriendsUiState {
+        +friendRequests: FriendRequestListResponse
+        +friends: List<UserFriend>
+        +isLoading: Boolean
+    }
+    class MainUiState {
+        token: String?
+        isLoaded: Boolean
+    }
+
+    class SessionState {
+        +roomSession: RoomSession?
+        +gameId: Int?
+        +userId: Int?
+        +status: SessionStatus
+        +sessionPlayers: List<RoomSessionPlayer>
+        +scores: List<RoomSessionScore>
+        +turns: List<Int>
+        +visibility: SessionVisibility
+        +winnerPlayer: RoomSessionPlayer?
+        +winnerScore: Double?
+    }
+
+
+    class SessionDetailState {
+        session: Session?
+        isLoading: Boolean
+        error: String?
+    }
+
+    abstract class LoginEvent
+    class LoginSuccessEvent
+    LoginEvent <|-- LoginSuccessEvent
+    }
+
+
+' =======================
+' API LAYER
+' =======================
+package "API Layer" {
+
+    class AuthApi {
+        +login(request: LoginRequest)
+        +registerUser(registerRequest: RegisterRequest)
+    }
+
+    class ProfileApi {
+        +getProfile(userId: Int?)
+        +getLastSession(userId: Int)
+        +getRecentGames()
+        +getFollowedGames(userId: Int, withPodium: Boolean)
+        +deleteAccount()
+        +updateProfile(username: String, email: String?)
+        +uploadProfilePicture(bytes: ByteArray)
+    }
+
+    class GameApi {
+        +all((offset: Int = 0, limit: Int = 25): List<Game>)
+        +single(gameId: Int)
+        +unfollow(gameId: Int)
+        +follow(gameId: Int)
+    }
+
+    class SearchApi {
+        +searchUsers(query: String)
+        +searchGames(query: String)
+    }
+
+    class SessionApi {
+        +createSession(payload: CreateSessionDto)
+        +addScores(sessionId: String, payload: List<CreateScoreDto>)
+        +single(userId: Int, sessionId: String)
+        +delete(sessionId: String)
+    }
+
+    class FriendsApi {
+        +getFriends(userId: Int)
+        +getAllFriendRequests()
+        +addFriend(userId: Int)
+        +deleteFriend(userId: Int)
+        +reply(friendId: Int, accept: Boolean)
+        +accept(friendId: Int)
+        +decline((friendId: Int)
+    }
+
+    class LeaderboardApi {
+        +getScroresFor(gameId: Int)
+    }
+    class NotificationApi {
+        +getAllNotifications()
+        +markNotifcationsAsRead(notificationId: Int)
+    }
+}
+
+' =======================
+' STORAGE
+' =======================
+package "Storage" {
+
+    class TokenDataStore {
+        +token: Flow<String?>
+        +userId: Flow<Int?>
+
+        +saveToken(token)
+        +clearToken()
+        +saveUserId(id)
+}
+}
+
+' =======================
+' ROOM
+' =======================
+package "ROOM" {
+    class RoomSession <<Entity>> {
+        +id: Int {PK, auto-generated}
+        +userId: Int
+        +gameId: Int
+        +visibility: SessionVisibility
+    }
+
+    class RoomSessionPlayer <<Entity>> {
+        +sessionPlayerId: Int {PK, auto-generated}
+        +userId: Int
+        +guestName: String?
+    }
+
+    class RoomSessionScore <<Entity>> {
+        +id: Int {PK, auto-generated}
+        +sessionId: Int
+        +sessionPlayerId: Int
+        +gameId: Int
+        +score: Double
+        +turn: Int
+    }
+
+    class SessionVisibility
+
+    class RoundScoreRow
+
+    interface SessionDao <<DAO>> {
+        +upsertSession(roomSession: RoomSession)
+        +updateVisibility(visibility: SessionVisibility)
+        +getSession(): RoomSession
+        +deleteSession()
+    }
+
+    interface SessionPlayerDao <<DAO>> {
+        +upsertSessionPlayer(roomSessionPlayer: RoomSessionPlayer)
+        +getSessionPlayers(): List<RoomSessionPlayer>
+        +deleteSessionPlayer(userId: Int, guestName: String?)
+        +deleteAllPlayers()
+    }
+
+    interface SessionScoreDao <<DAO>> {
+        +insertAll(scores: List<RoomSessionScore>)
+        +getMaxTurn(sessionId: Int): Int?
+        +observeTurns(sessionId: Int): Flow<List<Int>>
+        +observeRoundScores(sessionId: Int, turn: Int): Flow<List<RoundScoreRow>>
+        +getSessionScoreById(id: Int): RoomSessionScore
+        +getScoresForSession(): List<RoomSessionScore>
+        +deleteAllScores()
+    }
+    }
+' =======================
+' UTILITIES
+' =======================
+package "Utilities" {
+
+    class UUIDSerializer {
+        +serialize()
+        +deserialize()
+    }
+
+    class DateTimeExtensions {
+        +Instant.formatted()
+        +LocalDateTime.formatted()
+        +LocalDateTime.formattedDate()
+    }
+}
+
+' =======================
+' THEME
+' =======================
+package "Theme" {
+
+    class LightColors
+    class DarkColors
+
+    class ScorePlayTheme {
+        +ScorePlayTheme(content)
+        +defineExtraColor(light, dark)
+    }
+
+    class Typography
+}
+
+' =======================
+' RELATIONSHIPS
+' =======================
+GamesListViewModel --> GameApi
+GameDetailViewModel --> GameApi
+HomeViewModel --> GameApi
+HomeViewModel --> ProfileApi
+
+LoginViewModel --> AuthApi
+ProfileViewModel --> ProfileApi
+ProfileEditViewModel --> ProfileApi
+
+SearchViewModel --> SearchApi
+
+SessionViewModel --> SessionApi
+SessionDetailViewModel --> SessionApi
+
+FriendViewModel --> FriendsApi
+
+LeaderboardViewModel --> LeaderboardApi
+
+NotificationBadgeViewModel --> NotificationApi
+NotificationListViewModel --> NotificationApi
+
+MainViewModel --> TokenDataStore
+LoginViewModel --> TokenDataStore
+ProfileViewModel --> TokenDataStore
+SessionViewModel --> TokenDataStore
+
+HomeViewModel --> UiState
+ProfileViewModel --> UiState
+ProfileEditViewModel --> UiState
+LeaderboardViewModel --> UiState
+
+LoginViewModel --> LoginUiState
+LoginViewModel --> LoginEvent
+
+FriendViewModel --> FriendsUiState
+MainViewModel --> MainUiState
+
+SessionViewModel --> SessionState
+SessionDetailViewModel --> SessionDetailState
+
+SessionDao --> RoomSession
+SessionPlayerDao --> RoomSessionPlayer
+SessionScoreDao --> RoomSessionScore
+SessionScoreDao --> RoundScoreRow
+RoomSession "1" --> "*" RoomSessionScore : sessionId
+RoomSessionPlayer "1" --> "*" RoomSessionScore : sessionPlayerId
+RoomSession --> SessionVisibility
+
+SessionViewModel --> SessionDao
+SessionViewModel --> SessionPlayerDao
+SessionViewModel --> SessionScoreDao
+
+
+@enduml
