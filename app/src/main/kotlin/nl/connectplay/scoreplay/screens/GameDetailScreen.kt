@@ -228,27 +228,27 @@ fun GameDetailScreen(
                     )
                     GameDetailIfPresent(
                         key = R.string.game_detail_label_publisher,
-                        state?.publisher
+                        value =state?.publisher
                     )
                     GameDetailIfPresent(
                         key = R.string.game_detail_label_duration,
-                        state?.duration?.let {
+                        value = state?.duration?.let {
                             stringResource(
                                 R.string.game_detail_duration_time_unit,
                                 it
                             )
                         })
                     GameDetailIfPresent(
-                        R.string.game_detail_label_players,
-                        state?.minPlayers?.let { min ->
+                        key = R.string.game_detail_label_players,
+                        value = state?.minPlayers?.let { min ->
                             state?.maxPlayers?.let { max ->
                                 if (min == max) "$min"
                                 else "$min - $max"
                             }
                         })
                     GameDetailIfPresent(
-                        R.string.game_detail_label_release_date,
-                        state?.releaseDate?.toString()
+                        key = R.string.game_detail_label_release_date,
+                        value = state?.releaseDate?.toString()
                     )
                 }
             }
