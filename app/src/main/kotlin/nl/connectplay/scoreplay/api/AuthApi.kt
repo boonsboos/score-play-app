@@ -20,14 +20,14 @@ import nl.connectplay.scoreplay.models.auth.register.RegisterResponse
  */
 class AuthApi(private val client: HttpClient) {
     suspend fun login(request: LoginRequest): LoginResponse {
-        return client.post(Routes.Auth.login) {
+        return client.post(RouteFactory.Auth.login) {
             contentType(ContentType.Application.Json)   // let the server know we will send JSON
             setBody(request) // put the login data into the request
         }.body() // get the servers JSON and changed it in a LoginResponse object
     }
 
     suspend fun registerUser(registerRequest: RegisterRequest): RegisterResponse {
-        return client.post(Routes.Auth.register) {
+        return client.post(RouteFactory.Auth.register) {
             contentType(ContentType.Application.Json)
             setBody(registerRequest)
         }.body()

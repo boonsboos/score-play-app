@@ -14,7 +14,7 @@ class LeaderboardApi(private val httpClient: HttpClient, private val tokenDataSt
     private val LOG_TAG = this::class.simpleName
 
     suspend fun getScoresFor(gameId: Int): List<LeaderboardEntry> {
-        val response = httpClient.get(Routes.Games.Leaderboard.scores(gameId)) {
+        val response = httpClient.get(RouteFactory.Games.Leaderboard.scores(gameId)) {
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
         }
 

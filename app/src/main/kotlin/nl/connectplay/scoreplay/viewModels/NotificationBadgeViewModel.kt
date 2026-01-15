@@ -18,7 +18,7 @@ import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import nl.connectplay.scoreplay.R
 import nl.connectplay.scoreplay.api.ProfileApi
-import nl.connectplay.scoreplay.api.Routes
+import nl.connectplay.scoreplay.api.RouteFactory
 import nl.connectplay.scoreplay.models.notifications.events.BaseEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestEvent
 import nl.connectplay.scoreplay.models.notifications.events.FriendRequestReplyEvent
@@ -50,7 +50,7 @@ class NotificationBadgeViewModel(
             Log.d("SSE", "Starting SSE session")
             try {
                 val session = httpClient.sseSession(
-                    urlString = Routes.Notifications.live,
+                    urlString = RouteFactory.Notifications.live,
                     reconnectionTime = 15.seconds // try to reconnect after 15sec if connection gets lost
                 ) {
                     // we add the header so the backend knows who is listening

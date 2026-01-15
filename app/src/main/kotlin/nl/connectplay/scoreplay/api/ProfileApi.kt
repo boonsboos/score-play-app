@@ -34,7 +34,7 @@ class ProfileApi(
     val client: HttpClient, private val tokenDataStore: TokenDataStore
 ) {
     suspend fun getProfile(userId: Int? = null): UserProfile = try {
-        val res = client.get(if (userId != null) Routes.Users.byId(userId) else Routes.Users.me) {
+        val res = client.get(if (userId != null) RouteFactory.Users.byId(userId) else RouteFactory.Users.me) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -51,7 +51,7 @@ class ProfileApi(
     }
 
     suspend fun getLastSessions(userId: Int): List<UserSession> = try {
-        val res = client.get(Routes.Users.sessions(userId) + "?limit=5") {
+        val res = client.get(RouteFactory.Users.sessions(userId) + "?limit=5") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -75,7 +75,7 @@ class ProfileApi(
     }
 
     suspend fun getRecentGames(): List<Game> = try {
-        val res = client.get(Routes.Users.recent) {
+        val res = client.get(RouteFactory.Users.recent) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -106,7 +106,7 @@ class ProfileApi(
 
     suspend fun getFollowedGames(userId: Int, withPodium: Boolean = false): List<FollowedGame> =
         try {
-            val res = client.get(Routes.Users.followedGames(userId, withPodium)) {
+            val res = client.get(RouteFactory.Users.followedGames(userId, withPodium)) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -137,7 +137,7 @@ class ProfileApi(
 
     suspend fun deleteAccount() {
         try {
-            val res = client.delete(Routes.Users.me) {
+            val res = client.delete(RouteFactory.Users.me) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -170,7 +170,7 @@ class ProfileApi(
     }
 
     suspend fun updateProfile(username: String, email: String?): UserProfile = try {
-        val res = client.patch(Routes.Users.me) {
+        val res = client.patch(RouteFactory.Users.me) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -188,7 +188,7 @@ class ProfileApi(
     }
 
     suspend fun uploadProfilePicture(bytes: ByteArray): String = try {
-        val res = client.post(Routes.Users.uploadPicture) {
+        val res = client.post(RouteFactory.Users.uploadPicture) {
             contentType(ContentType.MultiPart.FormData)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -224,7 +224,7 @@ class ProfileApi(
     suspend fun getAllSessions(userId: Int): List<UserSession> {
         try {
             // make a get request to get all sessions of the specific user
-            val response = client.get(Routes.Users.sessions(userId)) {
+            val response = client.get(RouteFactory.Users.sessions(userId)) {
                 bearerAuth(tokenDataStore.token.firstOrNull().orEmpty())
             }
 

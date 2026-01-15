@@ -17,7 +17,7 @@ class NotificationApi(
     private val tokenDataStore: TokenDataStore
 ) {
     suspend fun getAllNotifications(): List<Notification> {
-        val res = client.get(Routes.Notifications.root) {
+        val res = client.get(RouteFactory.Notifications.root) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -26,7 +26,7 @@ class NotificationApi(
     }
 
     suspend fun markNotificationsAsRead(notificationId: String) {
-        client.patch(Routes.Notifications.byId(notificationId)) {
+        client.patch(RouteFactory.Notifications.byId(notificationId)) {
             contentType(ContentType.Application.Json) // tell the API we sending JSON
             accept(ContentType.Application.Json) // only accept JSON back from the API
             bearerAuth(
