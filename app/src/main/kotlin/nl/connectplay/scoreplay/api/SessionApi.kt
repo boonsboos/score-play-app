@@ -24,8 +24,6 @@ import io.ktor.http.isSuccess
 import io.ktor.utils.io.streams.asInput
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.io.asSource
-import kotlinx.io.buffered
 import nl.connectplay.scoreplay.exceptions.InvalidTokenException
 import nl.connectplay.scoreplay.models.dto.CreateSessionDto
 import nl.connectplay.scoreplay.models.dto.CreateScoreDto
@@ -43,7 +41,7 @@ import java.io.InputStream
  */
 class SessionApi(private val client: HttpClient, private val tokenDataStore: TokenDataStore) {
     suspend fun createSession(payload: CreateSessionDto): String {
-        val resp =  client.post(Routes.Sessions.root) {
+        val resp =  client.post(RouteFactory.Sessions.root) {
             contentType(ContentType.Application.Json)   // let the server know we will send JSON
             bearerAuth(tokenDataStore.token.first() ?: "")
             setBody(payload)
@@ -61,7 +59,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
     }
 
     suspend fun addScores(sessionId: String, payload: List<CreateScoreDto>) {
-        val resp = client.post(Routes.Sessions.Scores.all(sessionId)) {
+        val resp = client.post(RouteFactory.Sessions.Scores.all(sessionId)) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.first() ?: "")
             setBody(payload)
@@ -77,7 +75,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
     suspend fun allScores(sessionId: String): List<ScoreDto> {
         return try {
-            client.get(Routes.Sessions.Scores.all(sessionId)) {
+            client.get(RouteFactory.Sessions.Scores.all(sessionId)) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.first() ?: "")
             }.body()
@@ -96,7 +94,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
     suspend fun single(userId: Int, sessionId: String): Session {
         try {
-            val res = client.get(Routes.Sessions.byUserAndSessionId(userId, sessionId)) {
+            val res = client.get(RouteFactory.Sessions.byUserAndSessionId(userId, sessionId)) {
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
@@ -121,7 +119,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
     suspend fun update(sessionId: String, updateSessionDto: UpdateSessionDto): Boolean {
         try {
-            val res = client.patch(Routes.Sessions.byId(sessionId)) {
+            val res = client.patch(RouteFactory.Sessions.byId(sessionId)) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
                 setBody(updateSessionDto)
@@ -150,7 +148,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
                 }
             )
 
-            val res = client.patch(Routes.Sessions.picture(sessionId)) {
+            val res = client.patch(RouteFactory.Sessions.picture(sessionId)) {
                 contentType(ContentType.MultiPart.FormData)
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -166,7 +164,7 @@ class SessionApi(private val client: HttpClient, private val tokenDataStore: Tok
 
     suspend fun delete(sessionId: String) {
         try {
-            val res = client.delete(Routes.Sessions.byId(sessionId)) {
+            val res = client.delete(RouteFactory.Sessions.byId(sessionId)) {
                 accept(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }

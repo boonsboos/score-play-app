@@ -20,7 +20,7 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
 
     suspend fun all(offset: Int = 0, limit: Int = 25): List<Game> {
         return try {
-            client.get(Routes.Games.getAll()) {
+            client.get(RouteFactory.Games.getAll()) {
                 parameter("offset", offset)
                 parameter("limit", limit)
             }.body()
@@ -31,7 +31,7 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
 
     suspend fun single(gameId: Int): GameDetailDto? =
         try {
-            val res = client.get(Routes.Games.single(gameId)) {
+            val res = client.get(RouteFactory.Games.single(gameId)) {
                 bearerAuth(tokenDataStore.token.first() ?: "")
             }
 
@@ -47,7 +47,7 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
 
     suspend fun unfollow(gameId: Int): Boolean {
         try {
-            val res = client.delete(Routes.Games.unfollow(gameId)) {
+            val res = client.delete(RouteFactory.Games.unfollow(gameId)) {
                 bearerAuth(tokenDataStore.token.first() ?: "")
             }
 
@@ -60,7 +60,7 @@ class GameApi(val client: HttpClient, val tokenDataStore: TokenDataStore) {
 
     suspend fun follow(gameId: Int): Boolean {
         try {
-            val res = client.post(Routes.Games.follow(gameId)) {
+            val res = client.post(RouteFactory.Games.follow(gameId)) {
                 bearerAuth(tokenDataStore.token.first() ?: "")
             }
 

@@ -16,7 +16,7 @@ class FriendsApi(
 ) {
     suspend fun getFriends(userId: Int): List<UserFriend> {
         return try {
-            val res = client.get(Routes.Friends.getFriends(userId)) {
+            val res = client.get(RouteFactory.Friends.getFriends(userId)) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             }
@@ -28,7 +28,7 @@ class FriendsApi(
     }
 
     suspend fun getAllFriendRequests(): FriendRequestListResponse = try {
-        val res: FriendRequestListResponse = client.get(Routes.FriendRequest.getAllFriendRequests) {
+        val res: FriendRequestListResponse = client.get(RouteFactory.FriendRequest.getAllFriendRequests) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
         }.body()
@@ -42,7 +42,7 @@ class FriendsApi(
         val userId = tokenDataStore.userId.firstOrNull()
             ?: throw IllegalStateException("User not logged in")
 
-        val res = client.post(Routes.FriendRequest.addFriend(userId)) {
+        val res = client.post(RouteFactory.FriendRequest.addFriend(userId)) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             setBody(mapOf("friendId" to targetUserId))
@@ -64,7 +64,7 @@ class FriendsApi(
             ?: throw IllegalStateException("User not logged in")
 
         val res = client.delete(
-            Routes.FriendRequest.removeFriend(userId, friendId)
+            RouteFactory.FriendRequest.removeFriend(userId, friendId)
         ) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
@@ -84,7 +84,7 @@ class FriendsApi(
     private suspend fun reply(friendId: Int, accept: Boolean): Boolean {
         val userId = tokenDataStore.userId.firstOrNull() ?: return false
 
-        return client.patch(Routes.FriendRequest.handleFriendRequest(userId, friendId)) {
+        return client.patch(RouteFactory.FriendRequest.handleFriendRequest(userId, friendId)) {
             contentType(ContentType.Application.Json)
             bearerAuth(tokenDataStore.token.firstOrNull() ?: "")
             setBody(mapOf("accept" to accept))

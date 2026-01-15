@@ -10,7 +10,7 @@ package nl.connectplay.scoreplay.api
  * - Clear structure: it's obvious which endpoints belong to which feature/domain.
  * - Less duplication and fewer string-typo bugs in your API classes.
  */
-object Routes {
+object RouteFactory {
     object Games {
         private const val root = "/games"
         fun getAll() = root
