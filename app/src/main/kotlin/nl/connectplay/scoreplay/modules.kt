@@ -12,7 +12,7 @@ import nl.connectplay.scoreplay.api.ProfileApi
 import nl.connectplay.scoreplay.api.SearchApi
 import nl.connectplay.scoreplay.api.http.Http
 import nl.connectplay.scoreplay.room.dao.SessionDao
-import nl.connectplay.scoreplay.room.Database
+import nl.connectplay.scoreplay.room.DatabaseFactory
 import nl.connectplay.scoreplay.room.dao.SessionPlayerDao
 import nl.connectplay.scoreplay.room.dao.SessionScoreDao
 import nl.connectplay.scoreplay.stores.TokenDataStore
@@ -35,7 +35,6 @@ import nl.connectplay.scoreplay.viewModels.HomeViewModel
 import nl.connectplay.scoreplay.viewModels.LeaderboardViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionDetailViewModel
 import nl.connectplay.scoreplay.viewModels.NotificationBadgeViewModel
-import org.koin.android.ext.koin.androidContext
 
 // Koin module to provide ViewModels
 val viewModelsModule = module {
@@ -96,21 +95,21 @@ val databaseModule = module {
     single {
         Room.databaseBuilder(
             get(),
-            Database::class.java,
+            DatabaseFactory::class.java,
             "scoreplay.db"
         ).fallbackToDestructiveMigration(true)
             .build()
     }
 
     single<SessionDao> {
-        get<Database>().sessionDao
+        get<DatabaseFactory>().sessionDao
     }
 
     single<SessionPlayerDao> {
-        get<Database>().sessionPlayerDao
+        get<DatabaseFactory>().sessionPlayerDao
     }
 
     single<SessionScoreDao> {
-        get<Database>().sessionScoreDao
+        get<DatabaseFactory>().sessionScoreDao
     }
 }

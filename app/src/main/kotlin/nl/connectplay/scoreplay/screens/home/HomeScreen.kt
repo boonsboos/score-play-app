@@ -88,8 +88,6 @@ fun HomeScreen(
     }
 
     val activity = LocalContext.current as? ComponentActivity ?: return
-    val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
-    val onEvent = sessionViewModel::onEvent
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -119,8 +117,7 @@ fun HomeScreen(
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         shape = RoundedCornerShape(12.dp), onClick = {
-                            onEvent(SessionEvent.StartNewSession)
-                            backStack.add(Screens.SessionSetup)
+                            backStack.add(Screens.SessionSetup(startNew = true))
                         }) {
                         Icon(
                             imageVector = Icons.Default.Add,

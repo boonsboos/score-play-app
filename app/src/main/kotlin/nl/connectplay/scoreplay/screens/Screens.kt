@@ -20,7 +20,11 @@ object Screens {
     data object Games : NavKey
 
     @Serializable
-    data object SessionSetup : NavKey
+    /**
+     * @param startNew if true, indicates to the session setup screen that were are starting a
+     * new session and thus wipe the internal session state
+     */
+    data class SessionSetup(val startNew: Boolean = false) : NavKey
 
     @Serializable
     data object SessionScore : NavKey

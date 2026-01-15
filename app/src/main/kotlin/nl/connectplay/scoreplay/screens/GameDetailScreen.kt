@@ -45,11 +45,13 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.R
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ExpandableText
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -70,6 +72,10 @@ fun GameDetailScreen(
     val failedUnfollowMessage = stringResource(R.string.game_detail_failed_unfollow)
     val failedFollowMessage = stringResource(R.string.game_detail_failed_follow)
 
+    // semantically invalid, but required within the current setup
+    // TODO: refactor this so various screens do not manage the state of the session.
+    val sessionViewModel: SessionViewModel = koinViewModel()
+
     if (loading) {
         androidx.compose.foundation.layout.Box(
             modifier = Modifier.fillMaxSize(),
@@ -85,7 +91,12 @@ fun GameDetailScreen(
         snackbarHost = {
             SnackbarHost(hostState = snackBarState)
         },
-        topBar = { ScorePlayTopBar(title = state?.name ?: stringResource(R.string.game_detail_name_empty), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = state?.name ?: stringResource(R.string.game_detail_name_empty),
+                backStack = backStack
+            )
+        },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
         Column(
@@ -114,7 +125,7 @@ fun GameDetailScreen(
             Row {
                 // Start a new session
                 FilledIconButton(onClick = {
-                    // TODO: new session
+                    backStack.add(Screens.SessionSetup(startNew = true))
                 }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
@@ -144,7 +155,7 @@ fun GameDetailScreen(
                             val success = gameDetail.toggleFollow(gameId)
                             if (!success) {
                                 snackBarState.showSnackbar(
-                                    message = if (state?.following == true ) {
+                                    message = if (state?.following == true) {
                                         failedUnfollowMessage
                                     } else {
                                         failedFollowMessage
@@ -168,10 +179,14 @@ fun GameDetailScreen(
                 }
 
                 // Game edit button
-                OutlinedIconButton(onClick = {
-                    // TODO: game edit screen
-                }) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
+                OutlinedIconButton(
+                    onClick = {},
+                    enabled = false
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.edit)
+                    )
                 }
             }
 
@@ -188,8 +203,13 @@ fun GameDetailScreen(
                     .padding(horizontal = 20.dp)
             ) {
                 Column {
-                    Text(text = stringResource(R.string.game_detail_label_description), style = MaterialTheme.typography.headlineMedium)
-                    ExpandableText(state?.description ?: stringResource(R.string.game_detail_description_empty))
+                    Text(
+                        text = stringResource(R.string.game_detail_label_description),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    ExpandableText(
+                        state?.description ?: stringResource(R.string.game_detail_description_empty)
+                    )
                 }
             }
 
@@ -202,20 +222,34 @@ fun GameDetailScreen(
 
             Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Column {
-                    Text(text = stringResource(R.string.game_detail_label_details), style = MaterialTheme.typography.headlineMedium)
-                    GameDetailIfPresent(key = R.string.game_detail_label_publisher, state?.publisher)
-                    GameDetailIfPresent(key = R.string.game_detail_label_duration, state?.duration?.let {
-                        stringResource(
-                            R.string.game_detail_duration_time_unit,
-                            it
-                        ) })
-                    GameDetailIfPresent(R.string.game_detail_label_players, state?.minPlayers?.let { min ->
-                        state?.maxPlayers?.let { max ->
-                            if (min == max) "$min"
-                            else "$min - $max"
-                        }
-                    })
-                    GameDetailIfPresent(R.string.game_detail_label_release_date, state?.releaseDate?.toString())
+                    Text(
+                        text = stringResource(R.string.game_detail_label_details),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    GameDetailIfPresent(
+                        key = R.string.game_detail_label_publisher,
+                        value =state?.publisher
+                    )
+                    GameDetailIfPresent(
+                        key = R.string.game_detail_label_duration,
+                        value = state?.duration?.let {
+                            stringResource(
+                                R.string.game_detail_duration_time_unit,
+                                it
+                            )
+                        })
+                    GameDetailIfPresent(
+                        key = R.string.game_detail_label_players,
+                        value = state?.minPlayers?.let { min ->
+                            state?.maxPlayers?.let { max ->
+                                if (min == max) "$min"
+                                else "$min - $max"
+                            }
+                        })
+                    GameDetailIfPresent(
+                        key = R.string.game_detail_label_release_date,
+                        value = state?.releaseDate?.toString()
+                    )
                 }
             }
 
