@@ -11,56 +11,60 @@ import nl.connectplay.scoreplay.models.SessionVisibility
 import nl.connectplay.scoreplay.viewModels.session.SessionDetailViewModel
 import nl.connectplay.scoreplay.viewModels.session.SessionDetailState
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import kotlinx.datetime.LocalDateTime
 
-// -----------------
-// SessionDetailViewModelTest
-// ------------------------
 class SessionDetailViewModelTest {
 
     // ------------------------
-    // Dummy objects for testing
+    // Class-level dummy objects
     // ------------------------
-    private fun createDummyGame() = Game(
-        id = 1,
-        name = "TestGame",
-        description = "A test game",
-        publisher = "TestPublisher"
-    )
+    private lateinit var dummyGame: Game
+    private lateinit var dummySession: Session
+    private lateinit var sessionApi: SessionApi
+    private lateinit var viewModel: SessionDetailViewModel
 
-    private fun createDummySession(game: Game) = Session(
-        sessionId = "session1",
-        game = game,
-        hostId = 10,
-        startTime = LocalDateTime(2026, 1, 1, 12, 0),
-        endTime = LocalDateTime(2026, 1, 1, 13, 0),
-        endOfSessionPictureUrl = null,
-        visibility = SessionVisibility.PUBLIC
-    )
+    @Before
+    fun setUp() {
+        // Initialize dummy Game
+        dummyGame = Game(
+            id = 1,
+            name = "TestGame",
+            description = "A test game",
+            publisher = "TestPublisher"
+        )
+
+        // Initialize dummy Session
+        dummySession = Session(
+            sessionId = "session1",
+            game = dummyGame,
+            hostId = 10,
+            startTime = LocalDateTime(2026, 1, 1, 12, 0),
+            endTime = LocalDateTime(2026, 1, 1, 13, 0),
+            endOfSessionPictureUrl = null,
+            visibility = SessionVisibility.PUBLIC
+        )
+
+        // Mock the SessionApi
+        sessionApi = mockk()
+        coEvery { sessionApi.single(10, "session1") } returns dummySession
+
+        // Initialize ViewModel with mocked API
+        viewModel = SessionDetailViewModel(sessionApi)
+    }
 
     // ------------------------
-    // Test: handleFetch success
+    // Tests
     // ------------------------
     @Test
     fun `handleFetch updates state with session on success`() = runBlocking {
-        // Arrange: create dummy session and mock API
-        val game = createDummyGame()
-        val session = createDummySession(game)
-        val sessionApi = mockk<SessionApi>()
-
-        coEvery { sessionApi.single(10, "session1") } returns session
-
-        val viewModel = SessionDetailViewModel(sessionApi)
-
-        // Act: fetch session
+        // Act: fetch the session
         viewModel.handleFetch(userId = 10, sessionId = "session1")
 
-        // Wait until loading finishes
+        // Assert: state should be updated with the dummy session
         val state: SessionDetailState = viewModel.state.first { !it.isLoading }
-
-        // Assert: session is set and no error
-        assertEquals(session, state.session)
+        assertEquals(dummySession, state.session)
         assertNull(state.error)
     }
 }
