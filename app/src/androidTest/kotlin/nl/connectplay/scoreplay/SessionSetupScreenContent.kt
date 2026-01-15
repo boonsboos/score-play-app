@@ -1,4 +1,4 @@
-package nl.connectplay.scoreplay.screens.session
+package nl.connectplay.scoreplay
 
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
@@ -36,13 +36,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import nl.connectplay.scoreplay.R
+import nl.connectplay.scoreplay.models.friends.UserFriend
+import nl.connectplay.scoreplay.models.game.Game
 import nl.connectplay.scoreplay.models.session.PlayerUi
 import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.screens.Screens
@@ -52,6 +57,7 @@ import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.PlayerRow
 import nl.connectplay.scoreplay.ui.components.session.AddPlayerDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
+import nl.connectplay.scoreplay.viewModels.session.SessionState
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -59,20 +65,24 @@ import org.koin.compose.koinInject
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionSetupScreen(
-    startNew: Boolean,
+internal fun SessionSetupContent(
     backStack: NavBackStack<NavKey>,
+    state: SessionState,
+    games: List<Game>,
+    friends: List<UserFriend>,
+    loading: Boolean,
+    userId: Int?,
+    onEvent: (SessionEvent) -> Unit,
 ) {
     // Use the Activity as ViewModelStoreOwner so the same SessionViewModel instance is shared across session screens.
     val activity = LocalContext.current as? ComponentActivity ?: return
     val sessionViewModel: SessionViewModel = koinViewModel(viewModelStoreOwner = activity)
 
     // Collect UI state (recomposes on changes).
-    val state by sessionViewModel.state.collectAsState()
-    val onEvent = sessionViewModel::onEvent
+    val state = state
+    val onEvent = onEvent
 
-    val tokenStore: TokenDataStore = koinInject()
-    val userId by tokenStore.userId.collectAsState(null)
+    val userId = userId
 
     // Initialize the session once we know the userId (ensures owner player is present).
     LaunchedEffect(userId) {
@@ -83,16 +93,10 @@ fun SessionSetupScreen(
         }
     }
 
-    LaunchedEffect(startNew) {
-        if (startNew) {
-            sessionViewModel.onEvent(SessionEvent.StartNewSession)
-        }
-    }
-
     // External data sources required for setup UI.
-    val games by sessionViewModel.games.collectAsState()
-    val friends by sessionViewModel.friends.collectAsState()
-    val loading by sessionViewModel.loading.collectAsState()
+    val games = games
+    val friends = friends
+    val loading = loading
 
     /** UI States */
 
@@ -152,7 +156,7 @@ fun SessionSetupScreen(
 
             SessionTabs(
                 backStack = backStack,
-                currentScreen = Screens.SessionSetup(),
+                currentScreen = Screens.SessionSetup,
                 canProgress = canContinue
             )
 
