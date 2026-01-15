@@ -75,13 +75,6 @@ class ProfileViewModelTest {
         )
     )
 
-    private val pendingFriends = listOf(
-        UserFriend(
-            user = BareUser(id = 3, username = "Alice"),
-            status = FriendshipStatus.PENDING
-        )
-    )
-
     private val emptyFriendRequests =
         FriendRequestListResponse(outstanding = emptyList())
 
