@@ -24,7 +24,7 @@ class PlayerRowTest {
     val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun showsNameAndAvatarLetter() {
+    fun `Shows name and avatar letter`() {
         /**
          * GIVEN: a current user player.
          * For current user, the delete button should NOT be shown,
@@ -54,7 +54,7 @@ class PlayerRowTest {
     }
 
     @Test
-    fun whenNotCurrentUser_deleteButtonIsVisible_andClickCallsOnRemove() {
+    fun `When not current user delete button is visible and click calls on remove`() {
         /**
          * GIVEN: a non-current-user player.
          * For non-current users, PlayerRow renders a delete IconButton with a contentDescription.
@@ -100,7 +100,7 @@ class PlayerRowTest {
     }
 
     @Test
-    fun whenCurrentUser_deleteButtonIsNotVisible() {
+    fun `When current user delete button is not visible`() {
         /**
          * GIVEN: the current user.
          * PlayerRow should NOT show the delete button for the current user.

@@ -16,6 +16,7 @@ import nl.connectplay.scoreplay.viewModels.session.SessionState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.rememberNavBackStack
+import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 
@@ -31,7 +32,7 @@ class SessionSetupScreenTest {
 
 
     @Test
-    fun fabHidden_whenNoGameSelected() {
+    fun `FAB hidden when no game selected`() {
         /**
          * We keep a reference to the Navigation3 back stack used by the composable.
          * This is optional for this test, but useful when you want to assert navigation later.
@@ -84,7 +85,7 @@ class SessionSetupScreenTest {
     }
 
     @Test
-    fun fabVisible_whenGameSelected_clickSavesAndNavigates() {
+    fun `FAB visible when game selected click saves and navigates`() {
         var bs: NavBackStack<NavKey>? = null
 
 
@@ -115,7 +116,7 @@ class SessionSetupScreenTest {
                         maxPlayers = 2,
                         duration = 90,
                         minAge = 3,
-                        releaseDate = 1700,
+                        releaseDate = LocalDate(1300, 1, 1),
                         publisher = "Nobody",
                         pictures = emptyList()
                     )),

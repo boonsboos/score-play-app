@@ -1,5 +1,6 @@
 package nl.connectplay.scoreplay.models.game
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,6 +14,6 @@ data class Game(
     var maxPlayers: Int? = null,
     var duration: Int? = null,
     var minAge: Int? = null,
-    var releaseDate: Int? = null,
+    var releaseDate: LocalDate? = null,
     var pictures: List<String> = listOf()
 )
