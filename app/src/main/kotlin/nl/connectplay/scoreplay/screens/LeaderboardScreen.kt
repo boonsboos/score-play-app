@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -51,16 +53,25 @@ fun LeaderboardScreen(
     val scores by leaderboardViewModel.scores.collectAsState()
     val loading by leaderboardViewModel.loading.collectAsState()
 
-    if (loading) {
-        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-        return
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { ScorePlayTopBar(title = stringResource(R.string.screen_leaderboard_title), backStack = backStack) },
+        topBar = {
+            ScorePlayTopBar(
+                title = stringResource(R.string.screen_leaderboard_title),
+                backStack = backStack
+            )
+        },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
+        if (loading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
         LazyColumn(
             state = listState, modifier = Modifier
                 .padding(innerPadding)

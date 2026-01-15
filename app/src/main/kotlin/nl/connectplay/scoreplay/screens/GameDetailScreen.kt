@@ -1,6 +1,7 @@
 package nl.connectplay.scoreplay.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -76,16 +77,6 @@ fun GameDetailScreen(
     // TODO: refactor this so various screens do not manage the state of the session.
     val sessionViewModel: SessionViewModel = koinViewModel()
 
-    if (loading) {
-        androidx.compose.foundation.layout.Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = {
@@ -99,6 +90,15 @@ fun GameDetailScreen(
         },
         bottomBar = { BottomNavBar(backStack) }
     ) { innerPadding ->
+        if (loading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
