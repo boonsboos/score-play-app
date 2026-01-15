@@ -98,6 +98,8 @@ dependencies {
 
     // permissions
     implementation(libs.accompanist.permissions)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
 }
 
 ksp {
