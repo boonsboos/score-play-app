@@ -20,7 +20,7 @@ fun SessionTabs(
 ) {
     TabRow(
         selectedTabIndex = when (currentScreen) {
-            Screens.SessionSetup -> 0
+            is Screens.SessionSetup -> 0
             Screens.SessionScore -> 1
             else -> 0
         }
@@ -29,7 +29,7 @@ fun SessionTabs(
             selected = currentScreen == Screens.SessionSetup,
             onClick = {
                 if (currentScreen != Screens.SessionSetup) {
-                    backStack.add(Screens.SessionSetup)
+                    backStack.add(Screens.SessionSetup())
                 }
             },
             text = { Text(text = stringResource(R.string.session_tab_setup)) }

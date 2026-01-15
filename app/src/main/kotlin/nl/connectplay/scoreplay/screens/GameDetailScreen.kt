@@ -45,11 +45,13 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import nl.connectplay.scoreplay.R
+import nl.connectplay.scoreplay.room.events.SessionEvent
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ExpandableText
 import nl.connectplay.scoreplay.ui.components.FallbackImage
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.viewModels.GameDetailViewModel
+import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -69,6 +71,10 @@ fun GameDetailScreen(
 
     val failedUnfollowMessage = stringResource(R.string.game_detail_failed_unfollow)
     val failedFollowMessage = stringResource(R.string.game_detail_failed_follow)
+
+    // semantically invalid, but required within the current setup
+    // TODO: refactor this so various screens do not manage the state of the session.
+    val sessionViewModel: SessionViewModel = koinViewModel()
 
     if (loading) {
         androidx.compose.foundation.layout.Box(
@@ -119,7 +125,7 @@ fun GameDetailScreen(
             Row {
                 // Start a new session
                 FilledIconButton(onClick = {
-                    backStack.add(Screens.SessionSetup)
+                    backStack.add(Screens.SessionSetup(startNew = true))
                 }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,

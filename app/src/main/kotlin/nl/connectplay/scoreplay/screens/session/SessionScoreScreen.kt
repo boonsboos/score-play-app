@@ -106,7 +106,7 @@ fun SessionScoreScreen(
             ) {
                 // Back FAB - bottom left
                 FloatingActionButton(
-                    onClick = { backStack.add(Screens.SessionSetup) },
+                    onClick = { backStack.add(Screens.SessionSetup()) },
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 32.dp)

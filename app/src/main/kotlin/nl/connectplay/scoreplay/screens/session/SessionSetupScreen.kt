@@ -36,11 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -52,7 +49,6 @@ import nl.connectplay.scoreplay.stores.TokenDataStore
 import nl.connectplay.scoreplay.ui.components.BottomNavBar
 import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.PlayerRow
-import nl.connectplay.scoreplay.ui.components.ScorePlayTopBar
 import nl.connectplay.scoreplay.ui.components.session.AddPlayerDialog
 import nl.connectplay.scoreplay.ui.components.session.SessionTabs
 import nl.connectplay.scoreplay.viewModels.session.SessionViewModel
@@ -63,6 +59,7 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionSetupScreen(
+    startNew: Boolean,
     backStack: NavBackStack<NavKey>,
 ) {
     // Use the Activity as ViewModelStoreOwner so the same SessionViewModel instance is shared across session screens.
@@ -82,6 +79,12 @@ fun SessionSetupScreen(
             sessionViewModel.onEvent(
                 SessionEvent.Initialize(it)
             )
+        }
+    }
+
+    LaunchedEffect(startNew) {
+        if (startNew) {
+            sessionViewModel.onEvent(SessionEvent.StartNewSession)
         }
     }
 
@@ -147,7 +150,7 @@ fun SessionSetupScreen(
 
             SessionTabs(
                 backStack = backStack,
-                currentScreen = Screens.SessionSetup,
+                currentScreen = Screens.SessionSetup(),
                 canProgress = canContinue
             )
 

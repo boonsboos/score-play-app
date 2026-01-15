@@ -19,7 +19,7 @@ import nl.connectplay.scoreplay.room.entities.RoomSessionScore
     entities = [RoomSession::class, RoomSessionPlayer::class, RoomSessionScore::class],
     version = 3
 )
-abstract class Database: RoomDatabase() {
+abstract class DatabaseFactory: RoomDatabase() {
     abstract val sessionDao: SessionDao
     abstract val sessionPlayerDao: SessionPlayerDao
     abstract val sessionScoreDao: SessionScoreDao
