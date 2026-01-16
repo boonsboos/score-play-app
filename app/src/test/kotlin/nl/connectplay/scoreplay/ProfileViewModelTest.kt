@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDateTime
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.ProfileApi
