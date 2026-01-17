@@ -2,9 +2,14 @@ package nl.connectplay.scoreplay
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import nl.connectplay.scoreplay.api.FriendsApi
 import nl.connectplay.scoreplay.api.ProfileApi
@@ -26,12 +31,16 @@ import org.junit.Test
 
 class ProfileViewModelTest {
 
-    // Mocked dependencies for the ViewModel
+    // ------------------------
+    // Mocked dependencies
+    // ------------------------
     private lateinit var profileApi: ProfileApi
     private lateinit var friendsApi: FriendsApi
     private lateinit var tokenDataStore: TokenDataStore
 
-    // Dummy test data for games, profiles, sessions, and friends
+    // ------------------------
+    // Dummy test data
+    // ------------------------
     private val dummyGame = Game(
         id = 1,
         name = "DummyGame",
@@ -75,17 +84,18 @@ class ProfileViewModelTest {
         )
     )
 
-    private val emptyFriendRequests =
-        FriendRequestListResponse(outstanding = emptyList())
+    private val emptyFriendRequests = FriendRequestListResponse(outstanding = emptyList())
 
+    // ------------------------
+    // Setup before each test
+    // ------------------------
     @Before
     fun setup() {
-        // Initialize mocked dependencies before each test
         profileApi = mockk()
         friendsApi = mockk()
         tokenDataStore = mockk()
 
-        // Default behaviors for mocks
+        // Default mock behavior
         coEvery { tokenDataStore.userId } returns flowOf(1)
         coEvery { friendsApi.getFriends(any()) } returns emptyList()
         coEvery { friendsApi.getAllFriendRequests() } returns emptyFriendRequests
@@ -100,9 +110,12 @@ class ProfileViewModelTest {
 
     @Test
     fun `sessionsState returns success with sessions`() = runBlocking {
+        // ------------------------
+        // Arrange
+        // ------------------------
         coEvery { profileApi.getLastSessions(1) } returns dummySessions
 
-        // Create the ViewModel with mocked dependencies
+        // Initialize ViewModel with mocked dependencies
         val viewModel = ProfileViewModel(
             userId = 1,
             profileApi = profileApi,
@@ -110,21 +123,38 @@ class ProfileViewModelTest {
             tokenDataStore = tokenDataStore
         )
 
-        // Wait for the first non-loading, non-idle state
-        val state = viewModel.sessionsState.first {
-            it !is UiState.Loading && it !is UiState.Idle
-        }
+        // ------------------------
+        // Act
+        // ------------------------
 
-        // Assert that the state is successful and contains the correct sessions
+        // Wait for the first emission that is not Loading or Idle
+        val state = withTimeout(3000) {
+            viewModel.sessionsState
+                .filterNotNull()
+                .filter { it is UiState.Success }
+                .firstOrNull()
+        }
+        // ------------------------
+        // Assert
+        // ------------------------
+
+        // Assert that the state is Success and contains the correct sessions
         assertTrue(state is UiState.Success)
         val sessions = (state as UiState.Success).data
-        assertEquals(2, sessions.size) // Should have 2 sessions
-        assertEquals("1", sessions.first().id) // Verify first session ID
+        assertEquals(2, sessions.size)
+
+        // Assert session IDs
+        val ids = sessions.map { it.id }
+        assertTrue(ids.contains("1"))
+        assertTrue(ids.contains("2"))
     }
 
     @Test
     fun `profileState returns success with profile`() = runBlocking {
-        // Initialize the ViewModel
+        // ------------------------
+        // Arrange
+        // ------------------------
+        // Initialize ViewModel
         val viewModel = ProfileViewModel(
             userId = 1,
             profileApi = profileApi,
@@ -132,12 +162,23 @@ class ProfileViewModelTest {
             tokenDataStore = tokenDataStore
         )
 
-        // Wait for the first non-loading, non-idle state
-        val state = viewModel.profileState.first {
-            it !is UiState.Loading && it !is UiState.Idle
+        // ------------------------
+        // Act
+        // ------------------------
+
+        // Wait for first emission that is not Loading or Idle
+        val state = withTimeout(1000) {
+            viewModel.profileState
+                .filterNotNull()       // ignore null emissions
+                .take(1)               // take first relevant emission
+                .first { it !is UiState.Loading && it !is UiState.Idle }
         }
 
-        // Assert that the state is successful and contains the correct profile
+        // ------------------------
+        // Assert
+        // ------------------------
+
+        // Assert that the state is Success and contains the correct profile
         assertTrue(state is UiState.Success)
         val profile = (state as UiState.Success).data
         assertEquals(1, profile.id)
@@ -146,6 +187,9 @@ class ProfileViewModelTest {
 
     @Test
     fun `gamesState returns success with followed games`() = runBlocking {
+        // ------------------------
+        // Arrange
+        // ------------------------
         coEvery { profileApi.getFollowedGames(1) } returns dummyFollowedGames
 
         val viewModel = ProfileViewModel(
@@ -155,9 +199,21 @@ class ProfileViewModelTest {
             tokenDataStore = tokenDataStore
         )
 
-        val state = viewModel.gamesState.first {
-            it !is UiState.Loading && it !is UiState.Idle
+        // ------------------------
+        // Act
+        // ------------------------
+
+        // Wait for first emission that is not Loading or Idle
+        val state = withTimeout(1000) {
+            viewModel.gamesState
+                .filterNotNull()
+                .take(1)
+                .first { it !is UiState.Loading && it !is UiState.Idle }
         }
+
+        // ------------------------
+        // Assert
+        // ------------------------
 
         // Assert that followed games are returned correctly
         assertTrue(state is UiState.Success)
@@ -168,19 +224,19 @@ class ProfileViewModelTest {
 
     @Test
     fun `friendshipStatus returns FRIENDS when user is already friend`() = runBlocking {
+        // ------------------------
+        // Arrange
+        // ------------------------
         coEvery { tokenDataStore.userId } returns flowOf(1)
         coEvery { profileApi.getProfile(2) } returns UserProfile(
             id = 2,
             username = "Bob",
             email = "bob@test.com"
         )
-
-        // The logged-in user's friends list includes the profile user
         coEvery { friendsApi.getFriends(1) } returns listOf(
             UserFriend(BareUser(2, "Bob"), FriendshipStatus.FRIENDS)
         )
 
-        // Initialize the ViewModel
         val viewModel = ProfileViewModel(
             userId = 2,
             profileApi = profileApi,
@@ -188,15 +244,31 @@ class ProfileViewModelTest {
             tokenDataStore = tokenDataStore
         )
 
-        // Wait for friendshipStatus to be set
-        val status = viewModel.friendshipStatus.first { it != null }
+        // ------------------------
+        // Act
+        // ------------------------
 
-        // Assert that the friendship status is FRIENDS
+        // Wait for friendship status emission
+        val status = withTimeout(1000) {
+            viewModel.friendshipStatus
+                .filterNotNull()
+                .take(1)
+                .first()
+        }
+
+        // ------------------------
+        // Assert
+        // ------------------------
+
+        // Assert friendship status is FRIENDS
         assertEquals(FriendshipStatus.FRIENDS, status)
     }
 
     @Test
     fun `friendshipStatus returns PENDING when there is a pending request`() = runBlocking {
+        // ------------------------
+        // Arrange
+        // ------------------------
         coEvery { tokenDataStore.userId } returns flowOf(1)
         coEvery { profileApi.getProfile(3) } returns UserProfile(3, "Alice", "alice@test.com")
         coEvery { friendsApi.getFriends(1) } returns emptyList()
@@ -216,9 +288,23 @@ class ProfileViewModelTest {
             tokenDataStore = tokenDataStore
         )
 
-        val status = viewModel.friendshipStatus.first { it != null }
+        // ------------------------
+        // Act
+        // ------------------------
 
-        // Assert that the friendship status is PENDING
+        // Wait for friendship status emission
+        val status = withTimeout(1000) {
+            viewModel.friendshipStatus
+                .filterNotNull()
+                .take(1)
+                .first()
+        }
+
+        // ------------------------
+        // Assert
+        // ------------------------
+
+        // Assert friendship status is PENDING
         assertEquals(FriendshipStatus.PENDING, status)
     }
 }

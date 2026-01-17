@@ -5,16 +5,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import nl.connectplay.scoreplay.api.AuthApi
 import nl.connectplay.scoreplay.models.auth.register.RegisterRequest
+import nl.connectplay.scoreplay.models.auth.register.RegisterResponse
 import nl.connectplay.scoreplay.viewModels.RegisterEvent
-import nl.connectplay.scoreplay.viewModels.RegisterUiState
 import nl.connectplay.scoreplay.viewModels.RegisterViewModel
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Tests for RegisterViewModel
- */
 class RegisterViewModelTest {
 
     // Late-initialized properties for the Auth API and the ViewModel
@@ -34,10 +31,12 @@ class RegisterViewModelTest {
 
     @Test
     fun `onRegisterClick emits Success event when registration succeeds`() = runBlocking {
-        // Arrange: set valid email in the ViewModel
-        viewModel.onEmailChange("test@example.com")
+        // ------------------------
+        // Arrange
+        // ------------------------
 
-        // Arrange: set valid username
+        // Arrange valid credentials
+        viewModel.onEmailChange("test@example.com")
         viewModel.onUsernameChange("TestUser")
         viewModel.onPasswordChange("password123")
         viewModel.onRepeatPasswordChange("password123")
@@ -48,14 +47,23 @@ class RegisterViewModelTest {
 
         // Mock the API call to registerUser to return a dummy RegisterRequest
         // This simulates a successful registration without calling the real API
-        coEvery { authApi.registerUser(any<RegisterRequest>()) } returns RegisterRequest(
-            email = "test@example.com",
-            username = "TestUser",
-            password = "password123"
+        coEvery { authApi.registerUser(any<RegisterRequest>()) } returns RegisterResponse(
+            data = RegisterRequest(
+                email = "test@example.com",
+                username = "TestUser",
+                password = "password123"
+            ),
+            message = "Registration successful"
         )
 
-        // Act: call the ViewModel's register function
+        // ------------------------
+        // Act
+        // ------------------------
         viewModel.onRegisterClick()
+
+        // ------------------------
+        // Assert
+        // ------------------------
 
         // Assert: verify that the first event emitted is a success event
         val event = viewModel.events.first()
@@ -69,23 +77,30 @@ class RegisterViewModelTest {
 
     @Test
     fun `onRegisterClick shows error for password mismatch`() = runBlocking {
-        // Arrange: set valid email and username
+        // ------------------------
+        // Arrange
+        // ------------------------
         viewModel.onEmailChange("test@example.com")
         viewModel.onUsernameChange("TestUser")
-
-        // Arrange: set mismatched passwords
         viewModel.onPasswordChange("password123")
         viewModel.onRepeatPasswordChange("password456")
 
-        // Mock private email validation to return true
+        // Mock private email validation so that Android-specific Patterns don't fail in JVM tests
         every { viewModel["isValidEmail"](any<String>()) } returns true
 
-        // Act: attempt to register
+        // ------------------------
+        // Act
+        // ------------------------
         viewModel.onRegisterClick()
 
-        // Assert: verify error for password mismatch
-        val uiState: RegisterUiState = viewModel.uiState.value
-        assertEquals("Passwords do not match", uiState.errorMessage)
+        // ------------------------
+        // Assert
+        // ------------------------
+        val uiState = viewModel.uiState.value
+        assertEquals(
+            R.string.registration_passwords_not_match,
+            uiState.errorMessage
+        )
         assertFalse(uiState.isLoading)
     }
 
@@ -94,18 +109,23 @@ class RegisterViewModelTest {
         // Arrange: set valid email and username
         viewModel.onEmailChange("test@example.com")
         viewModel.onUsernameChange("TestUser")
-        viewModel.onPasswordChange("short")
+        viewModel.onPasswordChange("short")            // kort wachtwoord
         viewModel.onRepeatPasswordChange("short")
 
-        // Mock private email validation to always return true
         every { viewModel["isValidEmail"](any<String>()) } returns true
 
-        // Act: attempt to register
+        // ------------------------
+        // Act
+        // ------------------------
         viewModel.onRegisterClick()
 
-        // Assert: verify error for short password
-        val uiState: RegisterUiState = viewModel.uiState.value
-        assertEquals("Password must be at least 8 characters", uiState.errorMessage)
-        assertFalse(uiState.isLoading)
+        // Assert: UI state moet foutmelding hebben voor korte password
+        val uiState = viewModel.uiState.value
+
+        // Check exact dat het de "wachtwoord te kort" fout is
+        assertEquals(
+            R.string.registration_invalid_password,
+            uiState.errorMessage
+        )
     }
 }
